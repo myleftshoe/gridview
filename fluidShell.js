@@ -12,14 +12,17 @@ var FluidShell = class FuildShell {
 
         const monitor = Main.layoutManager.primaryMonitor;
 
-        Log.properties(monitor);
+        Log.properties(Main);
         this.rightPanel = new RightPanel(monitor);
-
-        Main.uiGroup.add_actor(this.rightPanel);
+        Main.layoutManager.addChrome(this.rightPanel, {
+            affectsStruts: true,
+            trackFullscreen: true
+        });
+        // Main.uiGroup.add_actor(this.rightPanel);
 
     }
 
     destroy() {
-        Main.uiGroup.remove_actor(this.rightPanel);
+        Main.layoutManager.removeChrome(this.rightPanel);
     }
 }

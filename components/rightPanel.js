@@ -12,10 +12,11 @@ var RightPanel = GObject.registerClass(
                 width:100,
                 height: monitor.height,
                 x: monitor.width - 1,
-                style_class: 'right-bar',
+                style_class: 'right-panel',
                 reactive:true
             });
 
+            Log.properties(this);
             this.isOpen = false;
             this.connect('enter-event', (actor, event) => {
                 log('enter', actor, event.get_coords())
