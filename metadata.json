@@ -1,0 +1,8 @@
+{
+    "name": "Fluid Shell",
+    "description": "Fluid window management",
+    "uuid": "fluidshell@myleftshoe",
+    "shell-version": [
+        "3.32"
+    ]
+}
