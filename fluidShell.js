@@ -1,12 +1,10 @@
-const { Clutter } = imports.gi;
+const { Clutter, Meta } = imports.gi;
 const Main = imports.ui.main;
 const { Tweener } = imports.ui.tweener;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
-const { Grid } = Extension.imports.grid;
 const { Page } = Extension.imports.page;
-const { Photo } = Extension.imports.photo;
-const { WindowClone } = Extension.imports.windowClone;
+const { Clone } = Extension.imports.clone;
 const { Log } = Extension.imports.utils.logger;
 
 const WorkspaceManager = global.workspace_manager;
@@ -16,37 +14,32 @@ var FluidShell = class FuildShell {
 
     constructor() {
 
-        const page = new Page();
-        page.set_layout_manager(new Grid());
-
+        this.page = new Page();
+        const windows  = new Map();
         const activeWorkspace = WorkspaceManager.get_active_workspace();
         // activeWorkspace.connect('window-added', (workspace, metaWindow) => {
         Display.connect('window-created', (display, metaWindow) => {
+            if (metaWindow.window_type !== Meta.WindowType.NORMAL)
+                return;
             // const windows = activeWorkspace.list_windows();
             // const windows = global.get_window_actors();
-            // let mw = windows[1];
-            // let mw = metaWindow;
-
-            const cloneActor = new WindowClone(metaWindow);
-
-            const photo = new Photo({
-                style_class:'testb', 
-                y_fill:false
-            });
-
-            photo.set_child(cloneActor);
-            page.add_child(photo);
+            const clone = new Clone(metaWindow);
+            this.page.add_child(clone);
+            windows.set(metaWindow, {page: this.page, clone})
         });
 
-        global.stage.add_child(page);
+        global.stage.add_child(this.page);
 
-        // activeWorkspace.connect('window-removed', (display, metaWindow) => {
-        //     log('fffffffffffffffffffffffffffffffffffffff');
-        // });
+        activeWorkspace.connect('window-removed', (workspace, metaWindow) => {
+            const {page, clone} = windows.get(metaWindow);
+            page.remove_child(clone);
+            windows.delete(metaWindow);
+        });
 
     }
 
     destroy() {
+        global.stage.remove_child(this.page);
         // Main.layoutManager.removeChrome(this.rightPanel);
     }
 }
