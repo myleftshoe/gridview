@@ -1,3 +1,13 @@
 .right-panel {
     background-color: red;
 }
+
+.testa {
+    background-color: red;
+}
+
+.testb {
+    background-color: yellow;
+    border:2px solid cyan;
+    /* margin:20px; */
+}

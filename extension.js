@@ -2,26 +2,25 @@ const { GLib } = imports.gi;
 const Main = imports.ui.main;
 const Signals = imports.signals;
 
-const Me = imports.misc.extensionUtils.getCurrentExtension();
-const { FluidShell } = Me.imports.fluidShell;
-const { Log } = Me.imports.utils.logger;
+const Extension = imports.misc.extensionUtils.getCurrentExtension();
+const { FluidShell } = Extension.imports.fluidShell;
+const { Log } = Extension.imports.utils.logger;
 
 function init() {
-    // Log.properties(Me.metadata)
     log(`***************************************************************`);
-    log(`${Me.metadata.uuid} init()`);
-    Signals.addSignalMethods(Me);
+    log(`${Extension.metadata.uuid} init()`);
+    Signals.addSignalMethods(Extension);
 }
 
 function enable() {
-    log(`${Me.metadata.uuid} enable()`);
+    log(`${Extension.metadata.uuid} enable()`);
     global.fluidShell = new FluidShell();
-    Me.loaded = true;
+    Extension.loaded = true;
 }
 
 function disable() {
-    log(`${Me.metadata.uuid} disable()`);
+    log(`${Extension.metadata.uuid} disable()`);
     global.fluidShell.destroy();
     delete global.fluidShell;
-    Me.loaded = false;
+    Extension.loaded = false;
 }
