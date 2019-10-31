@@ -1,6 +1,5 @@
 const { Clutter, Meta } = imports.gi;
 const Main = imports.ui.main;
-const { Tweener } = imports.ui.tweener;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const { Page } = Extension.imports.page;
