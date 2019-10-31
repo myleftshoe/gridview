@@ -1,13 +1,15 @@
-const { GObject, Clutter, Meta } = imports.gi;
+const { GObject, Clutter, Meta, St } = imports.gi;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const { Grid } = Extension.imports.grid;
 const { Clone } = Extension.imports.clone;
 
+const style_class = 'fluidshell-page'; 
+
 var Page = GObject.registerClass({},
-    class Page extends Clutter.Actor {
+    class Page extends Clutter.ScrollActor {
         _init() {
-            super._init();
+            super._init({scroll_mode:1, reactive:true});
             this.set_layout_manager(new Grid());
             this.windows = new Map();
         }
@@ -22,6 +24,8 @@ var Page = GObject.registerClass({},
         }
 
         removeWindow(metaWindow) {
+            if (metaWindow.window_type !== Meta.WindowType.NORMAL)
+                return;            
             this.remove_child(this.windows.get(metaWindow));
             this.windows.delete(metaWindow);
         }

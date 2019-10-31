@@ -26,9 +26,16 @@ var FluidShell = class FuildShell {
             });
             // global.stage.add_child(this.page);
         })
-
         this.page = new Page();
         global.stage.add_child(this.page);
+
+        this.page.connect('button-press-event', () => {
+            log('ffffffffffffffffffffffffffff')
+            // this.page.set_interval(2)
+            this.page.set_easing_mode(Clutter.AnimationMode.EASE_OUT_EXPO);
+            this.page.set_easing_duration(500);
+            this.page.scroll_to_point(new Clutter.Point({x: 500,y: 0}))
+        })
 
         // activeWorkspace.connect('window-added', (workspace, metaWindow) => {
         Display.connect('window-created', (display, metaWindow) => {
