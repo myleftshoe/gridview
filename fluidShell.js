@@ -14,6 +14,19 @@ var FluidShell = class FuildShell {
 
         const activeWorkspace = WorkspaceManager.get_active_workspace();
 
+        WorkspaceManager.connect('active-workspace-changed', (workspace) => {
+            log('yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy')
+            const activeWorkspace = WorkspaceManager.get_active_workspace();
+            const windows = activeWorkspace.list_windows();
+            // global.stage.remove_child(this.page);
+            // this.page = new Page();
+            this.page.remove_all_children();
+            windows.forEach(metaWindow => {
+                this.page.addWindow(metaWindow);
+            });
+            // global.stage.add_child(this.page);
+        })
+
         this.page = new Page();
         global.stage.add_child(this.page);
 
