@@ -27,12 +27,12 @@ var Clone = class Clone extends Clutter.Actor {
         Main.layoutManager.trackChrome(this);
 
         const clickAction = new Clutter.ClickAction(); 
-        clickAction.connect('clicked', (button) => {
-            log('clone.js', 'Clone', 'clicked');
+        clickAction.connect('clicked', () => {
+            Main.activateWindow(metaWindow)
         }); 
         this.add_action(clickAction);
 
-        Log.properties(this);
+        Log.properties(metaWindow);
         this.add_actor(clone);
     }
     destroy() {
