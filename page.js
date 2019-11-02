@@ -2,7 +2,7 @@ const { GObject, Clutter, Meta, St } = imports.gi;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
 // const { Grid } = Extension.imports.grid;
-const { Clone } = Extension.imports.clone;
+const { CloneContainer } = Extension.imports.cloneContainer;
 
 const style_class = 'fluidshell-page';
 
@@ -20,9 +20,13 @@ var Page = GObject.registerClass({},
         addWindow(metaWindow) {
             if (metaWindow.window_type !== Meta.WindowType.NORMAL)
                 return;
-            const clone = new Clone(metaWindow);
-            this.container.add_child(clone);
-            this.windows.set(metaWindow, clone)
+            const cloneContainer = new CloneContainer(metaWindow);
+            // cloneContainer.connect('button-press-event', () => {
+            //     log('yyyyyyyyyyyyyyyyyyyyyyyyyyyy');
+            // })
+
+            this.container.add_child(cloneContainer);
+            this.windows.set(metaWindow, cloneContainer)
 
         }
 
