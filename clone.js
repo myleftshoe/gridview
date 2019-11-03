@@ -30,6 +30,18 @@ var Clone = class Clone extends Clutter.Actor {
         clickAction.connect('clicked', () => {
             Main.activateWindow(metaWindow)
         }); 
+        this.connect('scroll-event', (source, event) => {
+            const direction = event.get_scroll_direction();
+            log(direction)
+            if (direction > 1) return;
+            let amount = 40;
+            const height = clone.get_height();
+            const width = clone.get_width();
+            if (direction === Clutter.ScrollDirection.UP) 
+                amount = -amount;            
+            clone.set_size(width + amount, height + amount);
+
+        }); 
         this.add_action(clickAction);
 
         Log.properties(metaWindow);
