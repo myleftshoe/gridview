@@ -14,13 +14,15 @@ function init() {
 
 function enable() {
     log(`${Extension.metadata.uuid} enable()`);
-    global.fluidShell = new FluidShell();
-    Extension.loaded = true;
+    Main.layoutManager.connect('startup-complete', () => {
+        global.fluidShell = new FluidShell();
+        Extension.loaded = true;
+    });
 }
 
 function disable() {
     log(`${Extension.metadata.uuid} disable()`);
-    global.fluidShell.destroy();
+    global.fluidShell && global.fluidShell.destroy();
     delete global.fluidShell;
     Extension.loaded = false;
 }

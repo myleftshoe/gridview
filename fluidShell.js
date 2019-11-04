@@ -2,57 +2,38 @@ const { Clutter, Meta } = imports.gi;
 const Main = imports.ui.main;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
+const { UI } = Extension.imports.ui;
 const { Page } = Extension.imports.page;
 const { Log } = Extension.imports.utils.logger;
 
-const WorkspaceManager = global.workspace_manager;
 const Display = global.display;
+const Stage = global.stage;
 
 var FluidShell = class FuildShell {
 
     constructor() {
+        this.page = null;
+        this.signals = [];
+        this.refresh();
+    }
 
-        const activeWorkspace = WorkspaceManager.get_active_workspace();
-
-        WorkspaceManager.connect('active-workspace-changed', (workspace) => {
-            const activeWorkspace = WorkspaceManager.get_active_workspace();
-            const windows = activeWorkspace.list_windows();
-            this.page.remove_all_children();
-            global.stage.remove_child(this.page);
-            const page = new Page();
-            // this.page = new Page();
-            windows.forEach(metaWindow => {
-                // Log.properties(metaWindow);
-                if (metaWindow.is_fullscreen()) {
-                    page.addWindow(metaWindow);
-                }
-
-            });
-            global.stage.add_child(page);
-        })
+    refresh() {
+        if (this.page) this.destroy();
         this.page = new Page();
-        global.stage.add_child(this.page);
-
-        this.page.connect('button-press-event', () => {
-            log('ffffffffffffffffffffffffffff')
-            // this.page.set_interval(2)
-            this.page.set_easing_mode(Clutter.AnimationMode.EASE_OUT_EXPO);
-            this.page.set_easing_duration(500);
-            this.page.scroll_to_point(new Clutter.Point({x: 500,y: 0}))
-        })
-
-        // activeWorkspace.connect('window-added', (workspace, metaWindow) => {
-        Display.connect('window-created', (display, metaWindow) => {
-            this.page.addWindow(metaWindow);
+        this.signals.push(Display.connect('in-fullscreen-changed', () => this.refresh()));
+        this.signals.push(Display.connect('notify::focus-window', () => this.refresh()));
+        UI.windows.forEach(metaWindow => {
+            if (metaWindow.is_fullscreen() && !metaWindow.has_focus())
+                this.page.addWindow(metaWindow);
         });
-    
-        activeWorkspace.connect('window-removed', (workspace, metaWindow) => {
-            this.page.removeWindow(metaWindow);
-        });
-
+        Stage.add_child(this.page);
     }
 
     destroy() {
-        global.stage.remove_child(this.page);
+        this.signals.forEach(signal => Display.disconnect(signal));
+        Stage.remove_child(this.page);
     }
 }
+
+
+

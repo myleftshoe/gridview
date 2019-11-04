@@ -28,6 +28,8 @@ var Clone = class Clone extends Clutter.Actor {
 
         const clickAction = new Clutter.ClickAction(); 
         clickAction.connect('clicked', () => {
+            log('tttttttttttttttttttttt',global.get_window_actors().length);
+
             Main.activateWindow(metaWindow)
         }); 
         this.connect('scroll-event', (source, event) => {
