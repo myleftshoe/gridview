@@ -4,11 +4,9 @@
 
 .fluidshell-page {
     /* background-color: rgba(100, 0, 0, 0.9); */
-    padding:20px
+    /* padding:20px */
 }
 
 .testb {
-    /* background-color: yellow; */
     border:2px solid cyan;
-    /* margin:20px; */
 }

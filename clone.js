@@ -4,7 +4,7 @@ const { Clutter } = imports.gi;
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const { Log } = Extension.imports.utils.logger;
 
-const defaultHeight = 300;
+const initialScale = [.25, .25];
 
 var Clone = class Clone extends Clutter.Actor {
 
@@ -15,12 +15,12 @@ var Clone = class Clone extends Clutter.Actor {
         const source = metaWindow.get_compositor_private();
         const clone = new Clutter.Clone({source});
 
-        const height = defaultHeight;
-        const scaleFactor = clone.get_height() / height;
-        const width = clone.get_width() / scaleFactor;
-        clone.set_size(width, height);
         // Show entire window even if part of it is offscreen.
         clone.remove_clip();
+        this.add_actor(clone);
+        clone.set_scale(...initialScale)
+        const [width, height] = clone.get_size();
+        this.set_size(width * initialScale[0], height * initialScale[1]);
 
         // Make this respond to events reliably. trackChrome stops underlying
         // windows stealing pointer events.
@@ -28,26 +28,21 @@ var Clone = class Clone extends Clutter.Actor {
 
         const clickAction = new Clutter.ClickAction(); 
         clickAction.connect('clicked', () => {
-            log('tttttttttttttttttttttt',global.get_window_actors().length);
-
             Main.activateWindow(metaWindow)
         }); 
         this.connect('scroll-event', (source, event) => {
             const direction = event.get_scroll_direction();
-            log(direction)
             if (direction > 1) return;
-            let amount = 40;
-            const height = clone.get_height();
-            const width = clone.get_width();
+            let amount = 0.025;
+            const [scaleX, scaleY] = clone.get_scale();
             if (direction === Clutter.ScrollDirection.UP) 
                 amount = -amount;            
-            clone.set_size(width + amount, height + amount);
+            clone.set_scale(scaleX + amount, scaleY + amount);
+            this.set_size(...clone.get_transformed_size());
 
         }); 
         this.add_action(clickAction);
 
-        Log.properties(metaWindow);
-        this.add_actor(clone);
     }
     destroy() {
         // TODO: disconnect events
