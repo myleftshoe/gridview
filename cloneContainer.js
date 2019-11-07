@@ -27,7 +27,7 @@ var CloneContainer= class CloneContainer extends St.Bin {
         //     Main.activateWindow(this.metaWindow)
         // }); 
         // this.add_action(clickAction);
-        Log.properties(this);
+        // Log.properties(this);
         if (metaWindow.has_focus())
             this.add_style_pseudo_class('focused');
         this.set_child(new Clone(metaWindow));

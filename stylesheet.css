@@ -2,10 +2,16 @@
     background-color: red;
 }
 
-.fluidshell-page {
-    background-color: rgba(0, 0, 0, 0.5);
+.fluidshell {
+    /* background-color: rgba(100, 0, 0, 0.5); */
     margin:120px 80px;
-    padding:80px;
+    padding:20px;
+}
+
+.fluidshell-page {
+    /* background-color: rgba(0, 0, 0, 0.5); */
+    /* margin:120px 80px; */
+    padding:10px 20px;
 }
 
 .clone-container {
