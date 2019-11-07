@@ -22,10 +22,10 @@ var FluidShell = class FuildShell {
         this.page = new Page();
         this.signals.push(Display.connect('in-fullscreen-changed', () => this.refresh()));
         this.signals.push(Display.connect('notify::focus-window', () => this.refresh()));
-        UI.windows.forEach(metaWindow => {
-            if (metaWindow.is_fullscreen() && !metaWindow.has_focus())
-                this.page.addWindow(metaWindow);
-        });
+        UI.workspaces.forEach((workspace, i) => workspace.list_windows().forEach((metaWindow,j) => {
+            // if (metaWindow.is_fullscreen() && !metaWindow.has_focus())
+                this.page.addWindow(metaWindow, j + 1, i + 1);
+        }));
         Stage.add_child(this.page);
     }
 

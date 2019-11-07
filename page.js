@@ -1,3 +1,5 @@
+const Main = imports.ui.main;
+
 const { GObject, Clutter, Meta, St } = imports.gi;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
@@ -12,20 +14,41 @@ var Page = GObject.registerClass({},
             super._init({ scroll_mode: 1, reactive: true });
             this.windows = new Map();
             this.container = new St.Widget({ style_class });
-            this.layout = new Clutter.GridLayout({ column_spacing: 20 });
+            this.layout = new Clutter.GridLayout({
+                row_spacing: 20,
+                column_spacing: 20,
+                column_homogeneous: false,
+            });
             this.container.set_layout_manager(this.layout);
             this.add_actor(this.container);
+            this.connect('scroll-event', (source, event) => {
+                const direction = event.get_scroll_direction();
+                if (direction > 1) return;
+                let amount = 0.1;
+                const [scaleX, scaleY] = this.get_scale();
+                if (direction === Clutter.ScrollDirection.DOWN)
+                    amount = -amount;
+                source.set_scale(scaleX + amount, scaleY + amount);
+                // this.set_size(...this.get_size());
+
+            });
+            // Make this respond to events reliably. trackChrome stops underlying
+            // windows stealing pointer events.
+            Main.layoutManager.trackChrome(this);
+
+
+            // this.set_scale(0.5, 0.5);
         }
 
-        addWindow(metaWindow) {
+        addWindow(metaWindow, left, top) {
             if (metaWindow.window_type !== Meta.WindowType.NORMAL)
                 return;
             const cloneContainer = new CloneContainer(metaWindow);
             // cloneContainer.connect('button-press-event', () => {
             //     log('yyyyyyyyyyyyyyyyyyyyyyyyyyyy');
             // })
-
-            this.container.add_child(cloneContainer);
+            this.layout.attach(cloneContainer, left, top, 1, 1)
+            // this.container.add_child(cloneContainer);
             this.windows.set(metaWindow, cloneContainer)
 
         }
