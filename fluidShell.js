@@ -21,8 +21,23 @@ var FluidShell = GObject.registerClass({},
             // Make this respond to events reliably. trackChrome stops underlying
             // windows stealing pointer events.
             Main.layoutManager.trackChrome(this);
-            this.draggable = DnD.makeDraggable(this);
-            Log.properties(this);
+            // drag this only if drag not started on child
+            this.draggable = DnD.makeDraggable(this, { manualMode: true });
+            Stage.connect('button-press-event', (source, event) => {
+                const coords = event.get_coords();
+                const sequence = event.get_event_sequence();
+                const actor = Stage.get_actor_at_pos(1, ...coords);
+                if (actor instanceof FluidShell) {
+                    this.draggable.startDrag(
+                        ...coords,
+                        global.get_current_time(),
+                        sequence
+                    );
+                }
+
+            });
+            // this.draggable.set_draggable(false)
+            Log.properties(this.draggable);
             this.signals = [];
             this.signals.push(Display.connect('in-fullscreen-changed', () => this.refresh()));
             this.signals.push(Display.connect('notify::focus-window', () => this.refresh()));
