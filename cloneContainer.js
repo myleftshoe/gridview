@@ -7,7 +7,6 @@ const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const { Clone } = Extension.imports.clone;
 const { Log } = Extension.imports.utils.logger;
 
-
 const style_class = 'clone-container';
 
 var CloneContainer= class CloneContainer extends St.Bin {

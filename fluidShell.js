@@ -4,7 +4,8 @@ const DnD = imports.ui.dnd;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const { UI } = Extension.imports.ui;
-const { Page } = Extension.imports.page;
+const { Row } = Extension.imports.row;
+const { Cell } = Extension.imports.cell;
 const { Log } = Extension.imports.utils.logger;
 
 const Display = global.display;
@@ -26,7 +27,7 @@ var FluidShell = GObject.registerClass({},
             Stage.connect('button-press-event', (source, event) => {
                 const coords = event.get_coords();
                 const sequence = event.get_event_sequence();
-                const actor = Stage.get_actor_at_pos(1, ...coords);
+                const actor = Stage.get_actor_at_pos(Clutter.PickMode.ALL, ...coords);
                 if (actor instanceof FluidShell) {
                     this.draggable.startDrag(
                         ...coords,
@@ -34,10 +35,64 @@ var FluidShell = GObject.registerClass({},
                         sequence
                     );
                 }
-
             });
-            // this.draggable.set_draggable(false)
-            Log.properties(this.draggable);
+            this.draggable.connect('drag-begin', () => {
+                log('---------------------------------------')
+                log('---------------------------------------')
+                log('---------------------------------------')
+                log('---------------------------------------')
+            });
+            this.dropPlaceholder = new St.Widget();
+            DnD.addDragMonitor({
+                dragDrop: (event) => {
+                    const row = this.dropPlaceholder.get_parent(); 
+                    const i = row.get_children().indexOf(this.dropPlaceholder);
+                    log('<<<<<<<<<<<',i, event.dropActor.constructor.name);
+                    this.dropPlaceholder.unparent();
+                    // row.remove_child(event.dropActor)
+                    event.dropActor.unparent();
+                    row.insert_child_at_index(event.dropActor, i);
+                    try {
+                        log('ttttttttttt',event.clutterEvent.get_source())
+                    } catch {}
+                    return 2;
+                },
+                dragMotion: event => {
+                    // log('drag-monitor');
+                    // log(JSON.stringify(event, [
+                    //     'source',
+                    //     'x',
+                    //     'y',
+                    //     'targetActor', 
+                    //     'dragActor']
+                    // ));
+                    const { x,y } = event;
+                    const actor = Stage.get_actor_at_pos(Clutter.PickMode.ALL, x, y);
+                    const cell = actor.get_parent().get_parent(); 
+                    const targetCell = event.targetActor.get_parent().get_parent();
+                    if (cell instanceof Cell && targetCell instanceof Cell ) {
+                        log(targetCell.get_position())
+                        const dragActor = event.dragActor;
+                        // dragActor.set_easing_duration(0);
+                        const row = cell.get_parent();
+                        const c = row.get_children().indexOf(cell);
+                        const d = row.get_children().indexOf(event.dragActor)
+                        // if (c === d) return;
+                        log('ggggggggggggggggggg',c,d);
+                        // event.dragActor.unparent();
+                        this.dropPlaceholder.unparent();
+                        const [width, height] = dragActor.get_size();
+                        // row.insert_child_at_index(dragActor,c);
+                        this.dropPlaceholder.width = width;
+                        this.dropPlaceholder.height = height;
+                        row.insert_child_at_index(this.dropPlaceholder, c);
+                        log(event.dragActor.constructor.name);
+                        if (actor instanceof FluidShell) {
+                        }                        
+                    }
+                    return 2;
+            }});
+            // Log.properties(this.draggable);
             this.signals = [];
             this.signals.push(Display.connect('in-fullscreen-changed', () => this.refresh()));
             this.signals.push(Display.connect('notify::focus-window', () => this.refresh()));
@@ -62,16 +117,18 @@ var FluidShell = GObject.registerClass({},
 
             this.refresh();
         }
-
         refresh() {
             log('refreshing...............................................')
             this.destroy_all_children();
-            UI.workspaces.forEach((workspace, i) => {
+            UI.workspaces.forEach((workspace, r) => {
                 const windows = workspace.list_windows();
                 if (!windows.length) return;
-                const page = new Page();
-                windows.forEach((metaWindow, j) => page.addWindow(metaWindow, j + 1, 1));
-                this.add_child(page);
+                const row = new Row({id:r});
+                windows.forEach((metaWindow,c) => {
+                    const cell = new Cell(metaWindow);
+                    row.add_child(cell);
+                });
+                this.add_child(row);
             });
         }
 

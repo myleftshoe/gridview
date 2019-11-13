@@ -1,7 +1,7 @@
 {
-    "name": "Fluid Shell",
-    "description": "Fluid window management",
-    "uuid": "fluidshell@myleftshoe",
+    "name": "Row Overview",
+    "description": "Overview in rows",
+    "uuid": "roverview@myleftshoe",
     "shell-version": [
         "3.32"
     ]

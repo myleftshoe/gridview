@@ -8,17 +8,18 @@
     padding:20px;
 }
 
-.fluidshell-page {
+.fluidshell-row {
     /* background-color: rgba(0, 0, 0, 0.5); */
     /* margin:120px 80px; */
     padding:10px 20px;
 }
 
-.clone-container {
-    /* background-color: rgba(0, 0, 0, 0.5); */
+.fluidshell-cell {
+    background-color: red;
+    margin:10px;
     border:2px solid cyan;
 }
 
-.clone-container:focused {
+.fluidshell-cell:focused {
     border:4px solid orange;
 }
