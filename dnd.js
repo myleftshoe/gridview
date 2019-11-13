@@ -476,7 +476,8 @@ var _Draggable = class _Draggable {
             y: this._dragY,
             dragActor: this._dragActor,
             source: this.actor._delegate,
-            targetActor: target
+            targetActor: target,
+            draggable: this,
         };
 
         let targetActorDestroyHandlerId;
@@ -546,7 +547,7 @@ var _Draggable = class _Draggable {
 
     _dragActorDropped(event) {
         let [dropX, dropY] = event.get_coords();
-        let target = this._dragActor.get_stage().get_actor_at_pos(this.actor._delegate.PickMode.ALL,
+        let target = this._dragActor.get_stage().get_actor_at_pos(Clutter.PickMode.ALL,
                                                                   dropX, dropY);
 
         // We call observers only once per motion with the innermost
@@ -555,7 +556,8 @@ var _Draggable = class _Draggable {
         let dropEvent = {
             dropActor: this._dragActor,
             targetActor: target,
-            clutterEvent: event
+            clutterEvent: event,
+            draggable: this,
         };
         for (let i = 0; i < dragMonitors.length; i++) {
             let dropFunc = dragMonitors[i].dragDrop;

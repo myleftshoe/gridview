@@ -1,27 +1,50 @@
 const Main = imports.ui.main;
-const DnD = imports.ui.dnd;
 
 const { GObject, Clutter, St } = imports.gi;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
+const DnD = Extension.imports.dnd;
 const { Clone } = Extension.imports.clone;
 const { Log } = Extension.imports.utils.logger;
 
 
 const style_class = 'fluidshell-cell';
 
-var Cell = GObject.registerClass({}, 
+var Cell = GObject.registerClass(
+    {
+        Signals: {
+            'drag-begin': {
+                param_types: [GObject.TYPE_OBJECT]
+            },
+            'drag-cancelled': {
+                param_types: [GObject.TYPE_OBJECT]
+            },
+        }
+    },
     class Cell extends St.Bin {
         _init(metaWindow) {
             super._init({
-                style_class, 
-                y_fill:false,
-                reactive:true
+                style_class,
+                y_fill: false,
+                reactive: true
             });
-            this.set_easing_duration(3000)
+            this.id = metaWindow.title;
+            this.set_easing_duration(300)
             this.draggable = DnD.makeDraggable(this);
-            this.draggable.connect('drag-begin', () => {
+            // this.draggable._dragCancellable = false;
+            this.draggable.connect('drag-begin', (dragActor) => {
                 log('drag-begin')
+                dragActor.actor.set_easing_duration(0);
+                this.emit('drag-begin', this )
+            })
+            this.draggable.connect('drag-cancelled', (dragActor) => {
+                log('drag-cancelled')
+                dragActor.actor.set_easing_duration(300);
+                this.emit('drag-cancelled', this )
+            })
+            this.draggable.connect('drag-end', (dragActor) => {
+                log('drag-end')
+                dragActor.actor.set_easing_duration(300);
             })
             // DnD.addDragMonitor({
             //     dragMotion: () => {
