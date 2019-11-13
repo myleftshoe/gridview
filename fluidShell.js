@@ -49,7 +49,7 @@ var FluidShell = GObject.registerClass({},
             });
             this.dropPlaceholder = new St.Widget();
             this.lastCell = null;
-            DnD.addDragMonitor({
+            this.dragMonitor = DnD.addDragMonitor({
                 dragDrop: (event) => {
                     // try {
                     //     Log.properties(event.targetActor);
@@ -118,9 +118,6 @@ var FluidShell = GObject.registerClass({},
                     return 2;
             }});
             // Log.properties(this.draggable);
-            this.signals = [];
-            this.signals.push(Display.connect('in-fullscreen-changed', () => this.refresh()));
-            this.signals.push(Display.connect('notify::focus-window', () => this.refresh()));
             this.connect('scroll-event', (source, event) => {
                 const direction = event.get_scroll_direction();
                 if (direction > 1) return;
@@ -139,19 +136,20 @@ var FluidShell = GObject.registerClass({},
                 source.set_scale_with_gravity(scaleX + amount, scaleY + amount, Clutter.Gravity.CENTER);
                 // this.set_size(...this.get_size());
             });
+            this.cellSignals = [];
 
             this.refresh();
         }
         refresh() {
             log('refreshing...............................................')
-            this.destroy_all_children();
+            // this.destroy_all_children();
             UI.workspaces.forEach((workspace, r) => {
                 const windows = workspace.list_windows();
                 if (!windows.length) return;
                 const row = new Row({id:r});
                 windows.forEach((metaWindow,c) => {
                     const cell = new Cell(metaWindow);
-                    cell.connect('drag-begin', (actor) => {
+                    this.cellSignals.push([cell, cell.connect('drag-begin', (actor) => {
                         log('yyyyyyyyyyyyyyyyyyy', actor)
                         const row = cell.get_parent();
                         const c = row.get_children().indexOf(cell);
@@ -161,7 +159,7 @@ var FluidShell = GObject.registerClass({},
                         this.dropPlaceholder.width = width;
                         this.dropPlaceholder.height = height;
                         row.insert_child_at_index(this.dropPlaceholder, c);
-                    });
+                    })]);
                     // cell.connect('drag-cancelled', (actor) => {
                     //     log('drag-calce');
                     //     const row = cell.get_parent();
@@ -176,8 +174,12 @@ var FluidShell = GObject.registerClass({},
 
 
         destroy() {
-            this.signals.forEach(signal => Display.disconnect(signal));
-            this.remove_all_children();
+            // DnD.removeDragMonitor(this.dragMonitor);
+            DnD.dragMonitors = [];
+            this.cellSignals.forEach(([cell, sid]) => {
+                cell.disconnect(sid);
+            });
+            this.destroy_all_children();
         }
     }
 );
