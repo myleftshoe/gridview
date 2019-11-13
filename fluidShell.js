@@ -51,26 +51,16 @@ var FluidShell = GObject.registerClass({},
             this.lastCell = null;
             this.dragMonitor = DnD.addDragMonitor({
                 dragDrop: (event) => {
-                    // try {
-                    //     Log.properties(event.targetActor);
-                    // } catch {}
-                    // log(event.dropActor.get_position())
                     const [x1, y1] = event.dropActor.get_transformed_position();
                     const [x0, y0] = this.dropPlaceholder.get_transformed_position();
                     const tx = x1 - x0 - 10;
                     const ty = y1 - y0 - 10;
-                    log(tx, ty);
                     event.dropActor.set_easing_duration(300);
                     const row = this.dropPlaceholder.get_parent(); 
-                    const i = row.get_children().indexOf(this.dropPlaceholder);
-                    log('<<<<<<<<<<<',i, event.dropActor.constructor.name);
-                    // this.dropPlaceholder.unparent();
-                    // row.remove_child(event.dropActor)
                     event.dropActor.unparent();
                     event.dropActor.translation_x = tx;
                     event.dropActor.translation_y = ty;
-                    row.insert_child_at_index(event.dropActor, i);
-                    // event.dropActor.translation_x = 0;
+                    row.replace_child(this.dropPlaceholder, event.dropActor);
                     Tweener.addTween(event.dropActor, {
                         translation_x: 0,
                         translation_y: 0,
@@ -78,9 +68,6 @@ var FluidShell = GObject.registerClass({},
                         transition: 'easeOutQuad',
                     })
                     this.dropPlaceholder.unparent();
-                    try {
-                        log('ttttttttttt',event.clutterEvent.get_source())
-                    } catch {}
                     this.lastCell = null;
                     return 2;
                 },
