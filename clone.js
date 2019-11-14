@@ -12,7 +12,6 @@ var Clone = class Clone extends Clutter.Actor {
 
         super({reactive:false});
 
-        // Log.properties(metaWindow);
         const source = metaWindow.get_compositor_private();
         const clone = new Clutter.Clone({source});
 

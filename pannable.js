@@ -17,7 +17,6 @@ function makePannable(actor) {
         const coords = event.get_coords();
         const sequence = event.get_event_sequence();
         const actor = Stage.get_actor_at_pos(Clutter.PickMode.ALL, ...coords);
-        log(actor.constructor.name, source.constructor.name)
         if (actor instanceof Row) {
             draggable.startDrag(
                 ...coords,

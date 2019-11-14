@@ -32,10 +32,7 @@ function unmakeSortable(actor) {
 
 
 function handleDragBegin(event) {
-    // const targetCell = event.targetActor.get_parent().get_parent();
-    const targetCell =getDraggableActor(event.targetActor);
-    log('res:',targetCell.constructor.name)
-    Log.properties(targetCell);
+    const targetCell = getDraggableActor(event.targetActor);
     const row = targetCell.get_parent();
     const c = row.get_children().indexOf(targetCell);
     this.initialIndex = c;
@@ -63,9 +60,6 @@ function handleDragMotion(event) {
     //     'targetActor', 
     //     'dragActor']
     // ));
-    // try {
-    //     log(event.targetActor.constructor.name);
-    // } catch {}
     const targetCell = getDraggableActor(event.targetActor);
     if (targetCell instanceof Cell ) {
         if (lastCell === targetCell)
