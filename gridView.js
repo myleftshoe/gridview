@@ -36,22 +36,26 @@ var GridView = GObject.registerClass(
                 width,
                 height,
             });
-            // Make this respond to events reliably. trackChrome stops underlying
-            // windows stealing pointer events.
-            Main.layoutManager.trackChrome(this);
             makeSortable(this);
             makeZoomable(this);
             makePannable(this);
             this.populate();
-            Main.pushModal(this, { actionMode: Shell.ActionMode.OVERVIEW })
-            this.fadeIn();
+            this.show();
         }
-        fadeIn() {
+        show() {
+            // Make this respond to events reliably. trackChrome stops underlying
+            // windows stealing pointer events.
+            Main.layoutManager.trackChrome(this);
+            Main.pushModal(this, { actionMode: Shell.ActionMode.OVERVIEW })
             Tweener.addTween(this, { 
                 opacity: 255,
                 time: ANIMATION_TIME,
                 transition: 'easeOutQuad' 
             });            
+        }
+        hide() {
+            Main.layoutManager.untrackChrome(this);
+            Main.popModal(this);
         }
         populate() {
             UI.workspaces.forEach((workspace) => {
@@ -67,11 +71,10 @@ var GridView = GObject.registerClass(
             });
         }
         destroy() {
+            this.hide();
             unmakeSortable(this);
             unmakeZoomable(this);
             unmakePannable(this);
-            Main.layoutManager.untrackChrome(this);
-            Main.popModal(this);
             this.destroy_all_children();
         }
     }
