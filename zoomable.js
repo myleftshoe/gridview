@@ -23,6 +23,6 @@ function makeZoomable(actor) {
     });
 }
 
-function umnmakeZoomable(actor) {
+function unmakeZoomable(actor) {
     actor.disconnect(sid);
 }
