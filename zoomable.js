@@ -1,7 +1,9 @@
 const { Clutter } = imports.gi;
 
+let sid = null;
+
 function makeZoomable(actor) {
-    actor.connect('scroll-event', (source, event) => {
+    sid = actor.connect('scroll-event', (source, event) => {
         const direction = event.get_scroll_direction();
         if (direction > 1) return;
         let amount = 0.5;
@@ -19,4 +21,8 @@ function makeZoomable(actor) {
         source.set_scale_with_gravity(scaleX + amount, scaleY + amount, Clutter.Gravity.CENTER);
         // this.set_size(...this.get_size());
     });
+}
+
+function umnmakeZoomable(actor) {
+    actor.disconnect(sid);
 }

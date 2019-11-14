@@ -8,7 +8,7 @@ const { Row } = Extension.imports.row;
 const { Cell } = Extension.imports.cell;
 const { Log } = Extension.imports.utils.logger;
 const { makeSortable, unmakeSortable } = Extension.imports.sortable;
-const { makeZoomable } = Extension.imports.zoomable;
+const { makeZoomable, unmakeZoomable } = Extension.imports.zoomable;
 
 const Display = global.display;
 const Stage = global.stage;
@@ -58,6 +58,7 @@ var FluidShell = GObject.registerClass({},
 
         destroy() {
             unmakeSortable();
+            unmakeZoomable(this);
             this.cellSignals.forEach(([cell, sid]) => {
                 cell.disconnect(sid);
             });
