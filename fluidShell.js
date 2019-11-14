@@ -23,7 +23,7 @@ var FluidShell = GObject.registerClass({},
             // Make this respond to events reliably. trackChrome stops underlying
             // windows stealing pointer events.
             Main.layoutManager.trackChrome(this);
-            makeSortable();
+            makeSortable(this);
             makeZoomable(this);
             makePannable(this);
             UI.workspaces.forEach((workspace) => {
@@ -35,7 +35,7 @@ var FluidShell = GObject.registerClass({},
             });
         }
         destroy() {
-            unmakeSortable();
+            unmakeSortable(this);
             unmakeZoomable(this);
             unmakePannable(this);
             this.destroy_all_children();

@@ -17,7 +17,7 @@ let dragMonitor = null;
 //     dragMotion: handleDragMotion.bind(this),
 // });
 
-function makeSortable() {
+function makeSortable(actor) {
     dragMonitor = {
         dragBegin: handleDragBegin,
         dragDrop: handleDragDrop,
@@ -26,7 +26,7 @@ function makeSortable() {
     DnD.addDragMonitor(dragMonitor);
 }
 
-function unmakeSortable() {
+function unmakeSortable(actor) {
     DnD.removeDragMonitor(dragMonitor);
 }
 
