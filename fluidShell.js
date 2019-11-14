@@ -26,11 +26,6 @@ var FluidShell = GObject.registerClass({},
             makeSortable();
             makeZoomable(this);
             makePannable(this);
-            this.refresh();
-        }
-        refresh() {
-            log('refreshing...............................................')
-            // this.destroy_all_children();
             UI.workspaces.forEach((workspace) => {
                 const windows = workspace.list_windows();
                 if (!windows.length) return;
@@ -39,8 +34,6 @@ var FluidShell = GObject.registerClass({},
                 this.add_child(row);
             });
         }
-
-
         destroy() {
             unmakeSortable();
             unmakeZoomable(this);
