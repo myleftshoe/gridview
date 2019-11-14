@@ -6,18 +6,14 @@ const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const { GridView } = Extension.imports.gridView;
 const { Log } = Extension.imports.utils.logger;
 
-function addAccelerator(accelerator, callback) {
-    let action = global.display.grab_accelerator(accelerator, Meta.KeyBindingFlags.NONE)
+function addAccelerator(accelerator) {
+    const action = global.display.grab_accelerator(accelerator, Meta.KeyBindingFlags.NONE);
 
     if (action == Meta.KeyBindingAction.NONE) {
-        log('Unable to grab accelerator [binding={}]', accelerator)
-    } else {
-        log('Grabbed accelerator [action={}]', action)
-        let name = Meta.external_binding_name_for_action(action)
-        log('Received binding name for action [name={}, action={}]',
-            name, action)
-
-        log('Requesting WM to allow binding [name={}]', name)
+        log('Unable to grab accelerator [binding={}]', accelerator);
+    } 
+    else {
+        const name = Meta.external_binding_name_for_action(action);
         Main.wm.allowKeybinding(name, Shell.ActionMode.ALL)
     }
 
@@ -34,17 +30,19 @@ let acceleratorSignal;
 function enable() {
     log(`${Extension.metadata.uuid} enable()`);
     addAccelerator("<super><alt>o")
-    acceleratorSignal = global.display.connect('accelerator-activated', (display, action, deviceId, timestamp) => {
-        if (global.gridView) {
-            remove();
-            return;
-        }
-        global.gridView = new GridView();
-        global.stage.add_child(global.gridView);
-    });
+    acceleratorSignal = global.display.connect('accelerator-activated', toggle);
 }
 
-function remove() {
+function toggle() {
+    global.gridView ? hide() : show();
+}
+
+function show() {
+    global.gridView = new GridView();
+    global.stage.add_child(global.gridView);
+}
+
+function hide() {
     global.stage.remove_child(global.gridView);
     global.gridView.destroy();
     delete global.gridView;
@@ -54,6 +52,6 @@ function disable() {
     log(`${Extension.metadata.uuid} disable()`);
     global.display.disconnect(acceleratorSignal);
     if (global.gridView) {
-        remove();
+        hide();
     }
 }
