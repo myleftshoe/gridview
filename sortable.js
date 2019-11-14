@@ -45,9 +45,8 @@ function handleDragBegin(event) {
 }
 
 function getDraggableActor(actor) {
-    if (actor.draggable) {
-        return actor;
-    }
+    if (!actor) return;
+    if (actor.draggable) return actor;
     return getDraggableActor(actor.get_parent());
 }
 

@@ -23,13 +23,13 @@ var Cell = GObject.registerClass(
             this.set_easing_duration(300)
             this.draggable = DnD.makeDraggable(this);
             this.draggable.connect('drag-begin', (dragActor) => {
-                dragActor.actor.set_easing_duration(0);
+                this.set_easing_duration(0);
             })
             this.draggable.connect('drag-cancelled', (dragActor) => {
-                dragActor.actor.set_easing_duration(300);
+                this.set_easing_duration(300);
             })
             this.draggable.connect('drag-end', (dragActor) => {
-                dragActor.actor.set_easing_duration(300);
+                this.set_easing_duration(300);
             })
             this.metaWindow = metaWindow;
             this.connect('button-release-event', () => {
