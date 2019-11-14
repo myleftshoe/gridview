@@ -1,4 +1,4 @@
-const { GObject, Clutter, Meta, St } = imports.gi;
+const { GObject, St } = imports.gi;
 const Main = imports.ui.main;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
@@ -26,8 +26,6 @@ var FluidShell = GObject.registerClass({},
             makeSortable();
             makeZoomable(this);
             makePannable(this);
-            this.cellSignals = [];
-
             this.refresh();
         }
         refresh() {
@@ -47,9 +45,6 @@ var FluidShell = GObject.registerClass({},
             unmakeSortable();
             unmakeZoomable(this);
             unmakePannable(this);
-            this.cellSignals.forEach(([cell, sid]) => {
-                cell.disconnect(sid);
-            });
             this.destroy_all_children();
         }
     }
