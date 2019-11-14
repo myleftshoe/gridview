@@ -30,7 +30,7 @@ function init() {
     Signals.addSignalMethods(Extension);
 }
 
-var acceleratorSignal;
+let acceleratorSignal;
 function enable() {
     log(`${Extension.metadata.uuid} enable()`);
     addAccelerator("<super><alt>o")

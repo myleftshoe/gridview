@@ -20,17 +20,6 @@ var Cell = GObject.registerClass(
                 reactive: true
             });
             this.id = metaWindow.title;
-            this.set_easing_duration(300)
-            this.draggable = DnD.makeDraggable(this);
-            this.draggable.connect('drag-begin', (dragActor) => {
-                this.set_easing_duration(0);
-            })
-            this.draggable.connect('drag-cancelled', (dragActor) => {
-                this.set_easing_duration(300);
-            })
-            this.draggable.connect('drag-end', (dragActor) => {
-                this.set_easing_duration(300);
-            })
             this.metaWindow = metaWindow;
             this.connect('button-release-event', () => {
                 Main.activateWindow(this.metaWindow);

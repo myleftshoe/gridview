@@ -15,8 +15,14 @@ const Stage = global.stage;
 
 const style_class = 'gridview';
 
-var GridView = GObject.registerClass({},
-
+var GridView = GObject.registerClass(
+    {
+        Signals: {
+            'cell-added': {
+                param_types: [GObject.TYPE_OBJECT]
+            }
+        }
+    },
     class GridView extends St.BoxLayout {
         _init() {
             super._init({ style_class, vertical: true, reactive: true });
@@ -26,11 +32,18 @@ var GridView = GObject.registerClass({},
             makeSortable(this);
             makeZoomable(this);
             makePannable(this);
+            this.populate();
+        }
+        populate() {
             UI.workspaces.forEach((workspace) => {
                 const windows = workspace.list_windows();
                 if (!windows.length) return;
                 const row = new Row();
-                windows.forEach(metaWindow => row.add_child(new Cell(metaWindow)));
+                windows.forEach(metaWindow => {
+                    const cell = new Cell(metaWindow);
+                    row.add_child(cell);
+                    this.emit('cell-added', cell);
+                });
                 this.add_child(row);
             });
         }
@@ -38,6 +51,7 @@ var GridView = GObject.registerClass({},
             unmakeSortable(this);
             unmakeZoomable(this);
             unmakePannable(this);
+            Main.layoutManager.untrackChrome(this);
             this.destroy_all_children();
         }
     }

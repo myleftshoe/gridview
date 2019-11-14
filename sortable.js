@@ -11,11 +11,7 @@ const { Log } = Extension.imports.utils.logger;
 const dropPlaceholder = new St.Widget();
 let lastCell = null;
 let dragMonitor = null;
-// this.dragMonitor = DnD.addDragMonitor({
-//     dragBegin: handleDragBegin.bind(this),
-//     dragDrop: handleDragDrop.bind(this),
-//     dragMotion: handleDragMotion.bind(this),
-// });
+const signals = new Map();
 
 function makeSortable(actor) {
     dragMonitor = {
@@ -24,12 +20,43 @@ function makeSortable(actor) {
         dragMotion: handleDragMotion,
     };
     DnD.addDragMonitor(dragMonitor);
+    actor.connect('cell-added', (source, cell) => makeCellDraggable(cell));
 }
 
 function unmakeSortable(actor) {
     DnD.removeDragMonitor(dragMonitor);
+    removeSignals();
 }
 
+function makeCellDraggable(cell) {
+    cell.set_easing_duration(300)
+    cell.draggable = DnD.makeDraggable(cell);
+    addSignal(cell.draggable, 'drag-begin', () => {
+        cell.set_easing_duration(0);
+    });
+    addSignal(cell.draggable, 'drag-cancelled', () => {
+        cell.set_easing_duration(300);
+    });
+    addSignal(cell.draggable, 'drag-end', () => {
+        cell.set_easing_duration(300);
+    });
+}
+
+function addSignal(actor, name, callback) {
+    const sid = actor.connect(name, callback);
+    signals.set(sid, actor);
+}
+
+function removeSignals() {
+    [...signals.entries()].forEach(([sid, actor]) => actor.disconnect(sid));
+    signals.clear();
+}
+
+function getDraggableActor(actor) {
+    if (!actor) return;
+    if (actor.draggable) return actor;
+    return getDraggableActor(actor.get_parent());
+}
 
 function handleDragBegin(event) {
     const targetCell = getDraggableActor(event.targetActor);
@@ -41,13 +68,6 @@ function handleDragBegin(event) {
     dropPlaceholder.width = width;
     dropPlaceholder.height = height;
     row.insert_child_at_index(dropPlaceholder, c);
-
-}
-
-function getDraggableActor(actor) {
-    if (!actor) return;
-    if (actor.draggable) return actor;
-    return getDraggableActor(actor.get_parent());
 }
 
 function handleDragMotion(event) {
@@ -60,9 +80,9 @@ function handleDragMotion(event) {
     //     'dragActor']
     // ));
     const targetCell = getDraggableActor(event.targetActor);
-    if (targetCell instanceof Cell ) {
+    if (targetCell instanceof Cell) {
         if (lastCell === targetCell)
-            return 2;
+            return DnD.DragMotionResult.NO_DROP;
         lastCell = targetCell;
         const dragActor = event.dragActor;
         const row = targetCell.get_parent();
@@ -76,7 +96,7 @@ function handleDragMotion(event) {
     else {
         lastCell = null;
     }
-    return 2;
+    return DnD.DragMotionResult.MOVE_DROP;
 }
 
 function handleDragDrop(event) {
@@ -85,7 +105,7 @@ function handleDragDrop(event) {
     const tx = x1 - x0 - 10;
     const ty = y1 - y0 - 10;
     event.dropActor.set_easing_duration(300);
-    const row = dropPlaceholder.get_parent(); 
+    const row = dropPlaceholder.get_parent();
     event.dropActor.unparent();
     event.dropActor.translation_x = tx;
     event.dropActor.translation_y = ty;
@@ -93,10 +113,10 @@ function handleDragDrop(event) {
     Tweener.addTween(event.dropActor, {
         translation_x: 0,
         translation_y: 0,
-        time:.15,
+        time: .15,
         transition: 'easeOutQuad',
     })
     dropPlaceholder.unparent();
     lastCell = null;
-    return 2;
+    return DnD.DragDropResult.CONTINUE;
 }
