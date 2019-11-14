@@ -6,6 +6,8 @@ const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const { GridView } = Extension.imports.gridView;
 const { Log } = Extension.imports.utils.logger;
 
+let acceleratorSignal;
+
 function addAccelerator(accelerator) {
     const action = global.display.grab_accelerator(accelerator, Meta.KeyBindingFlags.NONE);
 
@@ -26,7 +28,6 @@ function init() {
     Signals.addSignalMethods(Extension);
 }
 
-let acceleratorSignal;
 function enable() {
     log(`${Extension.metadata.uuid} enable()`);
     addAccelerator("<super><alt>o")
