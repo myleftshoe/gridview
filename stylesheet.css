@@ -1,6 +1,6 @@
 .gridview {
-    /* background-color: rgba(100, 0, 0, 0.5); */
-    margin:120px 80px;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* margin:120px 80px; */
     padding:20px;
 }
 

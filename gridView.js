@@ -1,4 +1,5 @@
-const { GObject, St } = imports.gi;
+const { GObject, St, Shell } = imports.gi;
+const Tweener = imports.ui.tweener;
 const Main = imports.ui.main;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
@@ -14,6 +15,7 @@ const Display = global.display;
 const Stage = global.stage;
 
 const style_class = 'gridview';
+var ANIMATION_TIME = 0.25;
 
 var GridView = GObject.registerClass(
     {
@@ -25,7 +27,15 @@ var GridView = GObject.registerClass(
     },
     class GridView extends St.BoxLayout {
         _init() {
-            super._init({ style_class, vertical: true, reactive: true });
+            const {width, height} = Display.get_monitor_geometry(Display.get_primary_monitor());
+            super._init({ 
+                style_class, 
+                opacity:0,
+                vertical: true, 
+                reactive: true,
+                width,
+                height,
+            });
             // Make this respond to events reliably. trackChrome stops underlying
             // windows stealing pointer events.
             Main.layoutManager.trackChrome(this);
@@ -33,6 +43,15 @@ var GridView = GObject.registerClass(
             makeZoomable(this);
             makePannable(this);
             this.populate();
+            Main.pushModal(this, { actionMode: Shell.ActionMode.OVERVIEW })
+            this.fadeIn();
+        }
+        fadeIn() {
+            Tweener.addTween(this, { 
+                opacity: 255,
+                time: ANIMATION_TIME,
+                transition: 'easeOutQuad' 
+            });            
         }
         populate() {
             UI.workspaces.forEach((workspace) => {
@@ -52,6 +71,7 @@ var GridView = GObject.registerClass(
             unmakeZoomable(this);
             unmakePannable(this);
             Main.layoutManager.untrackChrome(this);
+            Main.popModal(this);
             this.destroy_all_children();
         }
     }
