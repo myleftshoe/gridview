@@ -10,6 +10,7 @@ const { Log } = Extension.imports.utils.logger;
 
 const dropPlaceholder = new St.Widget();
 let lastCell = null;
+let dragMonitor = null;
 // this.dragMonitor = DnD.addDragMonitor({
 //     dragBegin: handleDragBegin.bind(this),
 //     dragDrop: handleDragDrop.bind(this),
@@ -17,12 +18,16 @@ let lastCell = null;
 // });
 
 function makeSortable() {
-    dragMonitor = DnD.addDragMonitor({
-        dragBegin: handleDragBegin.bind(this),
-        dragDrop: handleDragDrop.bind(this),
-        dragMotion: handleDragMotion.bind(this),
-    });
+    dragMonitor = {
+        dragBegin: handleDragBegin,
+        dragDrop: handleDragDrop,
+        dragMotion: handleDragMotion,
+    };
+    DnD.addDragMonitor(dragMonitor);
+}
 
+function unmakeSortable() {
+    DnD.removeDragMonitor(dragMonitor);
 }
 
 

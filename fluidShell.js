@@ -7,7 +7,7 @@ const { UI } = Extension.imports.ui;
 const { Row } = Extension.imports.row;
 const { Cell } = Extension.imports.cell;
 const { Log } = Extension.imports.utils.logger;
-const { makeSortable } = Extension.imports.sortable;
+const { makeSortable, unmakeSortable } = Extension.imports.sortable;
 
 const Display = global.display;
 const Stage = global.stage;
@@ -74,8 +74,7 @@ var FluidShell = GObject.registerClass({},
 
 
         destroy() {
-            // DnD.removeDragMonitor(this.dragMonitor);
-            DnD.dragMonitors = [];
+            unmakeSortable();
             this.cellSignals.forEach(([cell, sid]) => {
                 cell.disconnect(sid);
             });
