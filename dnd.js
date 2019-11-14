@@ -274,7 +274,7 @@ var _Draggable = class _Draggable {
         } else if (event.type() == Clutter.EventType.KEY_PRESS && this._dragState == DragState.DRAGGING) {
             let symbol = event.get_key_symbol();
             if (symbol == Clutter.Escape) {
-                this._cancelDrag(event.get_time());
+                this._dragActorDropped(event);
                 return Clutter.EVENT_STOP;
             }
         }
@@ -329,6 +329,28 @@ var _Draggable = class _Draggable {
         if (this.actor instanceof St.Button) {
             this.actor.fake_release();
             this.actor.hover = false;
+        }
+
+
+        let target = this.actor.get_stage().get_actor_at_pos(Clutter.PickMode.ALL,
+            stageX, stageY);
+
+        let beginEvent = {
+            // actor: this._dragActor,
+            targetActor: target,
+            // clutterEvent: event,
+            draggable: this,
+        };
+ 
+        for (let i = 0; i < dragMonitors.length; i++) {
+            let beginFunc = dragMonitors[i].dragBegin;
+            if (beginFunc) {
+                let result = beginFunc(beginEvent);
+                // if (result != DragMotionResult.CONTINUE) {
+                //     global.display.set_cursor(DRAG_CURSOR_MAP[result]);
+                //     return GLib.SOURCE_REMOVE;
+                // }
+            }
         }
 
         this.emit('drag-begin', time);
@@ -571,41 +593,10 @@ var _Draggable = class _Draggable {
                 }
         }
 
-        // At this point it is too late to cancel a drag by destroying
-        // the actor, the fate of which is decided by acceptDrop and its
-        // side-effects
-        this._dragCancellable = false;
-
-        while (target) {
-            if (target._delegate && target._delegate.acceptDrop) {
-                let [r, targX, targY] = target.transform_stage_point(dropX, dropY);
-                if (target._delegate.acceptDrop(this.actor._delegate,
-                                                this._dragActor,
-                                                targX,
-                                                targY,
-                                                event.get_time())) {
-                    // If it accepted the drop without taking the actor,
-                    // handle it ourselves.
-                    if (this._dragActor && this._dragActor.get_parent() == Main.uiGroup) {
-                        if (this._restoreOnSuccess) {
-                            this._restoreDragActor(event.get_time());
-                            return true;
-                        } else
-                            this._dragActor.destroy();
-                    }
-
-                    this._dragState = DragState.INIT;
-                    global.display.set_cursor(Meta.Cursor.DEFAULT);
-                    this.emit('drag-end', event.get_time(), true);
-                    this._dragComplete();
-                    return true;
-                }
-            }
-            target = target.get_parent();
-        }
-
-        this._cancelDrag(event.get_time());
-
+        this._dragState = DragState.INIT;
+        global.display.set_cursor(Meta.Cursor.DEFAULT);
+        this.emit('drag-end', event.get_time(), true);
+        this._dragComplete();
         return true;
     }
 

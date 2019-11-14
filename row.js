@@ -8,9 +8,8 @@ const style_class = 'fluidshell-row';
 
 var Row = GObject.registerClass({},
     class Row extends St.BoxLayout {
-        _init({id = ''}) {
+        _init() {
             super._init({style_class});
-            this.id = id;
         }
         // destroy() {
         //     this.remove_all_children();
