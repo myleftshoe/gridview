@@ -42,6 +42,19 @@ var GridView = GObject.registerClass(
             this.populate();
             this.show();
         }
+        populate() {
+            UI.workspaces.forEach((workspace) => {
+                const windows = workspace.list_windows();
+                if (!windows.length) return;
+                const row = new Row();
+                windows.forEach(metaWindow => {
+                    const cell = new Cell(metaWindow);
+                    row.add_child(cell);
+                    this.emit('cell-added', cell);
+                });
+                this.add_child(row);
+            });
+        }
         show() {
             // Make this respond to events reliably. trackChrome stops underlying
             // windows stealing pointer events.
@@ -56,19 +69,6 @@ var GridView = GObject.registerClass(
         hide() {
             Main.layoutManager.untrackChrome(this);
             Main.popModal(this);
-        }
-        populate() {
-            UI.workspaces.forEach((workspace) => {
-                const windows = workspace.list_windows();
-                if (!windows.length) return;
-                const row = new Row();
-                windows.forEach(metaWindow => {
-                    const cell = new Cell(metaWindow);
-                    row.add_child(cell);
-                    this.emit('cell-added', cell);
-                });
-                this.add_child(row);
-            });
         }
         destroy() {
             this.hide();
