@@ -33,7 +33,7 @@ function init() {
 var acceleratorSignal;
 function enable() {
     log(`${Extension.metadata.uuid} enable()`);
-    addAccelerator("<ctrl><shift>r")
+    addAccelerator("<super><alt>o")
     acceleratorSignal = global.display.connect('accelerator-activated', (display, action, deviceId, timestamp) => {
         if (global.fluidShell) {
             remove();
