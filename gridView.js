@@ -13,11 +13,11 @@ const { makePannable, unmakePannable } = Extension.imports.pannable;
 const Display = global.display;
 const Stage = global.stage;
 
-const style_class = 'fluidshell';
+const style_class = 'gridview';
 
-var FluidShell = GObject.registerClass({},
+var GridView = GObject.registerClass({},
 
-    class FluidShell extends St.BoxLayout {
+    class GridView extends St.BoxLayout {
         _init() {
             super._init({ style_class, vertical: true, reactive: true });
             // Make this respond to events reliably. trackChrome stops underlying

@@ -3,7 +3,7 @@ const Main = imports.ui.main;
 const Signals = imports.signals;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
-const { FluidShell } = Extension.imports.fluidShell;
+const { GridView } = Extension.imports.gridView;
 const { Log } = Extension.imports.utils.logger;
 
 function addAccelerator(accelerator, callback) {
@@ -35,25 +35,25 @@ function enable() {
     log(`${Extension.metadata.uuid} enable()`);
     addAccelerator("<super><alt>o")
     acceleratorSignal = global.display.connect('accelerator-activated', (display, action, deviceId, timestamp) => {
-        if (global.fluidShell) {
+        if (global.gridView) {
             remove();
             return;
         }
-        global.fluidShell = new FluidShell();
-        global.stage.add_child(global.fluidShell);
+        global.gridView = new GridView();
+        global.stage.add_child(global.gridView);
     });
 }
 
 function remove() {
-    global.stage.remove_child(global.fluidShell);
-    global.fluidShell.destroy();
-    delete global.fluidShell;
+    global.stage.remove_child(global.gridView);
+    global.gridView.destroy();
+    delete global.gridView;
 }
 
 function disable() {
     log(`${Extension.metadata.uuid} disable()`);
     global.display.disconnect(acceleratorSignal);
-    if (global.fluidShell) {
+    if (global.gridView) {
         remove();
     }
 }

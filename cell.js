@@ -8,7 +8,7 @@ const { Clone } = Extension.imports.clone;
 const { Log } = Extension.imports.utils.logger;
 
 
-const style_class = 'fluidshell-cell';
+const style_class = 'gridview-cell';
 
 var Cell = GObject.registerClass(
     {},
