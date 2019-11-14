@@ -7,21 +7,16 @@ const { UI } = Extension.imports.ui;
 const { Row } = Extension.imports.row;
 const { Cell } = Extension.imports.cell;
 const { Log } = Extension.imports.utils.logger;
-const { handleDragBegin, handleDragDrop, handleDragMotion } = Extension.imports.sortable;
+const { makeSortable } = Extension.imports.sortable;
 
 const Display = global.display;
 const Stage = global.stage;
 
 const style_class = 'fluidshell';
 
-var dropPlaceholder = new St.Widget();
-
 var FluidShell = GObject.registerClass({},
 
     class FuildShell extends St.BoxLayout {
-        static dropPlaceholder() {
-            return dropPlaceholder;
-        };
         _init() {
             super._init({ style_class, vertical: true, reactive: true });
             // Make this respond to events reliably. trackChrome stops underlying
@@ -41,13 +36,7 @@ var FluidShell = GObject.registerClass({},
                     );
                 }
             });
-            this.dropPlaceholder = new St.Widget();
-            this.lastCell = null;
-            this.dragMonitor = DnD.addDragMonitor({
-                dragBegin: handleDragBegin.bind(this),
-                dragDrop: handleDragDrop.bind(this),
-                dragMotion: handleDragMotion.bind(this),
-            });
+            makeSortable();
             // Log.properties(this.draggable);
             this.connect('scroll-event', (source, event) => {
                 const direction = event.get_scroll_direction();
