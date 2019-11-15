@@ -45,6 +45,7 @@ var GridView = GObject.registerClass(
         populate() {
             UI.workspaces.forEach((workspace) => {
                 const windows = workspace.list_windows();
+                // const windows = UI.getWorkspaceWindows(workspace);
                 if (!windows.length) return;
                 const row = new Row();
                 windows.forEach(metaWindow => {
