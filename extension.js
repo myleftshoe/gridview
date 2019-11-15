@@ -1,6 +1,7 @@
-const { GLib, Meta, Shell } = imports.gi;
+const { GLib, Meta, Shell, St } = imports.gi;
 const Main = imports.ui.main;
 const Signals = imports.signals;
+const Background = imports.ui.background;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const { GridView } = Extension.imports.gridView;
@@ -38,13 +39,21 @@ function toggle() {
     global.gridView ? hide() : show();
 }
 
+let container;
+
 function show() {
+    container = new St.Widget();
+    this._bgManager = new Background.BackgroundManager({ monitorIndex: Main.layoutManager.primaryIndex,
+        container: container,
+        vignette: false });
+    
     global.gridView = new GridView();
-    global.stage.add_child(global.gridView);
+    container.add_child(global.gridView);
+    global.stage.add_child(container);
 }
 
 function hide() {
-    global.stage.remove_child(global.gridView);
+    global.stage.remove_child(container);
     global.gridView.destroy();
     delete global.gridView;
 }

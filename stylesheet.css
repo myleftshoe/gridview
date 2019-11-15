@@ -1,7 +1,7 @@
 .gridview {
     background-color: rgba(0, 0, 0, 0.5);
     /* margin:120px 80px; */
-    padding:20px;
+    padding:20px 10px;
 }
 
 .gridview-row {
