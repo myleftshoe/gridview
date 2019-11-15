@@ -13,7 +13,7 @@ function makePannable(actor) {
     // allow drag only if drag not started on child
     const draggable = DnD.makeDraggable(actor, { manualMode: true });
 
-    sid = Stage.connect('button-press-event', (source, event) => {
+    sid = actor.connect('button-press-event', (source, event) => {
         const coords = event.get_coords();
         const sequence = event.get_event_sequence();
         const actor = Stage.get_actor_at_pos(Clutter.PickMode.ALL, ...coords);

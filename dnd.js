@@ -502,16 +502,16 @@ var _Draggable = class _Draggable {
             draggable: this,
         };
 
-        let targetActorDestroyHandlerId;
-        let handleTargetActorDestroyClosure;
-        handleTargetActorDestroyClosure = () => {
-            target = this._pickTargetActor();
-            dragEvent.targetActor = target;
-            targetActorDestroyHandlerId =
-                target.connect('destroy', handleTargetActorDestroyClosure);
-        };
-        targetActorDestroyHandlerId =
-            target.connect('destroy', handleTargetActorDestroyClosure);
+        // let targetActorDestroyHandlerId;
+        // let handleTargetActorDestroyClosure;
+        // handleTargetActorDestroyClosure = () => {
+        //     target = this._pickTargetActor();
+        //     dragEvent.targetActor = target;
+        //     targetActorDestroyHandlerId =
+        //         target.connect('destroy', handleTargetActorDestroyClosure);
+        // };
+        // targetActorDestroyHandlerId =
+        //     target.connect('destroy', handleTargetActorDestroyClosure);
 
         for (let i = 0; i < dragMonitors.length; i++) {
             let motionFunc = dragMonitors[i].dragMotion;
@@ -523,7 +523,7 @@ var _Draggable = class _Draggable {
                 }
             }
         }
-        dragEvent.targetActor.disconnect(targetActorDestroyHandlerId);
+        // dragEvent.targetActor.disconnect(targetActorDestroyHandlerId);
 
         while (target) {
             if (target._delegate && target._delegate.handleDragOver) {
