@@ -321,17 +321,6 @@ var _Draggable = class _Draggable {
             }
         }
 
-        currentDraggable = this;
-        this._dragState = DragState.DRAGGING;
-
-        // Special-case St.Button: the pointer grab messes with the internal
-        // state, so force a reset to a reasonable state here
-        if (this.actor instanceof St.Button) {
-            this.actor.fake_release();
-            this.actor.hover = false;
-        }
-
-
         let target = this.actor.get_stage().get_actor_at_pos(Clutter.PickMode.ALL,
             stageX, stageY);
 
@@ -345,12 +334,23 @@ var _Draggable = class _Draggable {
         for (let i = 0; i < dragMonitors.length; i++) {
             let beginFunc = dragMonitors[i].dragBegin;
             if (beginFunc) {
-                let result = beginFunc(beginEvent);
+                const success = beginFunc(beginEvent);
+                if (!success) return false;
                 // if (result != DragMotionResult.CONTINUE) {
                 //     global.display.set_cursor(DRAG_CURSOR_MAP[result]);
                 //     return GLib.SOURCE_REMOVE;
                 // }
             }
+        }
+
+        currentDraggable = this;
+        this._dragState = DragState.DRAGGING;
+
+        // Special-case St.Button: the pointer grab messes with the internal
+        // state, so force a reset to a reasonable state here
+        if (this.actor instanceof St.Button) {
+            this.actor.fake_release();
+            this.actor.hover = false;
         }
 
         this.emit('drag-begin', time);
@@ -466,6 +466,7 @@ var _Draggable = class _Draggable {
                                    onUpdateScope: this });
             }
         }
+        return true;
     }
 
     _maybeStartDrag(event) {
@@ -477,8 +478,8 @@ var _Draggable = class _Draggable {
         if (!currentDraggable &&
             (Math.abs(stageX - this._dragStartX) > threshold ||
              Math.abs(stageY - this._dragStartY) > threshold)) {
-            this.startDrag(stageX, stageY, event.get_time(), this._touchSequence, event.get_device());
-            this._updateDragPosition(event);
+            if (this.startDrag(stageX, stageY, event.get_time(), this._touchSequence, event.get_device()))
+                this._updateDragPosition(event);
         }
 
         return true;

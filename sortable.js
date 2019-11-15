@@ -59,6 +59,8 @@ function getDraggableActor(actor) {
 }
 
 function handleDragBegin(event) {
+    if (event.targetActor.constructor.name !== 'Clutter_Clone')
+        return false;
     const targetCell = getDraggableActor(event.targetActor);
     const row = targetCell.get_parent();
     const c = row.get_children().indexOf(targetCell);
@@ -68,6 +70,7 @@ function handleDragBegin(event) {
     dropPlaceholder.width = width;
     dropPlaceholder.height = height;
     row.insert_child_at_index(dropPlaceholder, c);
+    return true;
 }
 
 function handleDragMotion(event) {
