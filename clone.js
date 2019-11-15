@@ -30,7 +30,7 @@ var Clone = class Clone extends Clutter.Actor {
             transition: 'easeOutQuad',
             onUpdate: () => {
                 const [width, height] = clone.get_size();
-                this.set_size(width * scale_x, height * clone.scale_y);
+                this.set_size(width * clone.scale_x, height * clone.scale_y);
             },
             // onUpdateScope: this,
         });
