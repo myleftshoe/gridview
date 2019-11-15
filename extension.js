@@ -43,9 +43,11 @@ let container;
 
 function show() {
     container = new St.Widget();
-    this._bgManager = new Background.BackgroundManager({ monitorIndex: Main.layoutManager.primaryIndex,
+    const backgroundManager = new Background.BackgroundManager({ 
+        monitorIndex: Main.layoutManager.primaryIndex,
         container: container,
-        vignette: false });
+        vignette: false 
+    });
     
     global.gridView = new GridView();
     container.add_child(global.gridView);
