@@ -51,11 +51,11 @@ function show() {
     
     global.gridView = new GridView();
     container.add_child(global.gridView);
-    global.stage.add_child(container);
+    Main.uiGroup.add_child(container);
 }
 
 function hide() {
-    global.stage.remove_child(container);
+    Main.uiGroup.remove_child(container);
     global.gridView.destroy();
     delete global.gridView;
 }
