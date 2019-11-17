@@ -13,6 +13,13 @@ function makePannable(actor) {
     // allow drag only if drag not started on child
     const draggable = DnD.makeDraggable(actor, { manualMode: true });
 
+    draggable._getRestoreLocation = () => {
+        const [x, y] = actor.get_position(); 
+        this.draggable._dragOrigX = x ;
+        this.draggable._dragOrigY = y ;
+        return [x,y,1]
+    }
+
     sid = actor.connect('button-press-event', (source, event) => {
         const coords = event.get_coords();
         const sequence = event.get_event_sequence();
