@@ -35,8 +35,6 @@ var DragDropResult = {
     CONTINUE: 2
 };
 
-var dragMonitors = [];
-
 let eventHandlerActor = null;
 let currentDraggable = null;
 
@@ -52,6 +50,9 @@ function _getEventHandlerActor() {
     }
     return eventHandlerActor;
 }
+
+
+var dragMonitors = [];
 
 function addDragMonitor(monitor) {
     dragMonitors.push(monitor);
