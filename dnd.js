@@ -7,23 +7,19 @@ const Main = imports.ui.main;
 const Params = imports.misc.params;
 const Tweener = imports.ui.tweener;
 
-// Time to scale down to maxDragActorSize
-var SCALE_ANIMATION_TIME = 0.25;
-// Time to animate to original position on cancel
-var SNAP_BACK_ANIMATION_TIME = 0.25;
 // Time to animate to original position on success
 var REVERT_ANIMATION_TIME = 0.75;
 
 var DragMotionResult = {
-    NO_DROP:   0,
+    NO_DROP: 0,
     COPY_DROP: 1,
     MOVE_DROP: 2,
-    CONTINUE:  3
+    CONTINUE: 3
 };
 
 var DragState = {
-    INIT:      0,
-    DRAGGING:  1,
+    INIT: 0,
+    DRAGGING: 1,
     CANCELLED: 2,
 };
 
@@ -34,10 +30,11 @@ var DRAG_CURSOR_MAP = {
 };
 
 var DragDropResult = {
-    FAILURE:  0,
-    SUCCESS:  1,
+    FAILURE: 0,
+    SUCCESS: 1,
     CONTINUE: 2
 };
+
 var dragMonitors = [];
 
 let eventHandlerActor = null;
@@ -69,39 +66,25 @@ function removeDragMonitor(monitor) {
 }
 
 var _Draggable = class _Draggable {
-    constructor(actor, params) {
-        params = Params.parse(params, { manualMode: false,
-                                        restoreOnSuccess: false,
-                                        dragActorMaxSize: undefined,
-                                        dragActorOpacity: undefined });
+    constructor(actor) {
 
         this.actor = actor;
         this._dragState = DragState.INIT;
 
-        if (!params.manualMode) {
-            this.actor.connect('button-press-event',
-                               this._onButtonPress.bind(this));
-            this.actor.connect('touch-event',
-                               this._onTouchEvent.bind(this));
-        }
+        this.actor.connect(
+            'button-press-event',
+            this._onButtonPress.bind(this)
+        );
+        this.actor.connect(
+            'touch-event',
+            this._onTouchEvent.bind(this)
+        );
 
-        this.actor.connect('destroy', () => {
-            this._actorDestroyed = true;
-
-            if (this._dragState == DragState.DRAGGING && this._dragCancellable)
-                this._cancelDrag(global.get_current_time());
-            this.disconnectAll();
-        });
         this._onEventId = null;
         this._touchSequence = null;
 
-        this._restoreOnSuccess = params.restoreOnSuccess;
-        this._dragActorMaxSize = params.dragActorMaxSize;
-        this._dragActorOpacity = params.dragActorOpacity;
-
         this._buttonDown = false; // The mouse button has been pressed and has not yet been released.
         this._animationInProgress = false; // The drag is over and the item is in the process of animating to its original position (snapping back or reverting).
-        this._dragCancellable = true;
 
         this._eventsGrabbed = false;
         this._capturedEventId = 0;
@@ -156,7 +139,7 @@ var _Draggable = class _Draggable {
         if (touchSequence)
             pointer.sequence_grab(touchSequence, actor);
         else if (pointer)
-            pointer.grab (actor);
+            pointer.grab(actor);
 
         this._grabbedDevice = pointer;
         this._touchSequence = touchSequence;
@@ -177,7 +160,7 @@ var _Draggable = class _Draggable {
         }
 
         if (this._touchSequence)
-            this._grabbedDevice.sequence_ungrab (this._touchSequence);
+            this._grabbedDevice.sequence_ungrab(this._touchSequence);
         else
             this._grabbedDevice.ungrab();
 
@@ -188,7 +171,7 @@ var _Draggable = class _Draggable {
     _grabActor(device, touchSequence) {
         this._grabDevice(this.actor, device, touchSequence);
         this._onEventId = this.actor.connect('event',
-                                             this._onEvent.bind(this));
+            this._onEvent.bind(this));
     }
 
     _ungrabActor() {
@@ -219,8 +202,8 @@ var _Draggable = class _Draggable {
     _eventIsRelease(event) {
         if (event.type() == Clutter.EventType.BUTTON_RELEASE) {
             let buttonMask = (Clutter.ModifierType.BUTTON1_MASK |
-                              Clutter.ModifierType.BUTTON2_MASK |
-                              Clutter.ModifierType.BUTTON3_MASK);
+                Clutter.ModifierType.BUTTON2_MASK |
+                Clutter.ModifierType.BUTTON3_MASK);
             /* We only obey the last button release from the device,
              * other buttons may get pressed/released during the DnD op.
              */
@@ -250,7 +233,7 @@ var _Draggable = class _Draggable {
             if (this._dragState == DragState.DRAGGING) {
                 return this._dragActorDropped(event);
             } else if ((this._dragActor != null || this._dragState == DragState.CANCELLED) &&
-                       !this._animationInProgress) {
+                !this._animationInProgress) {
                 // Drag must have been cancelled with Esc.
                 this._dragComplete();
                 return Clutter.EVENT_STOP;
@@ -259,18 +242,18 @@ var _Draggable = class _Draggable {
                 this._ungrabActor();
                 return Clutter.EVENT_PROPAGATE;
             }
-        // We intercept MOTION event to figure out if the drag has started and to draw
-        // this._dragActor under the pointer when dragging is in progress
+            // We intercept MOTION event to figure out if the drag has started and to draw
+            // this._dragActor under the pointer when dragging is in progress
         } else if (event.type() == Clutter.EventType.MOTION ||
-                   (event.type() == Clutter.EventType.TOUCH_UPDATE &&
-                    global.display.is_pointer_emulating_sequence(event.get_event_sequence()))) {
+            (event.type() == Clutter.EventType.TOUCH_UPDATE &&
+                global.display.is_pointer_emulating_sequence(event.get_event_sequence()))) {
             if (this._dragActor && this._dragState == DragState.DRAGGING) {
                 return this._updateDragPosition(event);
             } else if (this._dragActor == null && this._dragState != DragState.CANCELLED) {
                 return this._maybeStartDrag(event);
             }
-        // We intercept KEY_PRESS event so that we can process Esc key press to cancel
-        // dragging and ignore all other key presses.
+            // We intercept KEY_PRESS event so that we can process Esc key press to cancel
+            // dragging and ignore all other key presses.
         } else if (event.type() == Clutter.EventType.KEY_PRESS && this._dragState == DragState.DRAGGING) {
             let symbol = event.get_key_symbol();
             if (symbol == Clutter.Escape) {
@@ -302,24 +285,8 @@ var _Draggable = class _Draggable {
      * @time: Event timestamp
      *
      * Directly initiate a drag and drop operation from the given actor.
-     * This function is useful to call if you've specified manualMode
-     * for the draggable.
      */
     startDrag(stageX, stageY, time, sequence, device) {
-        if (currentDraggable)
-            return;
-
-        if (device == undefined) {
-            let event = Clutter.get_current_event();
-
-            if (event)
-                device = event.get_device();
-
-            if (device == undefined) {
-                let manager = Clutter.DeviceManager.get_default();
-                device = manager.get_core_device(Clutter.InputDeviceType.POINTER_DEVICE);
-            }
-        }
 
         let target = this.actor.get_stage().get_actor_at_pos(Clutter.PickMode.ALL,
             stageX, stageY);
@@ -330,7 +297,7 @@ var _Draggable = class _Draggable {
             // clutterEvent: event,
             draggable: this,
         };
- 
+
         for (let i = 0; i < dragMonitors.length; i++) {
             let beginFunc = dragMonitors[i].dragBegin;
             if (beginFunc) {
@@ -346,13 +313,6 @@ var _Draggable = class _Draggable {
         currentDraggable = this;
         this._dragState = DragState.DRAGGING;
 
-        // Special-case St.Button: the pointer grab messes with the internal
-        // state, so force a reset to a reasonable state here
-        if (this.actor instanceof St.Button) {
-            this.actor.fake_release();
-            this.actor.hover = false;
-        }
-
         this.emit('drag-begin', time);
         if (this._onEventId)
             this._ungrabActor();
@@ -363,62 +323,28 @@ var _Draggable = class _Draggable {
         this._dragX = this._dragStartX = stageX;
         this._dragY = this._dragStartY = stageY;
 
-        if (this.actor._delegate && this.actor._delegate.getDragActor) {
-            this._dragActor = this.actor._delegate.getDragActor();
-            Main.uiGroup.add_child(this._dragActor);
-            this._dragActor.raise_top();
-            Shell.util_set_hidden_from_pick(this._dragActor, true);
+        this._dragActor = this.actor;
 
-            // Drag actor does not always have to be the same as actor. For example drag actor
-            // can be an image that's part of the actor. So to perform "snap back" correctly we need
-            // to know what was the drag actor source.
-            if (this.actor._delegate.getDragActorSource) {
-                this._dragActorSource = this.actor._delegate.getDragActorSource();
-                // If the user dragged from the source, then position
-                // the dragActor over it. Otherwise, center it
-                // around the pointer
-                let [sourceX, sourceY] = this._dragActorSource.get_transformed_position();
-                let x, y;
-                if (stageX > sourceX && stageX <= sourceX + this._dragActor.width &&
-                    stageY > sourceY && stageY <= sourceY + this._dragActor.height) {
-                    x = sourceX;
-                    y = sourceY;
-                } else {
-                    x = stageX - this._dragActor.width / 2;
-                    y = stageY - this._dragActor.height / 2;
-                }
-                this._dragActor.set_position(x, y);
-            } else {
-                this._dragActorSource = this.actor;
-            }
-            this._dragOrigParent = undefined;
+        this._dragActorSource = undefined;
+        this._dragOrigParent = this.actor.get_parent();
+        this._dragOrigX = this._dragActor.x;
+        this._dragOrigY = this._dragActor.y;
+        this._dragOrigScale = this._dragActor.scale_x;
 
-            this._dragOffsetX = this._dragActor.x - this._dragStartX;
-            this._dragOffsetY = this._dragActor.y - this._dragStartY;
-        } else {
-            this._dragActor = this.actor;
+        // Set the actor's scale such that it will keep the same
+        // transformed size when it's reparented to the uiGroup
+        // let [scaledWidth, scaledHeight] = this.actor.get_transformed_size();
+        // this._dragActor.set_scale(scaledWidth / this.actor.width,
+        //                             scaledHeight / this.actor.height);
 
-            this._dragActorSource = undefined;
-            this._dragOrigParent = this.actor.get_parent();
-            this._dragOrigX = this._dragActor.x;
-            this._dragOrigY = this._dragActor.y;
-            this._dragOrigScale = this._dragActor.scale_x;
+        let [actorStageX, actorStageY] = this.actor.get_transformed_position();
+        this._dragOffsetX = actorStageX - this._dragStartX;
+        this._dragOffsetY = actorStageY - this._dragStartY;
 
-            // Set the actor's scale such that it will keep the same
-            // transformed size when it's reparented to the uiGroup
-            let [scaledWidth, scaledHeight] = this.actor.get_transformed_size();
-            this._dragActor.set_scale(scaledWidth / this.actor.width,
-                                      scaledHeight / this.actor.height);
-
-            let [actorStageX, actorStageY] = this.actor.get_transformed_position();
-            this._dragOffsetX = actorStageX - this._dragStartX;
-            this._dragOffsetY = actorStageY - this._dragStartY;
-
-            this._dragOrigParent.remove_actor(this._dragActor);
-            Main.uiGroup.add_child(this._dragActor);
-            this._dragActor.raise_top();
-            Shell.util_set_hidden_from_pick(this._dragActor, true);
-        }
+        this._dragOrigParent.remove_actor(this._dragActor);
+        Main.uiGroup.add_child(this._dragActor);
+        this._dragActor.raise_top();
+        Shell.util_set_hidden_from_pick(this._dragActor, true);
 
         this._dragActorDestroyId = this._dragActor.connect('destroy', () => {
             // Cancel ongoing animation (if any)
@@ -428,44 +354,7 @@ var _Draggable = class _Draggable {
             if (this._dragState == DragState.DRAGGING)
                 this._dragState = DragState.CANCELLED;
         });
-        this._dragOrigOpacity = this._dragActor.opacity;
-        if (this._dragActorOpacity != undefined)
-            this._dragActor.opacity = this._dragActorOpacity;
 
-        this._snapBackX = this._dragStartX + this._dragOffsetX;
-        this._snapBackY = this._dragStartY + this._dragOffsetY;
-        this._snapBackScale = this._dragActor.scale_x;
-
-        if (this._dragActorMaxSize != undefined) {
-            let [scaledWidth, scaledHeight] = this._dragActor.get_transformed_size();
-            let currentSize = Math.max(scaledWidth, scaledHeight);
-            if (currentSize > this._dragActorMaxSize) {
-                let scale = this._dragActorMaxSize / currentSize;
-                let origScale =  this._dragActor.scale_x;
-                let origDragOffsetX = this._dragOffsetX;
-                let origDragOffsetY = this._dragOffsetY;
-
-                // The position of the actor changes as we scale
-                // around the drag position, but we can't just tween
-                // to the final position because that tween would
-                // fight with updates as the user continues dragging
-                // the mouse; instead we do the position computations in
-                // an onUpdate() function.
-                Tweener.addTween(this._dragActor,
-                                 { scale_x: scale * origScale,
-                                   scale_y: scale * origScale,
-                                   time: SCALE_ANIMATION_TIME,
-                                   transition: 'easeOutQuad',
-                                   onUpdate() {
-                                       let currentScale = this._dragActor.scale_x / origScale;
-                                       this._dragOffsetX = currentScale * origDragOffsetX;
-                                       this._dragOffsetY = currentScale * origDragOffsetY;
-                                       this._dragActor.set_position(this._dragX + this._dragOffsetX,
-                                                                    this._dragY + this._dragOffsetY);
-                                   },
-                                   onUpdateScope: this });
-            }
-        }
         return true;
     }
 
@@ -476,8 +365,8 @@ var _Draggable = class _Draggable {
         let scaleFactor = St.ThemeContext.get_for_stage(global.stage).scale_factor;
         let threshold = St.Settings.get().drag_threshold * scaleFactor;
         if (!currentDraggable &&
-            (Math.abs(stageX - this._dragStartX) > threshold ||
-             Math.abs(stageY - this._dragStartY) > threshold)) {
+            (Math.abs(stageX - this._dragStartX) > threshold) ||
+                Math.abs(stageY - this._dragStartY) > threshold) {
             if (this.startDrag(stageX, stageY, event.get_time(), this._touchSequence, event.get_device()))
                 this._updateDragPosition(event);
         }
@@ -487,7 +376,7 @@ var _Draggable = class _Draggable {
 
     _pickTargetActor() {
         return this._dragActor.get_stage().get_actor_at_pos(Clutter.PickMode.ALL,
-                                                            this._dragX, this._dragY);
+            this._dragX, this._dragY);
     }
 
     _updateDragHover() {
@@ -503,16 +392,6 @@ var _Draggable = class _Draggable {
             draggable: this,
         };
 
-        // let targetActorDestroyHandlerId;
-        // let handleTargetActorDestroyClosure;
-        // handleTargetActorDestroyClosure = () => {
-        //     target = this._pickTargetActor();
-        //     dragEvent.targetActor = target;
-        //     targetActorDestroyHandlerId =
-        //         target.connect('destroy', handleTargetActorDestroyClosure);
-        // };
-        // targetActorDestroyHandlerId =
-        //     target.connect('destroy', handleTargetActorDestroyClosure);
 
         for (let i = 0; i < dragMonitors.length; i++) {
             let motionFunc = dragMonitors[i].dragMotion;
@@ -524,26 +403,6 @@ var _Draggable = class _Draggable {
                 }
             }
         }
-        // dragEvent.targetActor.disconnect(targetActorDestroyHandlerId);
-
-        while (target) {
-            if (target._delegate && target._delegate.handleDragOver) {
-                let [r, targX, targY] = target.transform_stage_point(this._dragX, this._dragY);
-                // We currently loop through all parents on drag-over even if one of the children has handled it.
-                // We can check the return value of the function and break the loop if it's true if we don't want
-                // to continue checking the parents.
-                let result = target._delegate.handleDragOver(this.actor._delegate,
-                                                             this._dragActor,
-                                                             targX,
-                                                             targY,
-                                                             0);
-                if (result != DragMotionResult.CONTINUE) {
-                    global.display.set_cursor(DRAG_CURSOR_MAP[result]);
-                    return GLib.SOURCE_REMOVE;
-                }
-            }
-            target = target.get_parent();
-        }
         global.display.set_cursor(Meta.Cursor.DND_IN_DRAG);
         return GLib.SOURCE_REMOVE;
     }
@@ -552,8 +411,10 @@ var _Draggable = class _Draggable {
         if (this._updateHoverId)
             return;
 
-        this._updateHoverId = GLib.idle_add(GLib.PRIORITY_DEFAULT,
-                                            this._updateDragHover.bind(this));
+        this._updateHoverId = GLib.idle_add(
+            GLib.PRIORITY_DEFAULT,
+            this._updateDragHover.bind(this)
+        );
         GLib.Source.set_name_by_id(this._updateHoverId, '[gnome-shell] this._updateDragHover');
     }
 
@@ -561,8 +422,10 @@ var _Draggable = class _Draggable {
         let [stageX, stageY] = event.get_coords();
         this._dragX = stageX;
         this._dragY = stageY;
-        this._dragActor.set_position(stageX + this._dragOffsetX,
-                                     stageY + this._dragOffsetY);
+        this._dragActor.set_position(
+            stageX + this._dragOffsetX,
+            stageY + this._dragOffsetY
+        );
 
         this._queueUpdateDragHover();
         return true;
@@ -571,7 +434,7 @@ var _Draggable = class _Draggable {
     _dragActorDropped(event) {
         let [dropX, dropY] = event.get_coords();
         let target = this._dragActor.get_stage().get_actor_at_pos(Clutter.PickMode.ALL,
-                                                                  dropX, dropY);
+            dropX, dropY);
 
         // We call observers only once per motion with the innermost
         // target actor. If necessary, the observer can walk the
@@ -601,91 +464,6 @@ var _Draggable = class _Draggable {
         return true;
     }
 
-    _getRestoreLocation() {
-        let x, y, scale;
-
-        if (this._dragActorSource && this._dragActorSource.visible) {
-            // Snap the clone back to its source
-            [x, y] = this._dragActorSource.get_transformed_position();
-            let [sourceScaledWidth, sourceScaledHeight] = this._dragActorSource.get_transformed_size();
-            scale = sourceScaledWidth ? this._dragActor.width / sourceScaledWidth : 0;
-        } else if (this._dragOrigParent) {
-            // Snap the actor back to its original position within
-            // its parent, adjusting for the fact that the parent
-            // may have been moved or scaled
-            let [parentX, parentY] = this._dragOrigParent.get_transformed_position();
-            let [parentWidth, parentHeight] = this._dragOrigParent.get_size();
-            let [parentScaledWidth, parentScaledHeight] = this._dragOrigParent.get_transformed_size();
-            let parentScale = 1.0;
-            if (parentWidth != 0)
-                parentScale = parentScaledWidth / parentWidth;
-
-            x = parentX + parentScale * this._dragOrigX;
-            y = parentY + parentScale * this._dragOrigY;
-            scale = this._dragOrigScale * parentScale;
-        } else {
-            // Snap back actor to its original stage position
-            x = this._snapBackX;
-            y = this._snapBackY;
-            scale = this._snapBackScale;
-        }
-
-        return [x, y, scale];
-    }
-
-    _cancelDrag(eventTime) {
-        this.emit('drag-cancelled', eventTime);
-        let wasCancelled = (this._dragState == DragState.CANCELLED);
-        this._dragState = DragState.CANCELLED;
-
-        if (this._actorDestroyed || wasCancelled) {
-            global.display.set_cursor(Meta.Cursor.DEFAULT);
-            if (!this._buttonDown)
-                this._dragComplete();
-            this.emit('drag-end', eventTime, false);
-            if (!this._dragOrigParent && this._dragActor)
-                this._dragActor.destroy();
-
-            return;
-        }
-
-        let [snapBackX, snapBackY, snapBackScale] = this._getRestoreLocation();
-
-        this._animateDragEnd(eventTime,
-                             { x: snapBackX,
-                               y: snapBackY,
-                               scale_x: snapBackScale,
-                               scale_y: snapBackScale,
-                               time: SNAP_BACK_ANIMATION_TIME,
-                             });
-    }
-
-    _restoreDragActor(eventTime) {
-        this._dragState = DragState.INIT;
-        let [restoreX, restoreY, restoreScale] = this._getRestoreLocation();
-
-        // fade the actor back in at its original location
-        this._dragActor.set_position(restoreX, restoreY);
-        this._dragActor.set_scale(restoreScale, restoreScale);
-        this._dragActor.opacity = 0;
-
-        this._animateDragEnd(eventTime,
-                             { time: REVERT_ANIMATION_TIME });
-    }
-
-    _animateDragEnd(eventTime, params) {
-        this._animationInProgress = true;
-
-        params['opacity']          = this._dragOrigOpacity;
-        params['transition']       = 'easeOutQuad';
-        params['onComplete']       = this._onAnimationComplete;
-        params['onCompleteScope']  = this;
-        params['onCompleteParams'] = [this._dragActor, eventTime];
-
-        // start the animation
-        Tweener.addTween(this._dragActor, params)
-    }
-
     _finishAnimation() {
         if (!this._animationInProgress)
             return
@@ -695,20 +473,6 @@ var _Draggable = class _Draggable {
             this._dragComplete();
 
         global.display.set_cursor(Meta.Cursor.DEFAULT);
-    }
-
-    _onAnimationComplete(dragActor, eventTime) {
-        if (this._dragOrigParent) {
-            Main.uiGroup.remove_child(this._dragActor);
-            this._dragOrigParent.add_actor(this._dragActor);
-            dragActor.set_scale(this._dragOrigScale, this._dragOrigScale);
-            dragActor.set_position(this._dragOrigX, this._dragOrigY);
-        } else {
-            dragActor.destroy();
-        }
-
-        this.emit('drag-end', eventTime, false);
-        this._finishAnimation();
     }
 
     _dragComplete() {
@@ -737,24 +501,10 @@ Signals.addSignalMethods(_Draggable.prototype);
 /**
  * makeDraggable:
  * @actor: Source actor
- * @params: (optional) Additional parameters
  *
  * Create an object which controls drag and drop for the given actor.
  *
- * If %manualMode is %true in @params, do not automatically start
- * drag and drop on click
- *
- * If %dragActorMaxSize is present in @params, the drag actor will
- * be scaled down to be no larger than that size in pixels.
- *
- * If %dragActorOpacity is present in @params, the drag actor will
- * will be set to have that opacity during the drag.
- *
- * Note that when the drag actor is the source actor and the drop
- * succeeds, the actor scale and opacity aren't reset; if the drop
- * target wants to reuse the actor, it's up to the drop target to
- * reset these values.
  */
-function makeDraggable(actor, params) {
-    return new _Draggable(actor, params);
+function makeDraggable(actor) {
+    return new _Draggable(actor);
 }
