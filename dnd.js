@@ -267,19 +267,6 @@ var _Draggable = class _Draggable {
     }
 
     /**
-     * fakeRelease:
-     *
-     * Fake a release event.
-     * Must be called if you want to intercept release events on draggable
-     * actors for other purposes (for example if you're using
-     * PopupMenu.ignoreRelease())
-     */
-    fakeRelease() {
-        this._buttonDown = false;
-        this._ungrabActor();
-    }
-
-    /**
      * startDrag:
      * @stageX: X coordinate of event
      * @stageY: Y coordinate of event
