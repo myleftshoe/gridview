@@ -217,13 +217,24 @@ var _Draggable = class _Draggable {
         return false;
     }
 
+    _eventIsMotion(event) {
+        return (
+            event.type() == Clutter.EventType.MOTION || (
+            event.type() == Clutter.EventType.TOUCH_UPDATE && 
+            global.display.is_pointer_emulating_sequence(event.get_event_sequence())
+        ));
+    }
+
+    _eventIsKeypress(event) {
+        return event.type() == Clutter.EventType.KEY_PRESS
+    }
+
     _onEvent(actor, event) {
         let device = event.get_device();
 
-        if (this._grabbedDevice &&
-            device != this._grabbedDevice &&
-            device.get_device_type() != Clutter.InputDeviceType.KEYBOARD_DEVICE)
+        if (this._grabbedDevice && device != this._grabbedDevice && device.get_device_type() != Clutter.InputDeviceType.KEYBOARD_DEVICE) {
             return Clutter.EVENT_PROPAGATE;
+        }
 
         // We intercept BUTTON_RELEASE event to know that the button was released in case we
         // didn't start the drag, to drop the draggable in case the drag was in progress, and
@@ -243,19 +254,20 @@ var _Draggable = class _Draggable {
             this._ungrabActor();
             return Clutter.EVENT_PROPAGATE;
         }
-        // We intercept MOTION event to figure out if the drag has started and to draw
-        // this._dragActor under the pointer when dragging is in progress
-        if (event.type() == Clutter.EventType.MOTION || (event.type() == Clutter.EventType.TOUCH_UPDATE && global.display.is_pointer_emulating_sequence(event.get_event_sequence()))) {
-            if (this._dragActor && this._dragState == DragState.DRAGGING) {
+        if (this._eventIsMotion) {
+            // We intercept MOTION event to figure out if the drag has started and to draw
+            // this._dragActor under the pointer when dragging is in progress
+            if (this._dragActor && this._dragState == DragState.DRAGGING) 
                 return this._updateDragPosition(event);
-            }
-            if (this._dragActor == null && this._dragState != DragState.CANCELLED) {
+            if (this._dragActor == null && this._dragState != DragState.CANCELLED) 
                 return this._maybeStartDrag(event);
-            }
+
+            return Clutter.EVENT_PROPAGATE;
+        } 
+        if (this._eventIsKeypress && this._dragState == DragState.DRAGGING) {
             // We intercept KEY_PRESS event so that we can process Esc key press to cancel
             // dragging and ignore all other key presses.
-        } else if (event.type() == Clutter.EventType.KEY_PRESS && this._dragState == DragState.DRAGGING) {
-            let symbol = event.get_key_symbol();
+            const symbol = event.get_key_symbol();
             if (symbol == Clutter.Escape) {
                 this._dragActorDropped(event);
                 return Clutter.EVENT_STOP;
