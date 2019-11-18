@@ -404,6 +404,8 @@ var _Draggable = class _Draggable {
     }
 
     _updateDragPosition(event) {
+        if (!this._dragActor)
+            return true;
         let [stageX, stageY] = event.get_coords();
         this._dragX = stageX;
         this._dragY = stageY;
