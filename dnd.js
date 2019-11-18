@@ -67,8 +67,8 @@ function removeDragMonitor(monitor) {
 }
 
 var _Draggable = class _Draggable {
-    constructor(actor) {
 
+    constructor(actor) {
         this.actor = actor;
         this._dragState = DragState.INIT;
 
