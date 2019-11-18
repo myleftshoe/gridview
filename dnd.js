@@ -313,7 +313,6 @@ var _Draggable = class _Draggable {
 
         this._dragActor = this.actor;
 
-        this._dragActorSource = undefined;
         this._dragOrigParent = this.actor.get_parent();
         this._dragOrigX = this._dragActor.x;
         this._dragOrigY = this._dragActor.y;
