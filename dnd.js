@@ -269,10 +269,7 @@ var _Draggable = class _Draggable {
         );
 
         const beginEvent = {
-            // actor: this._dragActor,
             targetActor: target,
-            // clutterEvent: event,
-            draggable: this,
         };
 
         for (let i = 0; i < dragMonitors.length; i++) {
@@ -347,9 +344,7 @@ var _Draggable = class _Draggable {
             x,
             y,
             dragActor: this._dragActor,
-            source: this.actor._delegate,
             targetActor,
-            draggable: this,
         };
 
         for (let i = 0; i < dragMonitors.length; i++) {
@@ -403,7 +398,6 @@ var _Draggable = class _Draggable {
             dropActor: this._dragActor,
             targetActor,
             clutterEvent: event,
-            draggable: this,
         };
         for (let i = 0; i < dragMonitors.length; i++) {
             const dropFunc = dragMonitors[i].dragDrop;
@@ -437,8 +431,9 @@ var _Draggable = class _Draggable {
     }
 
     _dragComplete() {
-        if (this._dragActor)
+        if (this._dragActor) {
             Shell.util_set_hidden_from_pick(this._dragActor, false);
+        }
 
         this._ungrabEvents();
         global.sync_pointer();
@@ -456,6 +451,7 @@ var _Draggable = class _Draggable {
         currentDraggable = null;
     }
 };
+
 Signals.addSignalMethods(_Draggable.prototype);
 
 /**
