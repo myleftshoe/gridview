@@ -334,15 +334,6 @@ var _Draggable = class _Draggable {
         this._dragActor.raise_top();
         Shell.util_set_hidden_from_pick(this._dragActor, true);
 
-        this._dragActorDestroyId = this._dragActor.connect('destroy', () => {
-            // Cancel ongoing animation (if any)
-            this._finishAnimation();
-
-            this._dragActor = null;
-            if (this._dragState == DragState.DRAGGING)
-                this._dragState = DragState.CANCELLED;
-        });
-
         return true;
     }
 
@@ -464,7 +455,7 @@ var _Draggable = class _Draggable {
     }
 
     _dragComplete() {
-        if (!this._actorDestroyed && this._dragActor)
+        if (this._dragActor)
             Shell.util_set_hidden_from_pick(this._dragActor, false);
 
         this._ungrabEvents();
@@ -476,7 +467,6 @@ var _Draggable = class _Draggable {
         }
 
         if (this._dragActor) {
-            this._dragActor.disconnect(this._dragActorDestroyId);
             this._dragActor = null;
         }
 
