@@ -81,13 +81,13 @@ var _Draggable = class _Draggable {
         this._capturedEventId = 0;
     }
 
-    _handleStartEvent(actor, event, sequence) {
+    _handleStartEvent(event) {
 
-        if (Tweener.getTweenCount(actor))
+        if (Tweener.getTweenCount(this.actor))
             return;
 
         this._buttonDown = true;
-        this._grabActor(event.get_device(), sequence);
+        this._grabActor(event.get_device(), event.get_event_sequence());
 
         const [stageX, stageY] = event.get_coords();
         this._dragStartX = stageX;
@@ -97,7 +97,7 @@ var _Draggable = class _Draggable {
 
     _onButtonPress(actor, event) {
         if (event.get_button() == 1)
-            this._handleStartEvent(actor, event);
+            this._handleStartEvent(event);
         return Clutter.EVENT_PROPAGATE;
     }
 
@@ -111,7 +111,7 @@ var _Draggable = class _Draggable {
         // in these cases.
         if (Meta.is_wayland_compositor()) {
             if (event.type() === Clutter.EventType.TOUCH_BEGIN && global.display.is_pointer_emulating_sequence(event.get_event_sequence())) {
-                this._handleStartEvent(actor, event, event.get_event_sequence());
+                this._handleStartEvent(event);
             }
         }
         return Clutter.EVENT_PROPAGATE;
