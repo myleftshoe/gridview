@@ -68,14 +68,8 @@ var _Draggable = class _Draggable {
 
         this.isDragging = false;
 
-        this.actor.connect(
-            'button-press-event',
-            this._onButtonPress.bind(this)
-        );
-        this.actor.connect(
-            'touch-event',
-            this._onTouchEvent.bind(this)
-        );
+        this.actor.connect('button-press-event', this._onButtonPress.bind(this));
+        this.actor.connect('touch-event', this._onTouchEvent.bind(this));
 
         this._onEventId = null;
         this._touchSequence = null;
@@ -87,20 +81,23 @@ var _Draggable = class _Draggable {
         this._capturedEventId = 0;
     }
 
-    _onButtonPress(actor, event) {
-        if (event.get_button() != 1)
-            return Clutter.EVENT_PROPAGATE;
+    _handleStartEvent(actor, event, sequence) {
 
         if (Tweener.getTweenCount(actor))
-            return Clutter.EVENT_PROPAGATE;
+            return;
 
         this._buttonDown = true;
-        this._grabActor(event.get_device());
+        this._grabActor(event.get_device(), sequence);
 
         const [stageX, stageY] = event.get_coords();
         this._dragStartX = stageX;
         this._dragStartY = stageY;
 
+    }
+
+    _onButtonPress(actor, event) {
+        if (event.get_button() == 1)
+            this._handleStartEvent(actor, event);
         return Clutter.EVENT_PROPAGATE;
     }
 
@@ -112,23 +109,11 @@ var _Draggable = class _Draggable {
         // and later the pointer events, so it will look like two
         // unrelated series of events, we want to avoid double handling
         // in these cases.
-        if (!Meta.is_wayland_compositor())
-            return Clutter.EVENT_PROPAGATE;
-
-        if (event.type() != Clutter.EventType.TOUCH_BEGIN ||
-            !global.display.is_pointer_emulating_sequence(event.get_event_sequence()))
-            return Clutter.EVENT_PROPAGATE;
-
-        if (Tweener.getTweenCount(actor))
-            return Clutter.EVENT_PROPAGATE;
-
-        this._buttonDown = true;
-        this._grabActor(event.get_device(), event.get_event_sequence());
-
-        const [stageX, stageY] = event.get_coords();
-        this._dragStartX = stageX;
-        this._dragStartY = stageY;
-
+        if (Meta.is_wayland_compositor()) {
+            if (event.type() === Clutter.EventType.TOUCH_BEGIN && global.display.is_pointer_emulating_sequence(event.get_event_sequence())) {
+                this._handleStartEvent(actor, event, event.get_event_sequence());
+            }
+        }
         return Clutter.EVENT_PROPAGATE;
     }
 
