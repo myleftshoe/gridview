@@ -296,8 +296,6 @@ var _Draggable = class _Draggable {
         this._dragActor = this.actor;
 
         this._dragOrigParent = this.actor.get_parent();
-        this._dragOrigX = this._dragActor.x;
-        this._dragOrigY = this._dragActor.y;
 
         const [actorStageX, actorStageY] = this.actor.get_transformed_position();
         this._dragOffsetX = actorStageX - this._dragStartX;
@@ -312,12 +310,15 @@ var _Draggable = class _Draggable {
     }
 
     _maybeStartDrag(event) {
+        if (currentDraggable)
+            return true;
+        
         const [stageX, stageY] = event.get_coords();
 
         // See if the user has moved the mouse enough to trigger a drag
         const scaleFactor = St.ThemeContext.get_for_stage(global.stage).scale_factor;
         const threshold = St.Settings.get().drag_threshold * scaleFactor;
-        if (!currentDraggable && (Math.abs(stageX - this._dragStartX) > threshold) || Math.abs(stageY - this._dragStartY) > threshold) {
+        if ((Math.abs(stageX - this._dragStartX) > threshold) || Math.abs(stageY - this._dragStartY) > threshold) {
             this.startDrag(
                 stageX, 
                 stageY, 
