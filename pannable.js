@@ -11,9 +11,9 @@ let sid = null;
 
 function makePannable(actor) {
     // allow drag only if drag not started on child
-    const draggable = DnD.makeDraggable(actor, { manualMode: true });
+    this.draggable = DnD.makeDraggable(actor, { manualMode: true });
 
-    draggable._getRestoreLocation = () => {
+    this.draggable._getRestoreLocation = () => {
         const [x, y] = actor.get_position(); 
         this.draggable._dragOrigX = x ;
         this.draggable._dragOrigY = y ;
@@ -25,7 +25,7 @@ function makePannable(actor) {
         const sequence = event.get_event_sequence();
         const actor = Stage.get_actor_at_pos(Clutter.PickMode.ALL, ...coords);
         if (actor instanceof Row) {
-            draggable.startDrag(
+            this.draggable.startDrag(
                 ...coords,
                 global.get_current_time(),
                 sequence
