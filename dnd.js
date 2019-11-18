@@ -316,7 +316,6 @@ var _Draggable = class _Draggable {
         this._dragOrigParent = this.actor.get_parent();
         this._dragOrigX = this._dragActor.x;
         this._dragOrigY = this._dragActor.y;
-        this._dragOrigScale = this._dragActor.scale_x;
 
         // Set the actor's scale such that it will keep the same
         // transformed size when it's reparented to the uiGroup
