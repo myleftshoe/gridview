@@ -20,7 +20,6 @@ var DragMotionResult = {
 var DragState = {
     INIT: 0,
     DRAGGING: 1,
-    CANCELLED: 2,
 };
 
 var DRAG_CURSOR_MAP = {
@@ -236,35 +235,31 @@ var _Draggable = class _Draggable {
             return Clutter.EVENT_PROPAGATE;
         }
 
+        const isDragging = this._dragState === DragState.DRAGGING;
         // We intercept BUTTON_RELEASE event to know that the button was released in case we
         // didn't start the drag, to drop the draggable in case the drag was in progress, and
         // to complete the drag and ensure that whatever happens to be under the pointer does
         // not get triggered if the drag was cancelled with Esc.
         if (this._eventIsRelease(event)) {
             this._buttonDown = false;
-            if (this._dragState == DragState.DRAGGING) {
+            if (isDragging) {
                 return this._dragActorDropped(event);
-            } 
-            if ((this._dragActor != null || this._dragState == DragState.CANCELLED) && !this._animationInProgress) {
-                // Drag must have been cancelled with Esc.
-                this._dragComplete();
-                return Clutter.EVENT_STOP;
             } 
             // Drag has never started.
             this._ungrabActor();
             return Clutter.EVENT_PROPAGATE;
         }
-        if (this._eventIsMotion) {
+        if (this._eventIsMotion(event)) {
             // We intercept MOTION event to figure out if the drag has started and to draw
             // this._dragActor under the pointer when dragging is in progress
-            if (this._dragActor && this._dragState == DragState.DRAGGING) 
+            if (this._dragActor && isDragging) 
                 return this._updateDragPosition(event);
-            if (this._dragActor == null && this._dragState != DragState.CANCELLED) 
+            if (this._dragActor == null) 
                 return this._maybeStartDrag(event);
 
             return Clutter.EVENT_PROPAGATE;
         } 
-        if (this._eventIsKeypress && this._dragState == DragState.DRAGGING) {
+        if (this._eventIsKeypress(event) && isDragging) {
             // We intercept KEY_PRESS event so that we can process Esc key press to cancel
             // dragging and ignore all other key presses.
             const symbol = event.get_key_symbol();

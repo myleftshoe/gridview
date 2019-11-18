@@ -7,18 +7,17 @@ const DnD = Extension.imports.dnd;
 const { Cell } = Extension.imports.cell;
 const { Log } = Extension.imports.utils.logger;
 
-
-const dropPlaceholder = new St.Widget();
-let lastCell = null;
-let dragMonitor = null;
+const dragMonitor = {
+    dragBegin: handleDragBegin,
+    dragDrop: handleDragDrop,
+    dragMotion: handleDragMotion,
+};
 const signals = new Map();
+const dropPlaceholder = new St.Widget();
+
+let lastCell = null;
 
 function makeSortable(actor) {
-    dragMonitor = {
-        dragBegin: handleDragBegin,
-        dragDrop: handleDragDrop,
-        dragMotion: handleDragMotion,
-    };
     DnD.addDragMonitor(dragMonitor);
     actor.connect('cell-added', (source, cell) => makeCellDraggable(cell));
 }
@@ -33,9 +32,6 @@ function makeCellDraggable(cell) {
     cell.draggable = DnD.makeDraggable(cell);
     addSignal(cell.draggable, 'drag-begin', () => {
         cell.set_easing_duration(0);
-    });
-    addSignal(cell.draggable, 'drag-cancelled', () => {
-        cell.set_easing_duration(300);
     });
     addSignal(cell.draggable, 'drag-end', () => {
         cell.set_easing_duration(300);
