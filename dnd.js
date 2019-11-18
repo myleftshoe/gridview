@@ -237,7 +237,6 @@ var _Draggable = class _Draggable {
                 return this._updateDragPosition(event);
             if (this._dragActor == null) 
                 return this._maybeStartDrag(event);
-
             return Clutter.EVENT_PROPAGATE;
         } 
         if (this._eventIsKeypress(event) && this.isDragging) {
