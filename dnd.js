@@ -181,9 +181,11 @@ var _Draggable = class _Draggable {
 
     _eventIsRelease(event) {
         if (event.type() == Clutter.EventType.BUTTON_RELEASE) {
-            const buttonMask = (Clutter.ModifierType.BUTTON1_MASK |
+            const buttonMask = (
+                Clutter.ModifierType.BUTTON1_MASK |
                 Clutter.ModifierType.BUTTON2_MASK |
-                Clutter.ModifierType.BUTTON3_MASK);
+                Clutter.ModifierType.BUTTON3_MASK
+            );
             /* We only obey the last button release from the device,
              * other buttons may get pressed/released during the DnD op.
              */
