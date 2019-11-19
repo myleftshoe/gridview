@@ -1,4 +1,4 @@
-const { GLib, Meta, Shell, St } = imports.gi;
+const { Clutter, GLib, Meta, Shell, St } = imports.gi;
 const Main = imports.ui.main;
 const Signals = imports.signals;
 const Background = imports.ui.background;
@@ -50,6 +50,12 @@ function show() {
     });
     
     global.gridView = new GridView();
+    global.gridView.connect('key-press-event', (actor, event) => {
+        if (event.get_key_symbol() === Clutter.Escape) {
+            hide();
+        }
+    })
+
     container.add_child(global.gridView);
     Main.uiGroup.add_child(container);
 }
