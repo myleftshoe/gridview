@@ -410,7 +410,7 @@ var _Draggable = class _Draggable {
             clutterEvent: event,
             scale: this._originalScale
         };
-        this._dragActor.set_scale(...this._originalScale);
+        // this._dragActor.set_scale(...this._originalScale);
         for (let i = 0; i < dragMonitors.length; i++) {
             const dropFunc = dragMonitors[i].dragDrop;
             if (dropFunc) {

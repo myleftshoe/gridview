@@ -99,23 +99,21 @@ function handleDragMotion(event) {
 }
 
 function handleDragDrop(event) {
-    const [x1, y1] = event.dropActor.get_transformed_position();
     const [x0, y0] = dropPlaceholder.get_transformed_position();
-    const tx = x1 - x0 - 10;
-    const ty = y1 - y0 - 10;
-    event.dropActor.set_easing_duration(300);
     const row = dropPlaceholder.get_parent();
-    event.dropActor.unparent();
-    event.dropActor.translation_x = tx;
-    event.dropActor.translation_y = ty;
-    row.replace_child(dropPlaceholder, event.dropActor);
     Tweener.addTween(event.dropActor, {
-        translation_x: 0,
-        translation_y: 0,
-        time: .15,
+        x: x0,
+        y: y0,
+        time: .3,
         transition: 'easeOutQuad',
+        onComplete: () => {
+            event.dropActor.unparent();
+            event.dropActor.set_scale(...event.scale)
+            row.replace_child(dropPlaceholder, event.dropActor);
+            dropPlaceholder.unparent();
+            // event.dropActor = null;
+        }
     })
-    dropPlaceholder.unparent();
     lastCell = null;
     return DnD.DragDropResult.CONTINUE;
 }
