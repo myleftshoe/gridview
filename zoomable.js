@@ -17,7 +17,7 @@ function makeZoomable(actor) {
         const [x, y] = event.get_coords();
         // source.set_pivot_point((x - sx) / sw, (y - sy) / sh);
         // source.set_scale(scaleX + amount, scaleY + amount);
-        source.set_scale_with_gravity(scaleX + amount, scaleY + amount, Clutter.Gravity.CENTER);
+        source.set_scale_with_gravity(scaleX + amount, scaleY + amount, Clutter.Gravity.NORTH_WEST);
         // this.set_size(...this.get_size());
     });
 }
