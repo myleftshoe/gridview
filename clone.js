@@ -18,7 +18,7 @@ var Clone = class Clone extends Clutter.Actor {
 
         // Show entire window even if part of it is offscreen.
         clone.remove_clip();
-        this.add_actor(clone);
+        this.add_child(clone);
         Tweener.addTween(clone, {
             scale_x,
             scale_y,
