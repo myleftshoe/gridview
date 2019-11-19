@@ -301,6 +301,15 @@ var _Draggable = class _Draggable {
         this._dragOffsetX = actorStageX - this._dragStartX;
         this._dragOffsetY = actorStageY - this._dragStartY;
 
+        this._originalScale = this.actor.get_scale();
+        // Set the actor's scale such that it will keep the same
+        // transformed size when it's reparented to the uiGroup
+        const [scaledWidth, scaledHeight] = this.actor.get_transformed_size();
+        this._dragActor.set_scale(
+            scaledWidth/this.actor.width,
+            scaledHeight/this.actor.height
+        );
+
         this._dragOrigParent.remove_actor(this._dragActor);
         Main.uiGroup.add_child(this._dragActor);
         this._dragActor.raise_top();
@@ -391,7 +400,7 @@ var _Draggable = class _Draggable {
     _dragActorDropped(event) {
         const [dropX, dropY] = event.get_coords();
         const targetActor = this._pickTargetActor(dropX, dropY);
-
+        
         // We call observers only once per motion with the innermost
         // target actor. If necessary, the observer can walk the
         // parent itself.
@@ -399,7 +408,9 @@ var _Draggable = class _Draggable {
             dropActor: this._dragActor,
             targetActor,
             clutterEvent: event,
+            scale: this._originalScale
         };
+        this._dragActor.set_scale(...this._originalScale);
         for (let i = 0; i < dragMonitors.length; i++) {
             const dropFunc = dragMonitors[i].dragDrop;
             if (dropFunc) {
