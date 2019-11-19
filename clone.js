@@ -5,7 +5,7 @@ const Main = imports.ui.main;
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const { Log } = Extension.imports.utils.logger;
 
-const initialScale = [.1, .1];
+const [scale_x, scale_y] = [.1, .1];
 
 var Clone = class Clone extends Clutter.Actor {
 
@@ -20,8 +20,8 @@ var Clone = class Clone extends Clutter.Actor {
         clone.remove_clip();
         this.add_actor(clone);
         Tweener.addTween(clone, {
-            scale_x: initialScale[0],
-            scale_y: initialScale[1],
+            scale_x,
+            scale_y,
             delay: 0,
             time: .3,
             transition: 'easeOutQuad',
