@@ -221,15 +221,9 @@ var _Draggable = class _Draggable {
         return Clutter.EVENT_PROPAGATE;
     }
 
-    /**
-     * startDrag:
-     * @stageX: X coordinate of event
-     * @stageY: Y coordinate of event
-     * @time: Event timestamp
-     *
-     * Directly initiate a drag and drop operation from the given actor.
-     */
-    startDrag(stageX, stageY, time, sequence, device) {
+    startDrag(event) {
+
+        const [stageX, stageY] = event.get_coords();
 
         const target = this.actor.get_stage().get_actor_at_pos(
             Clutter.PickMode.ALL,
@@ -240,14 +234,14 @@ var _Draggable = class _Draggable {
         currentDraggable = this;
         this.isDragging = true;
 
-        this.emit('drag-begin', time, {
+        this.emit('drag-begin', event, {
             targetActor: target,
         });
 
         if (this._onEventId)
             this._ungrabActor();
 
-        this._grabEvents(device, sequence);
+        this._grabEvents(event.get_device(), this._touchSequence);
         global.display.set_cursor(Meta.Cursor.DND_IN_DRAG);
 
         this._dragX = this._dragStartX = stageX;
@@ -288,13 +282,7 @@ var _Draggable = class _Draggable {
         const scaleFactor = St.ThemeContext.get_for_stage(global.stage).scale_factor;
         const threshold = St.Settings.get().drag_threshold * scaleFactor;
         if ((Math.abs(stageX - this._dragStartX) > threshold) || Math.abs(stageY - this._dragStartY) > threshold) {
-            this.startDrag(
-                stageX, 
-                stageY, 
-                event.get_time(), 
-                this._touchSequence, 
-                event.get_device()
-            );
+            this.startDrag(event);
             this._updateDragPosition(event);
         }
 
@@ -310,14 +298,12 @@ var _Draggable = class _Draggable {
         const [x, y] = [this._dragX, this._dragY];
         const targetActor = this._pickTargetActor(x, y);
 
-        const dragEvent = {
+        this.emit('drag-motion', event, {
             x,
             y,
             dragActor: this._dragActor,
             targetActor,
-        };
-
-        this.emit('drag-motion', event.get_time(), dragEvent);
+        });
 
         global.display.set_cursor(Meta.Cursor.DND_IN_DRAG);
         return GLib.SOURCE_REMOVE;
@@ -352,7 +338,7 @@ var _Draggable = class _Draggable {
     _dragActorDropped(event) {
         const targetActor = this._pickTargetActor(...event.get_coords());
 
-        this.emit('drag-dropped', event.get_time(), {
+        this.emit('drag-dropped', event, {
             dropActor: this._dragActor,
             targetActor,
             clutterEvent: event,
@@ -361,7 +347,7 @@ var _Draggable = class _Draggable {
         
         this.isDragging = false;
         global.display.set_cursor(Meta.Cursor.DEFAULT);
-        this.emit('drag-end', event.get_time(), true);
+        this.emit('drag-end');
         this._dragComplete();
         return true;
     }
