@@ -44,7 +44,6 @@ var _Draggable = class _Draggable {
         this._touchSequence = null;
 
         this._buttonDown = false; // The mouse button has been pressed and has not yet been released.
-        this._animationInProgress = false; // The drag is over and the item is in the process of animating to its original position (snapping back or reverting).
 
         this._eventsGrabbed = false;
         this._capturedEventId = 0;
@@ -350,17 +349,6 @@ var _Draggable = class _Draggable {
         this.emit('drag-end');
         this._dragComplete();
         return true;
-    }
-
-    _finishAnimation() {
-        if (!this._animationInProgress)
-            return
-
-        this._animationInProgress = false;
-        if (!this._buttonDown)
-            this._dragComplete();
-
-        global.display.set_cursor(Meta.Cursor.DEFAULT);
     }
 
     _dragComplete() {
