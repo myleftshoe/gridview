@@ -77,6 +77,10 @@ var _Draggable = class _Draggable {
         return Clutter.EVENT_PROPAGATE;
     }
 
+    _isGrabbedDevice(device) {
+        return (this._grabbedDevice && device === this._grabbedDevice || device.get_device_type() === Clutter.InputDeviceType.KEYBOARD_DEVICE);
+    }
+
     _grabDevice(actor, pointer, touchSequence) {
         if (touchSequence)
             pointer.sequence_grab(touchSequence, actor);
@@ -168,10 +172,6 @@ var _Draggable = class _Draggable {
 
     _eventIsKeypress(event) {
         return event.type() == Clutter.EventType.KEY_PRESS
-    }
-
-    _isGrabbedDevice(device) {
-        return (this._grabbedDevice && device === this._grabbedDevice || device.get_device_type() === Clutter.InputDeviceType.KEYBOARD_DEVICE);
     }
 
     _onEvent(actor, event) {
