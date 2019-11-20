@@ -43,8 +43,6 @@ var _Draggable = class _Draggable {
         this._onEventId = null;
         this._touchSequence = null;
 
-        this._buttonDown = false; // The mouse button has been pressed and has not yet been released.
-
         this._eventsGrabbed = false;
         this._capturedEventId = 0;
     }
@@ -54,7 +52,6 @@ var _Draggable = class _Draggable {
         if (Tweener.getTweenCount(this.actor))
             return;
 
-        this._buttonDown = true;
         this._grabActor(event.get_device(), event.get_event_sequence());
 
         const [stageX, stageY] = event.get_coords();
@@ -192,7 +189,6 @@ var _Draggable = class _Draggable {
         // to complete the drag and ensure that whatever happens to be under the pointer does
         // not get triggered if the drag was cancelled with Esc.
         if (this._eventIsRelease(event)) {
-            this._buttonDown = false;
             if (this.isDragging) {
                 return this._dragActorDropped(event);
             } 
