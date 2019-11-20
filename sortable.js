@@ -50,43 +50,26 @@ function getDraggableActor(actor) {
 }
 
 function handleDragBegin(actor, event, args) {
-    if (args.targetActor.constructor.name !== 'Clutter_Clone')
-        return false;
     const targetCell = getDraggableActor(args.targetActor);
-    const row = targetCell.get_parent();
-    const c = row.get_children().indexOf(targetCell);
-    this.initialIndex = c;
-    dropPlaceholder.unparent();
-    const [width, height] = targetCell.get_size();
-    dropPlaceholder.width = width;
-    dropPlaceholder.height = height;
-    row.insert_child_at_index(dropPlaceholder, c);
-    return true;
+    if (!(targetCell instanceof Cell)) 
+        return;
+    setPlaceholderPosition(targetCell);
 }
 
 function handleDragMotion(actor, event, args) {
     const targetCell = getDraggableActor(args.targetActor);
-    if (targetCell instanceof Cell) {
-        if (lastCell === targetCell)
-            return;
-        lastCell = targetCell;
-        const dragActor = args.dragActor;
-        const row = targetCell.get_parent();
-        const cell = row.get_children().indexOf(targetCell);
-        dropPlaceholder.unparent();
-        const [width, height] = dragActor.get_size();
-        dropPlaceholder.width = width;
-        dropPlaceholder.height = height;
-        row.insert_child_at_index(dropPlaceholder, cell);
-    }
-    else {
+    if (!(targetCell instanceof Cell)) {
         lastCell = null;
+        return;
     }
+    if (lastCell === targetCell)
+        return;
+    lastCell = targetCell;
+    setPlaceholderPosition(targetCell);
 }
 
 function handleDragDrop(actor, event, args) {
     const [x0, y0] = dropPlaceholder.get_transformed_position();
-    const row = dropPlaceholder.get_parent();
     Tweener.addTween(args.dropActor, {
         x: x0,
         y: y0,
@@ -95,9 +78,18 @@ function handleDragDrop(actor, event, args) {
         onComplete: () => {
             args.dropActor.unparent();
             args.dropActor.set_scale(...args.scale)
+            const row = dropPlaceholder.get_parent();
             row.replace_child(dropPlaceholder, args.dropActor);
             dropPlaceholder.unparent();
         }
     })
     lastCell = null;
+}
+
+function setPlaceholderPosition(targetCell) {
+    const row = targetCell.get_parent();
+    const cell = row.get_children().indexOf(targetCell);
+    dropPlaceholder.set_size(...targetCell.get_size());
+    dropPlaceholder.unparent();
+    row.insert_child_at_index(dropPlaceholder, cell);
 }
