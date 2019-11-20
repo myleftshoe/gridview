@@ -53,6 +53,7 @@ function handleDragBegin(actor, event, args) {
     const targetCell = getDraggableActor(args.targetActor);
     if (!(targetCell instanceof Cell)) 
         return;
+    dropPlaceholder.set_size(...targetCell.get_size());
     setPlaceholderPosition(targetCell);
 }
 
@@ -89,7 +90,6 @@ function handleDragDrop(actor, event, args) {
 function setPlaceholderPosition(targetCell) {
     const row = targetCell.get_parent();
     const cell = row.get_children().indexOf(targetCell);
-    dropPlaceholder.set_size(...targetCell.get_size());
     dropPlaceholder.unparent();
     row.insert_child_at_index(dropPlaceholder, cell);
 }
