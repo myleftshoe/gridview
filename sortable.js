@@ -26,12 +26,8 @@ function makeCellDraggable(cell) {
         cell.set_easing_duration(0);
         handleDragBegin(actor, event, args);
     });
-    addSignal(cell.draggable, 'drag-motion', (actor, event, args) => {
-        handleDragMotion(actor, event, args);
-    });
-    addSignal(cell.draggable, 'drag-dropped', (actor, event, args) => {
-        handleDragDrop(actor, event, args);
-    });
+    addSignal(cell.draggable, 'drag-motion', handleDragMotion);
+    addSignal(cell.draggable, 'drag-dropped', handleDragDrop);
     addSignal(cell.draggable, 'drag-end', () => {
         cell.set_easing_duration(300);
     });
