@@ -54,7 +54,7 @@ function handleDragBegin(actor, event, args) {
     if (!(targetCell instanceof Cell)) 
         return;
     dropPlaceholder.set_size(...targetCell.get_size());
-    setPlaceholderPosition(targetCell);
+    positionPlaceholder(targetCell);
 }
 
 function handleDragMotion(actor, event, args) {
@@ -66,7 +66,7 @@ function handleDragMotion(actor, event, args) {
     if (lastCell === targetCell)
         return;
     lastCell = targetCell;
-    setPlaceholderPosition(targetCell);
+    positionPlaceholder(targetCell);
 }
 
 function handleDragDrop(actor, event, args) {
@@ -87,7 +87,7 @@ function handleDragDrop(actor, event, args) {
     lastCell = null;
 }
 
-function setPlaceholderPosition(targetCell) {
+function positionPlaceholder(targetCell) {
     const row = targetCell.get_parent();
     const cell = row.get_children().indexOf(targetCell);
     dropPlaceholder.unparent();
