@@ -1,4 +1,4 @@
-// -*- mode: js; js-indent-level: 4; indent-tabs-mode: nil -*-
+/* Stripped-down version of https://github.com/GNOME/gnome-shell/blob/master/js/ui/dnd.js */
 
 const { Clutter, GLib, Meta, Shell, St } = imports.gi;
 const Signals = imports.signals;
@@ -6,11 +6,6 @@ const Signals = imports.signals;
 const Main = imports.ui.main;
 const Tweener = imports.ui.tweener;
 
-var DRAG_CURSOR_MAP = {
-    0: Meta.Cursor.DND_UNSUPPORTED_TARGET,
-    1: Meta.Cursor.DND_COPY,
-    2: Meta.Cursor.DND_MOVE
-};
 
 let eventHandlerActor = null;
 let currentDraggable = null;
@@ -166,9 +161,9 @@ var _Draggable = class _Draggable {
     _eventIsMotion(event) {
         return (
             event.type() == Clutter.EventType.MOTION || (
-            event.type() == Clutter.EventType.TOUCH_UPDATE && 
-            global.display.is_pointer_emulating_sequence(event.get_event_sequence())
-        ));
+                event.type() == Clutter.EventType.TOUCH_UPDATE &&
+                global.display.is_pointer_emulating_sequence(event.get_event_sequence())
+            ));
     }
 
     _eventIsKeypress(event) {
@@ -176,12 +171,12 @@ var _Draggable = class _Draggable {
     }
 
     _isGrabbedDevice(device) {
-        return (this._grabbedDevice && device === this._grabbedDevice || device.get_device_type() === Clutter.InputDeviceType.KEYBOARD_DEVICE); 
+        return (this._grabbedDevice && device === this._grabbedDevice || device.get_device_type() === Clutter.InputDeviceType.KEYBOARD_DEVICE);
     }
 
     _onEvent(actor, event) {
-        
-        if (!this._isGrabbedDevice(event.get_device())) 
+
+        if (!this._isGrabbedDevice(event.get_device()))
             return Clutter.EVENT_PROPAGATE;
 
         // We intercept BUTTON_RELEASE event to know that the button was released in case we
@@ -191,18 +186,18 @@ var _Draggable = class _Draggable {
         if (this._eventIsRelease(event)) {
             if (this.isDragging) {
                 return this._dragActorDropped(event);
-            } 
+            }
             // Drag has never started.
             this._ungrabActor();
         }
         else if (this._eventIsMotion(event)) {
             // We intercept MOTION event to figure out if the drag has started and to draw
             // this._dragActor under the pointer when dragging is in progress
-            if (this._dragActor && this.isDragging) 
+            if (this._dragActor && this.isDragging)
                 return this._updateDragPosition(event);
-            if (this._dragActor == null) 
+            if (this._dragActor == null)
                 return this._maybeStartDrag(event);
-        } 
+        }
         else if (this._eventIsKeypress(event) && this.isDragging) {
             // We intercept KEY_PRESS event so that we can process Esc key press to cancel
             // dragging and ignore all other key presses.
@@ -222,7 +217,7 @@ var _Draggable = class _Draggable {
 
         const target = this.actor.get_stage().get_actor_at_pos(
             Clutter.PickMode.ALL,
-            stageX, 
+            stageX,
             stageY
         );
 
@@ -255,8 +250,8 @@ var _Draggable = class _Draggable {
         // transformed size when it's reparented to the uiGroup
         const [scaledWidth, scaledHeight] = this.actor.get_transformed_size();
         this._dragActor.set_scale(
-            scaledWidth/this.actor.width,
-            scaledHeight/this.actor.height
+            scaledWidth / this.actor.width,
+            scaledHeight / this.actor.height
         );
 
         this._dragOrigParent.remove_actor(this._dragActor);
@@ -270,7 +265,7 @@ var _Draggable = class _Draggable {
     _maybeStartDrag(event) {
         if (currentDraggable)
             return true;
-        
+
         const [stageX, stageY] = event.get_coords();
 
         // See if the user has moved the mouse enough to trigger a drag
@@ -339,7 +334,7 @@ var _Draggable = class _Draggable {
             clutterEvent: event,
             scale: this._originalScale
         });
-        
+
         this.isDragging = false;
         global.display.set_cursor(Meta.Cursor.DEFAULT);
         this.emit('drag-end');
