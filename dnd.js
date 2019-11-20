@@ -4,29 +4,12 @@ const { Clutter, GLib, Meta, Shell, St } = imports.gi;
 const Signals = imports.signals;
 
 const Main = imports.ui.main;
-const Params = imports.misc.params;
 const Tweener = imports.ui.tweener;
-
-// Time to animate to original position on success
-var REVERT_ANIMATION_TIME = 0.75;
-
-var DragMotionResult = {
-    NO_DROP: 0,
-    COPY_DROP: 1,
-    MOVE_DROP: 2,
-    CONTINUE: 3
-};
 
 var DRAG_CURSOR_MAP = {
     0: Meta.Cursor.DND_UNSUPPORTED_TARGET,
     1: Meta.Cursor.DND_COPY,
     2: Meta.Cursor.DND_MOVE
-};
-
-var DragDropResult = {
-    FAILURE: 0,
-    SUCCESS: 1,
-    CONTINUE: 2
 };
 
 let eventHandlerActor = null;
@@ -45,20 +28,6 @@ function _getEventHandlerActor() {
     return eventHandlerActor;
 }
 
-
-var dragMonitors = [];
-
-function addDragMonitor(monitor) {
-    dragMonitors.push(monitor);
-}
-
-function removeDragMonitor(monitor) {
-    for (let i = 0; i < dragMonitors.length; i++)
-        if (dragMonitors[i] == monitor) {
-            dragMonitors.splice(i, 1);
-            return;
-        }
-}
 
 var _Draggable = class _Draggable {
 
@@ -268,22 +237,13 @@ var _Draggable = class _Draggable {
             stageY
         );
 
-        const beginEvent = {
-            targetActor: target,
-        };
-
-        for (let i = 0; i < dragMonitors.length; i++) {
-            const beginFunc = dragMonitors[i].dragBegin;
-            if (beginFunc) {
-                const success = beginFunc(beginEvent);
-                if (!success) return false;
-            }
-        }
-
         currentDraggable = this;
         this.isDragging = true;
 
-        this.emit('drag-begin', time);
+        this.emit('drag-begin', time, {
+            targetActor: target,
+        });
+
         if (this._onEventId)
             this._ungrabActor();
 
@@ -345,7 +305,7 @@ var _Draggable = class _Draggable {
         return this._dragActor.get_stage().get_actor_at_pos(Clutter.PickMode.ALL, x, y);
     }
 
-    _updateDragHover() {
+    _updateDragHover(event) {
         this._updateHoverId = 0;
         const [x, y] = [this._dragX, this._dragY];
         const targetActor = this._pickTargetActor(x, y);
@@ -357,27 +317,19 @@ var _Draggable = class _Draggable {
             targetActor,
         };
 
-        for (let i = 0; i < dragMonitors.length; i++) {
-            const motionFunc = dragMonitors[i].dragMotion;
-            if (motionFunc) {
-                const result = motionFunc(dragEvent);
-                if (result != DragMotionResult.CONTINUE) {
-                    global.display.set_cursor(DRAG_CURSOR_MAP[result]);
-                    return GLib.SOURCE_REMOVE;
-                }
-            }
-        }
+        this.emit('drag-motion', event.get_time(), dragEvent);
+
         global.display.set_cursor(Meta.Cursor.DND_IN_DRAG);
         return GLib.SOURCE_REMOVE;
     }
 
-    _queueUpdateDragHover() {
+    _queueUpdateDragHover(event) {
         if (this._updateHoverId)
             return;
 
         this._updateHoverId = GLib.idle_add(
             GLib.PRIORITY_DEFAULT,
-            this._updateDragHover.bind(this)
+            this._updateDragHover.bind(this, event)
         );
         GLib.Source.set_name_by_id(this._updateHoverId, '[gnome-shell] this._updateDragHover');
     }
@@ -393,37 +345,20 @@ var _Draggable = class _Draggable {
             stageY + this._dragOffsetY
         );
 
-        this._queueUpdateDragHover();
+        this._queueUpdateDragHover(event);
         return true;
     }
 
     _dragActorDropped(event) {
-        const [dropX, dropY] = event.get_coords();
-        const targetActor = this._pickTargetActor(dropX, dropY);
-        
-        // We call observers only once per motion with the innermost
-        // target actor. If necessary, the observer can walk the
-        // parent itself.
-        const dropEvent = {
+        const targetActor = this._pickTargetActor(...event.get_coords());
+
+        this.emit('drag-dropped', event.get_time(), {
             dropActor: this._dragActor,
             targetActor,
             clutterEvent: event,
             scale: this._originalScale
-        };
-        // this._dragActor.set_scale(...this._originalScale);
-        for (let i = 0; i < dragMonitors.length; i++) {
-            const dropFunc = dragMonitors[i].dragDrop;
-            if (dropFunc) {
-                switch (dropFunc(dropEvent)) {
-                    case DragDropResult.FAILURE:
-                    case DragDropResult.SUCCESS:
-                        return true;
-                    case DragDropResult.CONTINUE:
-                        continue;
-                }
-            }
-        }
-
+        });
+        
         this.isDragging = false;
         global.display.set_cursor(Meta.Cursor.DEFAULT);
         this.emit('drag-end', event.get_time(), true);

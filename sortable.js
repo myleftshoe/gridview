@@ -1,5 +1,4 @@
 const { St } = imports.gi;
-
 const Tweener = imports.ui.tweener;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
@@ -7,31 +6,31 @@ const DnD = Extension.imports.dnd;
 const { Cell } = Extension.imports.cell;
 const { Log } = Extension.imports.utils.logger;
 
-const dragMonitor = {
-    dragBegin: handleDragBegin,
-    dragDrop: handleDragDrop,
-    dragMotion: handleDragMotion,
-};
 const signals = new Map();
 const dropPlaceholder = new St.Widget();
 
 let lastCell = null;
 
 function makeSortable(actor) {
-    DnD.addDragMonitor(dragMonitor);
     actor.connect('cell-added', (source, cell) => makeCellDraggable(cell));
 }
 
 function unmakeSortable(actor) {
-    DnD.removeDragMonitor(dragMonitor);
     removeSignals();
 }
 
 function makeCellDraggable(cell) {
     cell.set_easing_duration(300)
     cell.draggable = DnD.makeDraggable(cell);
-    addSignal(cell.draggable, 'drag-begin', () => {
+    addSignal(cell.draggable, 'drag-begin', (actor, event, args) => {
         cell.set_easing_duration(0);
+        handleDragBegin(actor, event, args);
+    });
+    addSignal(cell.draggable, 'drag-motion', (actor, event, args) => {
+        handleDragMotion(actor, event, args);
+    });
+    addSignal(cell.draggable, 'drag-dropped', (actor, event, args) => {
+        handleDragDrop(actor, event, args);
     });
     addSignal(cell.draggable, 'drag-end', () => {
         cell.set_easing_duration(300);
@@ -54,10 +53,10 @@ function getDraggableActor(actor) {
     return getDraggableActor(actor.get_parent());
 }
 
-function handleDragBegin(event) {
-    if (event.targetActor.constructor.name !== 'Clutter_Clone')
+function handleDragBegin(actor, event, args) {
+    if (args.targetActor.constructor.name !== 'Clutter_Clone')
         return false;
-    const targetCell = getDraggableActor(event.targetActor);
+    const targetCell = getDraggableActor(args.targetActor);
     const row = targetCell.get_parent();
     const c = row.get_children().indexOf(targetCell);
     this.initialIndex = c;
@@ -69,21 +68,13 @@ function handleDragBegin(event) {
     return true;
 }
 
-function handleDragMotion(event) {
-    // log('drag-monitor');
-    // log(JSON.stringify(event, [
-    //     'source',
-    //     'x',
-    //     'y',
-    //     'targetActor', 
-    //     'dragActor']
-    // ));
-    const targetCell = getDraggableActor(event.targetActor);
+function handleDragMotion(actor, event, args) {
+    const targetCell = getDraggableActor(args.targetActor);
     if (targetCell instanceof Cell) {
         if (lastCell === targetCell)
-            return DnD.DragMotionResult.NO_DROP;
+            return;
         lastCell = targetCell;
-        const dragActor = event.dragActor;
+        const dragActor = args.dragActor;
         const row = targetCell.get_parent();
         const cell = row.get_children().indexOf(targetCell);
         dropPlaceholder.unparent();
@@ -95,25 +86,22 @@ function handleDragMotion(event) {
     else {
         lastCell = null;
     }
-    return DnD.DragMotionResult.MOVE_DROP;
 }
 
-function handleDragDrop(event) {
+function handleDragDrop(actor, event, args) {
     const [x0, y0] = dropPlaceholder.get_transformed_position();
     const row = dropPlaceholder.get_parent();
-    Tweener.addTween(event.dropActor, {
+    Tweener.addTween(args.dropActor, {
         x: x0,
         y: y0,
         time: .3,
         transition: 'easeOutQuad',
         onComplete: () => {
-            event.dropActor.unparent();
-            event.dropActor.set_scale(...event.scale)
-            row.replace_child(dropPlaceholder, event.dropActor);
+            args.dropActor.unparent();
+            args.dropActor.set_scale(...args.scale)
+            row.replace_child(dropPlaceholder, args.dropActor);
             dropPlaceholder.unparent();
-            // event.dropActor = null;
         }
     })
     lastCell = null;
-    return DnD.DragDropResult.CONTINUE;
 }
