@@ -5,6 +5,7 @@ const Signals = imports.signals;
 const Background = imports.ui.background;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
+const { HotTop } = Extension.imports.hotTop;
 const { GridView } = Extension.imports.gridView;
 const { Scrollable } = Extension.imports.scrollable;
 const { Log } = Extension.imports.utils.logger;
@@ -45,22 +46,18 @@ function enable() {
         log('global.stage.key-press-event')
     });
 
+    Main.layoutManager.connect('startup-complete', () => {
+        hotTop = new HotTop({width: 46});
+        // global.window_group.set_margin(new Clutter.Margin({top:60}));
+        hotTop.connect('enter-event', (actor, event) => {
+            if (!global.gridView) {
+                show();
+                return;
+            }
+        });
+    });
 
-    hotTop = new St.Widget({
-        height: 46,
-        width: 1920,
-        style_class: 'overlay',
-        reactive: true
-    });
-    // global.window_group.set_margin(new Clutter.Margin({top:60}));
-    Main.layoutManager.addChrome(hotTop, { affectsStruts: true });
-    hotTop.connect('enter-event', (actor, event) => {
-        if (!global.gridView) {
-            show();
-            return;
-        }
-    });
-    global.stage.add_child(hotTop);
+
 }
 
 function toggle() {
