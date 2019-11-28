@@ -1,16 +1,22 @@
 const { Clutter } = imports.gi;
+const Main = imports.ui.main;
+
 
 let sid = null;
 
 function makeZoomable(actor) {
+
     sid = actor.connect('scroll-event', (source, event) => {
         const direction = event.get_scroll_direction();
         if (direction > 1) return;
-        let amount = 0.5;
+        let amount = 0.1;
         const [scaleX, scaleY] = source.get_scale();
         if (direction === Clutter.ScrollDirection.DOWN) {
-            if (scaleX < 1) return;
+            if (scaleX < 0.2) return;
             amount = -amount;
+        }
+        if (direction === Clutter.ScrollDirection.UP) {
+            if (scaleX > 0.9) return;
         }
         const [sx, sy] = source.get_transformed_position();
         const [sw, sh] = source.get_transformed_size();

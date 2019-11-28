@@ -1,5 +1,4 @@
-const { GObject, Meta, St, Shell } = imports.gi;
-const Tweener = imports.ui.tweener;
+const { Clutter, GObject, Meta, St, Shell } = imports.gi;
 const Main = imports.ui.main;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
@@ -15,7 +14,6 @@ const Display = global.display;
 const Stage = global.stage;
 
 const style_class = 'gridview';
-var ANIMATION_TIME = 0.25;
 
 var GridView = GObject.registerClass(
     {
@@ -27,20 +25,19 @@ var GridView = GObject.registerClass(
     },
     class GridView extends St.BoxLayout {
         _init() {
-            const {width, height} = Display.get_monitor_geometry(Display.get_primary_monitor());
             super._init({
                 style_class,
-                opacity:0,
-                vertical: true,
+                opacity:255,
                 reactive: true,
-                width,
-                height,
+                vertical: true,
+                x_expand: true,
             });
             makeSortable(this);
             makeZoomable(this);
             makePannable(this);
             this.populate();
             this.show();
+
         }
         populate() {
             UI.workspaces.forEach((workspace) => {
@@ -58,26 +55,16 @@ var GridView = GObject.registerClass(
             });
         }
         show() {
-            // Make this respond to events reliably. trackChrome stops underlying
-            // windows stealing pointer events.
-            Main.layoutManager.trackChrome(this);
             Main.pushModal(this, { actionMode: Shell.ActionMode.OVERVIEW })
-            Tweener.addTween(this, {
-                opacity: 255,
-                time: ANIMATION_TIME,
-                transition: 'easeOutQuad'
-            });
         }
         hide() {
             this.get_children().forEach((row, rowIndex) => {
-                // log(`--- row: ${rowIndex+ 1}`);
-                [...row.get_children()].reverse().forEach(cell => {
-                    // log(cell.id);
-                    cell.metaWindow.change_workspace(row.workspace);
-                    cell.metaWindow.focus(global.get_current_time());
-                });
+                const cells = row.get_children();
+                cells.forEach(cell => {
+                    let [x,y] = cell.get_position();
+                    cell.metaWindow.move_frame(true,x + 13, 0);
+                })
             });
-            Main.layoutManager.untrackChrome(this);
             Main.popModal(this);
         }
         destroy() {

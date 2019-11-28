@@ -5,7 +5,7 @@ const Main = imports.ui.main;
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const { Log } = Extension.imports.utils.logger;
 
-const [scale_x, scale_y] = [.1, .1];
+const [scale_x, scale_y] = [1, 1];
 
 var Clone = class Clone extends Clutter.Actor {
 

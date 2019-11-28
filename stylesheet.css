@@ -1,21 +1,30 @@
 .gridview {
-    /* background-color: rgba(0, 0, 0, 0.5); */
+    /* background-color: rgba(255, 0, 0, 0.5); */
     /* margin:120px 80px; */
-    padding:20px 10px;
+    /* padding:20px 10px; */
+    /* margin-top:24px; */
 }
 
 .gridview-row {
     /* background-color: rgba(0, 0, 0, 0.5); */
     /* margin:120px 80px; */
-    padding:10px 20px;
+    /* padding:10px 20px; */
 }
 
 .gridview-cell {
     /* background-color: red; */
-    margin:10px;
-    border:2px solid cyan;
+    /* margin:10px; */
+    /* border:2px solid cyan; */
 }
 
 .gridview-cell:focused {
-    border:4px solid orange;
+    /* border:4px solid orange; */
+}
+
+.overlay {
+    /* background-color: rgba(0, 255, 0, 0.9); */
+}
+
+.thumb {
+    background-color: rgba(255, 255, 255, 0.3);
 }
