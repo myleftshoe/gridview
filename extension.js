@@ -14,7 +14,6 @@ let acceleratorSignal;
 
 function addAccelerator(accelerator) {
     const action = global.display.grab_accelerator(accelerator, Meta.KeyBindingFlags.NONE);
-
     if (action == Meta.KeyBindingAction.NONE) {
         log('Unable to grab accelerator [binding={}]', accelerator);
     }
@@ -22,9 +21,7 @@ function addAccelerator(accelerator) {
         const name = Meta.external_binding_name_for_action(action);
         Main.wm.allowKeybinding(name, Shell.ActionMode.ALL)
     }
-
 }
-
 
 function init() {
     log(`***************************************************************`);
