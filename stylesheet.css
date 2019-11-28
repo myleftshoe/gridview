@@ -22,15 +22,23 @@
 }
 
 .hot-edge {
-    background-color: rgba(100, 100, 0, 0.5);
+    background-color: rgba(100, 100, 0, 0.1);
 }
 
 .scrollbar {
-    background-color: rgba(0, 255, 255, 0.3);
+    background-color: rgba(100, 100, 100, 0.3);
+}
+
+.scrollbar:pressed {
+    background-color: rgba(200, 200, 200, 0.3);
 }
 
 .scrollbar-thumb {
     background-color: rgba(255, 255, 255, 0.3);
+}
+
+.scrollbar-thumb:pressed {
+    background-color: rgba(255, 255, 0, 0.5);
 }
 
 .thumb {
