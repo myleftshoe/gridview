@@ -32,18 +32,9 @@ function init() {
 function enable() {
     log(`${Extension.metadata.uuid} enable()`);
     addAccelerator("<super><alt>o")
-    acceleratorSignal = global.display.connect('accelerator-activated', toggle);
-    global.stage.connect('scroll-event', (source, event) => {
-        if (event.get_state() & Clutter.ModifierType.SHIFT_MASK && !global.gridView) {
-            show();
-        }
-    });
+    acceleratorSignal = global.display.connect('accelerator-activated', show);
     // stage actors do not report correct sizes before startup-complete
     Main.layoutManager.connect('startup-complete', prepare);
-}
-
-function toggle() {
-    Main.uiGroup.contains(global.gridView) ? hide() : show();
 }
 
 let hotTop;
@@ -51,63 +42,52 @@ let container;
 let scrollable;
 
 function prepare() {
-    hotTop = new HotTop({width: 21});
+    hotTop = new HotTop({width: 36});
     hotTop.connect('enter-event', (actor, event) => {
         log('enter-event')
-        if (!Main.uiGroup.contains(global.gridView)) {
+        if (!global.stage.contains(global.gridView)) {
             show();
             return;
         }
     });
     const hotLeft = new HotLeft({width:13}) 
-    container = new St.Widget({y:10});
-    const backgroundManager = new Background.BackgroundManager({
-        monitorIndex: Main.layoutManager.primaryIndex,
-        container: container,
-        vignette: false
-    });
-    global.gridView = new GridView();
-    global.gridView.connect('key-press-event', (actor, event) => {
+    container = new St.Widget();
+    container.connect('key-press-event', (actor, event) => {
         if (event.get_key_symbol() === Clutter.Escape) {
             if (global.gridView) {
                 hide();
             }
         }
     });
-    global.gridView.connect('key-release-event', (actor, event) => {
-        log('key-release-event');
-        if (event.get_state() & Clutter.ModifierType.SHIFT_MASK) {
-            log('released shift key')
-            if (global.gridView) {
-                hide();
-            }
-        }
+    const backgroundManager = new Background.BackgroundManager({
+        monitorIndex: Main.layoutManager.primaryIndex,
+        container: container,
+        vignette: false
     });
+    global.gridView = new GridView();
     scrollable = new Scrollable(global.gridView,{height:10, width:Main.uiGroup.get_width()});
-    hotTop.add_child(scrollable.scrollbar);
+    container.add_child(scrollable);
+    container.add_child(scrollable.scrollbar);
     show();
 }
 
 function show() {
+    if (global.stage.contains(global.gridView)) return;
     global.gridView.populate();
-    Main.uiGroup.add_child(container);
-    container.add_child(scrollable);
-    Main.pushModal(global.gridView, { actionMode: Shell.ActionMode.OVERVIEW })
+    global.stage.add_child(container);
+    Main.pushModal(container, { actionMode: Shell.ActionMode.OVERVIEW })
 }
 
 function hide() {
-    Tweener.addTween(global.gridView, {
+    if (!global.stage.contains(global.gridView)) return;
+    Tweener.addTween(container, {
         scale_x: 1,
         scale_y: 1,
         time: .25,
         transition: 'easeOutQuad',
         onComplete: () => {
-            Main.popModal(global.gridView);
-            container.remove_child(scrollable);
-            Main.uiGroup.remove_child(container);
-
-                // global.gridView.destroy();
-                // delete global.gridView;
+            Main.popModal(container);
+            global.stage.remove_child(container);
         }
     });
 }
