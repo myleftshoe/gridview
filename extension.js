@@ -41,14 +41,11 @@ function enable() {
             show();
         }
     });
-    global.stage.connect('key-press-event', () => {
-        log('global.stage.key-press-event')
-    });
     Main.layoutManager.connect('startup-complete', prepare);
 }
 
 function toggle() {
-    global.gridView ? hide() : show();
+    Main.uiGroup.contains(global.gridView) ? hide() : show();
 }
 
 let hotTop;
@@ -94,10 +91,8 @@ function prepare() {
 
 function show() {
     Main.uiGroup.add_child(container);
-    log(global.gridView.get_children())
     container.add_child(scrollable);
     Main.pushModal(global.gridView, { actionMode: Shell.ActionMode.OVERVIEW })
-
 }
 
 function hide() {
