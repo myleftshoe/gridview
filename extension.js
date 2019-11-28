@@ -6,7 +6,7 @@ const Background = imports.ui.background;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const { GridView } = Extension.imports.gridView;
-const { Scrollbar } = Extension.imports.scrollbar;
+const { Scrollable } = Extension.imports.scrollable;
 const { Log } = Extension.imports.utils.logger;
 
 let acceleratorSignal;
@@ -123,13 +123,10 @@ function show() {
             }
         }
     });
-    scrollable = new Scrollbar(global.gridView,{});
-    hotTop.add_child(scrollable);
-    container.add_child(scrollable.scrollActor);
-    // scrollContainer.add_child(global.gridView);
+    scrollable = new Scrollable(global.gridView,{});
+    hotTop.add_child(scrollable.scrollbar);
+    container.add_child(scrollable);
     Main.uiGroup.add_child(container);
-    // scrollContainer.set_easing_duration(250);
-    // scrollContainer.scroll_to_point(new Clutter.Point({x: 500,y: 0}))
 }
 
 function hide() {
