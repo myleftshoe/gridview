@@ -1,4 +1,4 @@
-const { Clutter, GLib, Meta, Shell, St } = imports.gi;
+const { Clutter, GLib, GObject, Meta, Shell, St } = imports.gi;
 const Main = imports.ui.main;
 const Tweener = imports.ui.tweener;
 const Signals = imports.signals;
@@ -37,6 +37,12 @@ function enable() {
     Main.layoutManager.connect('startup-complete', prepare);
 }
 
+function disable() {
+    log(`${Extension.metadata.uuid} disable()`);
+    global.display.disconnect(acceleratorSignal);
+    hide();
+}
+
 let container;
 let gridView;
 
@@ -47,7 +53,7 @@ function prepare() {
         show();
     });
     const hotLeft = new HotLeft({width:13});
-    container = createContainer();
+    container = new Container();
     gridView = new GridView();
     const scrollable = new Scrollable(gridView,{height:10, width:Main.uiGroup.get_width()});
     container.add_child(scrollable);
@@ -56,43 +62,47 @@ function prepare() {
 }
 
 function show() {
-    if (Main.uiGroup.contains(container)) return;
+    if (container.isOnStage) return;
     gridView.populate();
-    Main.uiGroup.add_child(container);
-    Main.pushModal(container, { actionMode: Shell.ActionMode.OVERVIEW })
+    container.show();
 }
 
 function hide() {
-    if (!Main.uiGroup.contains(container)) return;
-    Tweener.addTween(container, {
+    if (!container.isOnStage) return;
+    Tweener.addTween(gridView, {
         scale_x: 1,
         scale_y: 1,
         time: .25,
         transition: 'easeOutQuad',
-        onComplete: () => {
-            Main.popModal(container);
-            Main.uiGroup.remove_child(container);
-        }
+        onComplete: () => container.hide()
     });
 }
 
-function disable() {
-    log(`${Extension.metadata.uuid} disable()`);
-    global.display.disconnect(acceleratorSignal);
-    hide();
-}
-
-function createContainer() {
-    const container = new St.Widget();
-    container.connect('key-press-event', (actor, event) => {
-        if (event.get_key_symbol() === Clutter.Escape) {
-            hide();
+const Container = GObject.registerClass({},
+    class Container extends St.Widget {
+        _init() {
+            super._init();
+            this.connect('key-press-event', (actor, event) => {
+                if (event.get_key_symbol() === Clutter.Escape) {
+                    hide();
+                }
+            });
+            const backgroundManager = new Background.BackgroundManager({
+                monitorIndex: Main.layoutManager.primaryIndex,
+                container: this,
+                vignette: false
+            });
         }
-    });
-    const backgroundManager = new Background.BackgroundManager({
-        monitorIndex: Main.layoutManager.primaryIndex,
-        container: container,
-        vignette: false
-    });
-    return container;
-}
+        get isOnStage() {
+            return Main.uiGroup.contains(this);
+        }
+        show() {
+            Main.uiGroup.add_child(this);
+            Main.pushModal(this, { actionMode: Shell.ActionMode.OVERVIEW })
+        }
+        hide() {
+            Main.popModal(this);
+            Main.uiGroup.remove_child(this);
+        }
+    }
+);
