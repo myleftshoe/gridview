@@ -56,14 +56,14 @@ function prepare() {
 }
 
 function show() {
-    if (global.stage.contains(container)) return;
+    if (Main.uiGroup.contains(container)) return;
     gridView.populate();
-    global.stage.add_child(container);
+    Main.uiGroup.add_child(container);
     Main.pushModal(container, { actionMode: Shell.ActionMode.OVERVIEW })
 }
 
 function hide() {
-    if (!global.stage.contains(container)) return;
+    if (!Main.uiGroup.contains(container)) return;
     Tweener.addTween(container, {
         scale_x: 1,
         scale_y: 1,
@@ -71,7 +71,7 @@ function hide() {
         transition: 'easeOutQuad',
         onComplete: () => {
             Main.popModal(container);
-            global.stage.remove_child(container);
+            Main.uiGroup.remove_child(container);
         }
     });
 }
