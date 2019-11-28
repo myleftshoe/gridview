@@ -38,6 +38,7 @@ function enable() {
             show();
         }
     });
+    // stage actors do not report correct sizes before startup-complete
     Main.layoutManager.connect('startup-complete', prepare);
 }
 
