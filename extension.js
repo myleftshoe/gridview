@@ -5,7 +5,7 @@ const Signals = imports.signals;
 const Background = imports.ui.background;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
-const { HotTop } = Extension.imports.hotEdge;
+const { HotTop, HotLeft } = Extension.imports.hotEdge;
 const { GridView } = Extension.imports.gridView;
 const { Scrollable } = Extension.imports.scrollable;
 const { Log } = Extension.imports.utils.logger;
@@ -51,7 +51,7 @@ let container;
 let scrollable;
 
 function prepare() {
-    hotTop = new HotTop({width: 46});
+    hotTop = new HotTop({width: 21});
     hotTop.connect('enter-event', (actor, event) => {
         log('enter-event')
         if (!Main.uiGroup.contains(global.gridView)) {
@@ -59,6 +59,7 @@ function prepare() {
             return;
         }
     });
+    const hotLeft = new HotLeft({width:13}) 
     container = new St.Widget({y:10});
     const backgroundManager = new Background.BackgroundManager({
         monitorIndex: Main.layoutManager.primaryIndex,
