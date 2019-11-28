@@ -40,6 +40,7 @@ var GridView = GObject.registerClass(
 
         }
         populate() {
+            this.remove_all_children();
             UI.workspaces.forEach((workspace) => {
                 // const windows = workspace.list_windows();
                 // const windows = UI.getWorkspaceWindows(workspace);

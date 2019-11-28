@@ -88,6 +88,7 @@ function prepare() {
 }
 
 function show() {
+    global.gridView.populate();
     Main.uiGroup.add_child(container);
     container.add_child(scrollable);
     Main.pushModal(global.gridView, { actionMode: Shell.ActionMode.OVERVIEW })
