@@ -82,7 +82,7 @@ const Container = GObject.registerClass({},
     class Container extends St.Widget {
         _init() {
             super._init();
-            this.connect('key-press-event', (actor, event) => {
+            this._hideSignal = this.connect('key-press-event', (actor, event) => {
                 if (event.get_key_symbol() === Clutter.Escape) {
                     hide();
                 }
@@ -104,5 +104,8 @@ const Container = GObject.registerClass({},
             Main.popModal(this);
             Main.uiGroup.remove_child(this);
         }
+        destroy() {
+            this.disconnect(this._hideSignal);
+        }        
     }
 );
