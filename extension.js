@@ -5,7 +5,7 @@ const Signals = imports.signals;
 const Background = imports.ui.background;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
-const { HotTop } = Extension.imports.hotTop;
+const { HotTop } = Extension.imports.hotEdge;
 const { GridView } = Extension.imports.gridView;
 const { Scrollable } = Extension.imports.scrollable;
 const { Log } = Extension.imports.utils.logger;
