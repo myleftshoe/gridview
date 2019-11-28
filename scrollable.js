@@ -30,17 +30,17 @@ var Scrollable = class Scrollable extends Clutter.ScrollActor {
                 size: {width:width - thumbWidth, height}
             })
         });
-        dragAction.connect('drag-begin', (_dragAction, _thumb, _x, _y) => {
+        dragAction.connect('drag-begin', () => {
             this.scrollbar.add_style_pseudo_class('pressed');
             thumb.add_style_pseudo_class('pressed');
         });
-        dragAction.connect('drag-end', (_dragAction, _thumb, _x, _y) => {
+        dragAction.connect('drag-end', () => {
             this.scrollbar.remove_style_pseudo_class('pressed');
             thumb.remove_style_pseudo_class('pressed');
         });
         dragAction.connect('drag-motion', (_dragAction, _thumb, _x, _y) => {
             const [x,y] = _thumb.get_position();
-            this.scroll_to_point(new Clutter.Point({x: x * this.get_width()/width ,y: 0}))
+            this.scroll_to_point(new Clutter.Point({x: x * this.get_width()/width, y: 0}))
         });
         this.set_easing_duration(250);
         thumb.add_action(dragAction);
