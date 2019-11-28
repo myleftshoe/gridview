@@ -47,45 +47,20 @@ function enable() {
 
 
     hotTop = new St.Widget({
-        height: 36,
+        height: 46,
         width: 1920,
         style_class: 'overlay',
         reactive: true
     });
     // global.window_group.set_margin(new Clutter.Margin({top:60}));
     Main.layoutManager.addChrome(hotTop, { affectsStruts: true });
-    hotTop.connect('button-press-event', (actor, event) => {
-        if (event.get_state() & Clutter.ModifierType.SHIFT_MASK && !global.gridView) {
+    hotTop.connect('enter-event', (actor, event) => {
+        if (!global.gridView) {
             show();
             return;
         }
-        return true;
-        return Clutter.Event.PROPAGATE;
     });
-    // Main.uiGroup.add_child(hotTop);
     global.stage.add_child(hotTop);
-
-
-    // global.display.connect('grab-op-begin', (display, d, mw, type) => {
-    //     log('grab-op-begin');
-    //     if (!global.gridView) {
-    //         show();
-    //     }
-    //     // return Clutter.EVENT_STOP;
-    // });
-
-    // // global.stage.connect('event', (display, d, mw, type) => {
-    // //     // Log.properties(d)
-    // //     log(d.type())
-    // //     log('captured-event');
-    // //     return Clutter.EVENT_PROPAGATE;
-    // // });
-    // global.display.connect('grab-op-end', () => {
-    //     log('grab-op-end');
-    //     if (global.gridView) {
-    //         hide();
-    //     }
-    // });
 }
 
 function toggle() {
@@ -95,11 +70,9 @@ function toggle() {
 let container;
 let scrollable;
 let thumb;
-var pos = 0;
-var gx;
 
 function show() {
-    container = new St.Widget({y:20});
+    container = new St.Widget({y:10});
     const backgroundManager = new Background.BackgroundManager({
         monitorIndex: Main.layoutManager.primaryIndex,
         container: container,
@@ -125,12 +98,11 @@ function show() {
     });
     scrollable = new Scrollable(global.gridView,{});
     hotTop.add_child(scrollable.scrollbar);
-    container.add_child(scrollable);
     Main.uiGroup.add_child(container);
+    container.add_child(scrollable);
 }
 
 function hide() {
-    pos = 0;
     Tweener.addTween(global.gridView, {
         scale_x: 1,
         scale_y: 1,

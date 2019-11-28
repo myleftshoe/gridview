@@ -4,7 +4,7 @@ const Extension = imports.misc.extensionUtils.getCurrentExtension();
 
 const style_class = 'scrollbar';
 
-class Scrollable extends Clutter.ScrollActor {
+var Scrollable = class Scrollable extends Clutter.ScrollActor {
     constructor(actor, { 
         width = Main.uiGroup.get_width(),
         height = 10
