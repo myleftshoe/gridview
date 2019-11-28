@@ -36,7 +36,7 @@ var GridView = GObject.registerClass(
             makeZoomable(this);
             makePannable(this);
             this.populate();
-            this.show();
+            // this.show();
 
         }
         populate() {
@@ -54,9 +54,9 @@ var GridView = GObject.registerClass(
                 this.add_child(row);
             });
         }
-        show() {
-            Main.pushModal(this, { actionMode: Shell.ActionMode.OVERVIEW })
-        }
+        // show() {
+        //     Main.pushModal(this, { actionMode: Shell.ActionMode.OVERVIEW })
+        // }
         hide() {
             this.get_children().forEach((row, rowIndex) => {
                 const cells = row.get_children();
@@ -65,14 +65,14 @@ var GridView = GObject.registerClass(
                     cell.metaWindow.move_frame(true,x + 13, 0);
                 })
             });
-            Main.popModal(this);
+            // Main.popModal(this);
         }
         destroy() {
-            this.hide();
-            unmakeSortable(this);
-            unmakeZoomable(this);
-            unmakePannable(this);
-            this.destroy_all_children();
+            // this.hide();
+            // unmakeSortable(this);
+            // unmakeZoomable(this);
+            // unmakePannable(this);
+            // this.destroy_all_children();
         }
     }
 );

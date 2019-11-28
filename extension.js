@@ -31,7 +31,7 @@ function init() {
     log(`${Extension.metadata.uuid} init()`);
     Signals.addSignalMethods(Extension);
 }
-let hotTop;
+
 function enable() {
     log(`${Extension.metadata.uuid} enable()`);
     addAccelerator("<super><alt>o")
@@ -41,40 +41,35 @@ function enable() {
             show();
         }
     });
-
     global.stage.connect('key-press-event', () => {
         log('global.stage.key-press-event')
     });
-
-    Main.layoutManager.connect('startup-complete', () => {
-        hotTop = new HotTop({width: 46});
-        // global.window_group.set_margin(new Clutter.Margin({top:60}));
-        hotTop.connect('enter-event', (actor, event) => {
-            if (!global.gridView) {
-                show();
-                return;
-            }
-        });
-    });
-
-
+    Main.layoutManager.connect('startup-complete', prepare);
 }
 
 function toggle() {
     global.gridView ? hide() : show();
 }
 
+let hotTop;
 let container;
 let scrollable;
 
-function show() {
+function prepare() {
+    hotTop = new HotTop({width: 46});
+    hotTop.connect('enter-event', (actor, event) => {
+        log('enter-event')
+        if (!Main.uiGroup.contains(global.gridView)) {
+            show();
+            return;
+        }
+    });
     container = new St.Widget({y:10});
     const backgroundManager = new Background.BackgroundManager({
         monitorIndex: Main.layoutManager.primaryIndex,
         container: container,
         vignette: false
     });
-
     global.gridView = new GridView();
     global.gridView.connect('key-press-event', (actor, event) => {
         if (event.get_key_symbol() === Clutter.Escape) {
@@ -92,10 +87,17 @@ function show() {
             }
         }
     });
-    scrollable = new Scrollable(global.gridView,{});
+    scrollable = new Scrollable(global.gridView,{height:10, width:Main.uiGroup.get_width()});
     hotTop.add_child(scrollable.scrollbar);
+    show();
+}
+
+function show() {
     Main.uiGroup.add_child(container);
+    log(global.gridView.get_children())
     container.add_child(scrollable);
+    Main.pushModal(global.gridView, { actionMode: Shell.ActionMode.OVERVIEW })
+
 }
 
 function hide() {
@@ -105,9 +107,12 @@ function hide() {
         time: .25,
         transition: 'easeOutQuad',
         onComplete: () => {
-                Main.uiGroup.remove_child(container);
-                global.gridView.destroy();
-                delete global.gridView;
+            Main.popModal(global.gridView);
+            container.remove_child(scrollable);
+            Main.uiGroup.remove_child(container);
+
+                // global.gridView.destroy();
+                // delete global.gridView;
         }
     });
 }
