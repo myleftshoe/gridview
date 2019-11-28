@@ -69,7 +69,6 @@ function toggle() {
 
 let container;
 let scrollable;
-let thumb;
 
 function show() {
     container = new St.Widget({y:10});
