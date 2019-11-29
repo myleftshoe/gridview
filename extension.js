@@ -34,20 +34,26 @@ function enable() {
     addAccelerator("<super><alt>o")
     acceleratorSignal = global.display.connect('accelerator-activated', show);
     // stage actors do not report correct sizes before startup-complete
-    Main.layoutManager.connect('startup-complete', prepare);
+    if (Main.layoutManager._startingUp) 
+        Main.layoutManager.connect('startup-complete', prepare);
+    else
+        prepare();
+
 }
 
 function disable() {
     log(`${Extension.metadata.uuid} disable()`);
     global.display.disconnect(acceleratorSignal);
     hide();
+    hotTop._destroy();
 }
 
 let container;
 let gridView;
+let hotTop;
 
 function prepare() {
-    const hotTop = new HotTop({width: 36});
+    hotTop = new HotTop({width: 36});
     hotTop.connect('enter-event', (actor, event) => {
         log('enter-event')
         show();
