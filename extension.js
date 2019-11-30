@@ -8,6 +8,7 @@ const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const { HotTop, HotLeft } = Extension.imports.hotEdge;
 const { GridView } = Extension.imports.gridView;
 const { Scrollable } = Extension.imports.scrollable;
+const { Cell } = Extension.imports.cell;
 const { Log } = Extension.imports.utils.logger;
 
 let acceleratorSignal;
@@ -64,6 +65,14 @@ function prepare() {
     const scrollable = new Scrollable(gridView,{height:10, width:Main.uiGroup.get_width()});
     container.add_child(scrollable);
     container.add_child(scrollable.scrollbar);
+    gridView.connect('button-release-event', (actor, event) => {
+        log('------------', actor, event);
+        const clickedActor = actor.get_stage().get_actor_at_pos(Clutter.PickMode.REACTIVE,...event.get_coords());
+        if (!clickedActor instanceof Cell) return;
+        const [x,y] = clickedActor.get_position();
+        const [width, height] = clickedActor.get_size();
+        scrollable.scroll_to_rect(new Clutter.Rect({origin: {x, y}, size: {width, height}}));
+    });
     show();
 }
 
@@ -96,7 +105,7 @@ const Container = GObject.registerClass({},
             const backgroundManager = new Background.BackgroundManager({
                 monitorIndex: Main.layoutManager.primaryIndex,
                 container: this,
-                vignette: false
+                vignette: true
             });
         }
         get isOnStage() {
