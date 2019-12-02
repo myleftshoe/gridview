@@ -16,11 +16,6 @@ var HotTop = GObject.registerClass({},
                 reactive:true
             });
             Main.layoutManager.addChrome(this, { affectsStruts: true });
-            global.stage.add_child(this);
-        }
-        _destroy() {
-            Main.layoutManager.removeChrome();
-            global.stage.remove_child(this);
         }
     }
 );
@@ -36,7 +31,6 @@ var HotBottom = GObject.registerClass({},
                 reactive:true
             });
             Main.layoutManager.addChrome(this, { affectsStruts: true });
-            global.stage.add_child(this);
         }
     }
 );
@@ -51,7 +45,6 @@ var HotLeft = GObject.registerClass({},
                 reactive:true
             });
             Main.layoutManager.addChrome(this, { affectsStruts: true });
-            global.stage.add_child(this);
         }
     }
 );
@@ -67,7 +60,6 @@ var HotRight = GObject.registerClass({},
                 reactive:true
             });
             Main.layoutManager.addChrome(this, { affectsStruts: true });
-            global.stage.add_child(this);
         }
     }
 );
