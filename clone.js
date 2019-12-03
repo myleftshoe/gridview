@@ -33,7 +33,4 @@ var Clone = class Clone extends Clutter.Actor {
         });
 
     }
-    destroy() {
-        // TODO: disconnect events
-    }
 }
