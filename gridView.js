@@ -32,9 +32,10 @@ var GridView = GObject.registerClass(
                 vertical: true,
                 x_expand: true,
             });
+            this.focusedCell = null;
             makeSortable(this);
-            makeZoomable(this);
-            makePannable(this);
+            // makeZoomable(this);
+            // makePannable(this);
             this.populate();
             // this.show();
 
@@ -49,8 +50,33 @@ var GridView = GObject.registerClass(
                 const row = new Row(workspace);
                 windows.forEach(metaWindow => {
                     const cell = new Cell(metaWindow);
+                    cell.connect('button-press-event', (actor) => {
+                        if (this.focusedCell) {
+                            this.focusedCell.metaWindowActor.hide();
+                        }
+                    });
+                    cell.connect('button-release-event', (actor) => {
+                        // const rect = Meta.rect(1,1,200,200);
+                        const br = actor.metaWindow.get_buffer_rect();
+                        const fr = actor.metaWindow.get_frame_rect(); 
+                        log(actor.id);
+                        let [x,y] = actor.get_transformed_position();
+                        // let [x,y] = actor.get_transformed_position();
+                        // arr = actor.get_abs_allocation_vertices();
+                        // let arr = actor.get_allocation_box();
+                        // log( arr.x1, arr.y1)
+                        log(br.x, fr.x, x);
+                        log(br.y, fr.y, y);
+                        log(br.width, fr.width, actor.width);
+                        log(br.height, fr.height, actor.height);
+                        let [x1, y1] = actor.get_position();
+                        actor.metaWindow.move_frame(true, x + br.x - fr.x, y)
+                        actor.metaWindowActor.show();
+                        this.focusedCell = actor;
+                    });
                     log(cell.id)
                     row.add_child(cell);
+                    cell.metaWindowActor.hide();
                     this.emit('cell-added', cell);
                 });
                 this.add_child(row);

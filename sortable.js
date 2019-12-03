@@ -29,6 +29,7 @@ function makeCellDraggable(cell) {
     addSignal(cell.draggable, 'drag-motion', handleDragMotion);
     addSignal(cell.draggable, 'drag-dropped', handleDragDrop);
     addSignal(cell.draggable, 'drag-end', () => {
+        log('drag-end')
         cell.set_easing_duration(300);
     });
 }

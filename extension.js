@@ -58,7 +58,7 @@ function prepare() {
         log('enter-event')
         show();
     });
-    const hotLeft = new HotLeft({width:13});
+    // const hotLeft = new HotLeft({width:13});
     container = new Container();
     gridView = new GridView();
     // const scrollable = new Scrollable(gridView,{height:10, width:Main.uiGroup.get_width()});

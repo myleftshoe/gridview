@@ -22,14 +22,13 @@ var Cell = GObject.registerClass(
             this.id = metaWindow.title;
             this.metaWindow = metaWindow;
             this.metaWindowActor = this.metaWindow.get_compositor_private();
-            this.active = false;
             this.metaWindow.maximize(Meta.MaximizeFlags.VERTICAL);
             // this.metaWindow.maximize(3);
-            this.connect('button-release-event', () => {
-                this.metaWindow.move_frame(false,0,0);
-                // Main.activateWindow(this.metaWindow);
-                this.active = true;
-            });
+            // this.connect('button-release-event', () => {
+            //     this.metaWindow.move_frame(false,0,0);
+            //     // Main.activateWindow(this.metaWindow);
+            //     this.active = true;
+            // });
             
             
             if (metaWindow.has_focus())
