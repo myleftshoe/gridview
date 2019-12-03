@@ -49,6 +49,7 @@ var GridView = GObject.registerClass(
                 const row = new Row(workspace);
                 windows.forEach(metaWindow => {
                     const cell = new Cell(metaWindow);
+                    log(cell.id)
                     row.add_child(cell);
                     this.emit('cell-added', cell);
                 });

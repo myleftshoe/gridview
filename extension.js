@@ -46,7 +46,6 @@ function disable() {
     log(`${Extension.metadata.uuid} disable()`);
     global.display.disconnect(acceleratorSignal);
     hide();
-    hotTop._destroy();
 }
 
 let container;
@@ -62,22 +61,23 @@ function prepare() {
     const hotLeft = new HotLeft({width:13});
     container = new Container();
     gridView = new GridView();
-    const scrollable = new Scrollable(gridView,{height:10, width:Main.uiGroup.get_width()});
-    container.add_child(scrollable);
-    container.add_child(scrollable.scrollbar);
+    // const scrollable = new Scrollable(gridView,{height:10, width:Main.uiGroup.get_width()});
+    container.add_child(gridView);
+    // container.add_child(scrollable.scrollbar);
     gridView.connect('button-release-event', (actor, event) => {
         log('------------', actor, event);
         const clickedActor = actor.get_stage().get_actor_at_pos(Clutter.PickMode.REACTIVE,...event.get_coords());
         if (!clickedActor instanceof Cell) return;
         const [x,y] = clickedActor.get_position();
         const [width, height] = clickedActor.get_size();
-        scrollable.scroll_to_rect(new Clutter.Rect({origin: {x, y}, size: {width, height}}));
+        // scrollable.scroll_to_rect(new Clutter.Rect({origin: {x, y}, size: {width, height}}));
     });
+    // scrollable.update();
     show();
 }
 
 function show() {
-    if (container.isOnStage) return;
+    // if (container.isOnStage) return;
     gridView.populate();
     container.show();
 }
@@ -102,22 +102,22 @@ const Container = GObject.registerClass({},
                     hide();
                 }
             });
-            const backgroundManager = new Background.BackgroundManager({
-                monitorIndex: Main.layoutManager.primaryIndex,
-                container: this,
-                vignette: true
-            });
+            // const backgroundManager = new Background.BackgroundManager({
+            //     monitorIndex: Main.layoutManager.primaryIndex,
+            //     container: this,
+            //     vignette: true
+            // });
         }
         get isOnStage() {
             return Main.uiGroup.contains(this);
         }
         show() {
             Main.uiGroup.add_child(this);
-            Main.pushModal(this, { actionMode: Shell.ActionMode.OVERVIEW })
+            // Main.pushModal(this, { actionMode: Shell.ActionMode.OVERVIEW })
         }
         hide() {
-            Main.popModal(this);
-            Main.uiGroup.remove_child(this);
+            // Main.popModal(this);
+            Main.uiGroup.stage.remove_child(this);
         }
         destroy() {
             this.disconnect(this._hideSignal);
