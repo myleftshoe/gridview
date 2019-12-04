@@ -63,7 +63,7 @@ function prepare() {
         // if (!metaWindow.get_transient_for()) return;
         if (metaWindow.get_window_type() < 2) {
             gridView.populate();
-            metaWindow.hide();
+            metaWindow.get_compositor_private().hide();
             return;
         }
         /*
