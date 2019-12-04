@@ -51,7 +51,29 @@ let container;
 let gridView;
 let hotTop;
 
+function hidePanelBox() {
+    const panelBox = Main.layoutManager.panelBox;
+    panelBox.translation_y = -panelBox.get_height();
+    Main.overview.connect('showing', () => {
+        container.hide();
+    });
+    Main.overview.connect('shown', () => {
+        Tweener.addTween(panelBox, {
+            translation_y:0,
+            time:.25,
+        });
+    });
+    Main.overview.connect('hidden', () => {
+        Tweener.addTween(panelBox, {
+            translation_y:-27,
+            time:.25,
+        })
+        container.show();
+    });
+}
+
 function prepare() {
+    hidePanelBox();
     hotTop = new HotTop({width: 36});
     hotTop.connect('enter-event', (actor, event) => {
         log('enter-event')
@@ -126,11 +148,11 @@ const Container = GObject.registerClass({},
                     hide();
                 }
             });
-            const backgroundManager = new Background.BackgroundManager({
-                monitorIndex: Main.layoutManager.primaryIndex,
-                container: this,
-                vignette: true
-            });
+            // const backgroundManager = new Background.BackgroundManager({
+            //     monitorIndex: Main.layoutManager.primaryIndex,
+            //     container: this,
+            //     vignette: true
+            // });
         }
         get isOnStage() {
             return Main.uiGroup.contains(this);
