@@ -21,7 +21,7 @@ var Clone = class Clone extends Clutter.Actor {
 
         this.translation_y = br.y - fr.y + 36;
         
-        const marginX = 50 - Math.round((br.width - fr.width) / 2);
+        const marginX = 20 - Math.round((br.width - fr.width) / 2);
         // this.set_margin(new Clutter.Margin({left:marginX, right:marginX}))
         this.set_margin_left(marginX);
         this.set_margin_right(marginX);
