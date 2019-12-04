@@ -63,6 +63,7 @@ function prepare() {
         // if (!metaWindow.get_transient_for()) return;
         if (metaWindow.get_window_type() < 2) {
             gridView.populate();
+            metaWindow.hide();
             return;
         }
         /*
@@ -77,12 +78,12 @@ function prepare() {
     // const hotLeft = new HotLeft({width:64});
     container = new Container();
     gridView = new GridView();
-    const scrollable = new Scrollable(gridView,{height:10, width:Main.uiGroup.get_width()});
+    const scrollable = new Scrollable(gridView,{height:1, width:Main.uiGroup.get_width()});
     container.add_child(scrollable);
     container.add_child(scrollable.scrollbar);
     gridView.connect('focused', (gridViewActor, actor) => {
         log('focused', actor.id)
-        hideBoxes();
+        // hideBoxes();
         const [x,y] = actor.get_position();
         const [width, height] = actor.get_size();
         log(x,y, width,height)
@@ -96,7 +97,7 @@ function prepare() {
             const fr = actor.metaWindow.get_frame_rect(); 
             let [nx,ny] = actor.get_transformed_position();
             actor.metaWindow.move_frame(true, nx + (br.width - fr.width)/2 + actor.clone.get_margin_left(), ny);
-            showBoxes(actor.metaWindow);
+            // showBoxes(actor.metaWindow);
         })
     });
     show();
@@ -129,11 +130,11 @@ const Container = GObject.registerClass({},
                     hide();
                 }
             });
-            // const backgroundManager = new Background.BackgroundManager({
-            //     monitorIndex: Main.layoutManager.primaryIndex,
-            //     container: this,
-            //     vignette: true
-            // });
+            const backgroundManager = new Background.BackgroundManager({
+                monitorIndex: Main.layoutManager.primaryIndex,
+                container: this,
+                vignette: true
+            });
         }
         get isOnStage() {
             return Main.uiGroup.contains(this);
