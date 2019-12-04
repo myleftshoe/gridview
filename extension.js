@@ -87,14 +87,14 @@ function prepare() {
         gridView.cells.forEach(cell => cell.set_reactive(true));
         actor.set_reactive(false);
         scrollable.scrollToActor(actor);
-        scrollable.onScrollEnd = () => {
+        scrollable.onScrollEnd(() => {
             log('onScrollEnd');
             const br = actor.metaWindow.get_buffer_rect();
             const fr = actor.metaWindow.get_frame_rect(); 
             let [nx,ny] = actor.get_transformed_position();
             actor.metaWindow.move_frame(true, nx + (br.width - fr.width)/2 + actor.clone.get_margin_left(), ny);
             // showBoxes(actor.metaWindow);
-        }
+        });
     });
     show();
     scrollable.update();

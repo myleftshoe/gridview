@@ -44,7 +44,7 @@ var Scrollable = GObject.registerClass({},
                 this.thumb.remove_style_pseudo_class('pressed');
             });
             this.dragAction.connect('drag-motion', () => {
-                const [x,y] = this.thumb.get_position();
+                const [x] = this.thumb.get_position();
                 this.scroll_to_point(new Clutter.Point({x: x * this._width/this._width, y: 0}))
             });
             this.thumb.add_action(this.dragAction);
@@ -67,7 +67,7 @@ var Scrollable = GObject.registerClass({},
             this.thumb.set_x(x / this.width * this.scrollbar.width);
             this.thumb.set_easing_duration(0)
         }
-        set onScrollEnd(callback) {
+        onScrollEnd(callback) {
             const sig = this.connect('transitions-completed', () => {
                 log('transitions-completed');
                 this.disconnect(sig);
