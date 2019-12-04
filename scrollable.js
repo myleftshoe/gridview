@@ -29,16 +29,17 @@ var Scrollable = GObject.registerClass({},
             this.dragAction = new Clutter.DragAction({
                 dragAxis:Clutter.DragAxis.X_AXIS,
             });
-            this.dragAction.connect('drag-begin', () => {
+            this.dragAction.connect('drag-begin', (a,b) => {
                 this.scrollbar.add_style_pseudo_class('pressed');
                 this.thumb.add_style_pseudo_class('pressed');
+
             });
             this.dragAction.connect('drag-end', () => {
                 this.scrollbar.remove_style_pseudo_class('pressed');
                 this.thumb.remove_style_pseudo_class('pressed');
             });
-            this.dragAction.connect('drag-motion', (_dragAction, _thumb, _x, _y) => {
-                const [x,y] = _thumb.get_position();
+            this.dragAction.connect('drag-motion', () => {
+                const [x,y] = this.thumb.get_position();
                 this.scroll_to_point(new Clutter.Point({x: x * this.get_width()/this._width, y: 0}))
             });
             this.set_easing_duration(250);
