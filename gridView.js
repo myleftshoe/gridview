@@ -20,7 +20,10 @@ var GridView = GObject.registerClass(
         Signals: {
             'cell-added': {
                 param_types: [GObject.TYPE_OBJECT]
-            }
+            },
+            'clicked': {
+                param_types: [GObject.TYPE_OBJECT]
+            }            
         }
     },
     class GridView extends St.BoxLayout {
@@ -86,17 +89,8 @@ var GridView = GObject.registerClass(
                         }
                     });
                     cell.connect('button-release-event', (actor) => {
-                        const br = actor.metaWindow.get_buffer_rect();
-                        const fr = actor.metaWindow.get_frame_rect(); 
-                        const fb = actor.metaWindow.get_frame_bounds(); 
-                        // log(actor.id, fb.getRectangle(0));
-                        let [x,y] = actor.get_transformed_position();
-                        actor.metaWindow.move_frame(true, x + (br.width - fr.width)/2, y)
+                        this.emit('clicked', actor);
                         actor.set_reactive(false);
-                        Main.activateWindow(actor.metaWindow);
-                        // actor.metaWindow.focus();
-                        // actor.metaWindowActor.show();
-                        // this.showBoxes(actor.metaWindow);
                         this.focusedCell = actor;
                     });
                     row.add_child(cell);

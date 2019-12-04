@@ -60,19 +60,31 @@ function prepare() {
     });
     const hotBottom = new HotBottom({width: 36});
 
-    // const hotLeft = new HotLeft({width:13});
+    // const hotLeft = new HotLeft({width:64});
     container = new Container();
     gridView = new GridView();
     const scrollable = new Scrollable(gridView,{height:10, width:Main.uiGroup.get_width()});
     container.add_child(scrollable);
     // container.add_child(scrollable.scrollbar);
-    gridView.connect('button-release-event', (actor, event) => {
-        log('------------', actor, event);
-        const clickedActor = actor.get_stage().get_actor_at_pos(Clutter.PickMode.REACTIVE,...event.get_coords());
-        if (!clickedActor instanceof Cell) return;
-        const [x,y] = clickedActor.get_position();
-        const [width, height] = clickedActor.get_size();
+    gridView.connect('clicked', (gridViewActor, actor) => {
+        const [x,y] = actor.get_position();
+        const [width, height] = actor.get_size();
+        log(x,y, width,height)
         scrollable.scroll_to_rect(new Clutter.Rect({origin: {x, y}, size: {width, height}}));
+        scrollable.connect('transitions-completed', () => {
+            log('transitions-completed');
+            const br = actor.metaWindow.get_buffer_rect();
+            const fr = actor.metaWindow.get_frame_rect(); 
+            // const fb = actor.metaWindow.get_frame_bounds(); 
+            // log(actor.id, fb.getRectangle(0));
+            let [nx,ny] = actor.get_transformed_position();
+            actor.metaWindow.move_frame(true, nx + (br.width - fr.width)/2, ny)
+            // actor.set_reactive(false);
+            Main.activateWindow(actor.metaWindow);
+            // actor.metaWindow.focus();
+            // actor.metaWindowActor.show();
+            // this.showBoxes(actor.metaWindow);
+        })
     });
     scrollable.update();
     show();

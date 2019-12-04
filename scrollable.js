@@ -42,7 +42,7 @@ var Scrollable = GObject.registerClass({},
             //     const [x,y] = _thumb.get_position();
             //     this.scroll_to_point(new Clutter.Point({x: x * this.get_width()/this.width, y: 0}))
             // });
-            // this.set_easing_duration(250);
+            this.set_easing_duration(250);
             // this.thumb.add_action(this.dragAction);
             this.add_child(this._content);
         }
