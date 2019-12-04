@@ -5,7 +5,7 @@ const Signals = imports.signals;
 const Background = imports.ui.background;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
-const { HotTop, HotLeft } = Extension.imports.hotEdge;
+const { HotTop, HotLeft, HotBottom } = Extension.imports.hotEdge;
 const { GridView } = Extension.imports.gridView;
 const { Scrollable } = Extension.imports.scrollable;
 const { Cell } = Extension.imports.cell;
@@ -58,6 +58,8 @@ function prepare() {
         log('enter-event')
         show();
     });
+    const hotBottom = new HotBottom({width: 36});
+
     // const hotLeft = new HotLeft({width:13});
     container = new Container();
     gridView = new GridView();
@@ -117,7 +119,7 @@ const Container = GObject.registerClass({},
         }
         hide() {
             // Main.popModal(this);
-            Main.uiGroup.stage.remove_child(this);
+            Main.uiGroup.remove_child(this);
         }
         destroy() {
             this.disconnect(this._hideSignal);

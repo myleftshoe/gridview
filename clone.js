@@ -16,9 +16,14 @@ var Clone = class Clone extends Clutter.Actor {
         const source = metaWindow.get_compositor_private();
         const clone = new Clutter.Clone({ source });
 
+        const br = metaWindow.get_buffer_rect();
+        const fr = metaWindow.get_frame_rect(); 
+        this.translation_y = br.y - fr.y + 36;
+
         // Show entire window even if part of it is offscreen.
         clone.remove_clip();
         this.add_child(clone);
+        
         Tweener.addTween(clone, {
             scale_x,
             scale_y,

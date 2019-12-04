@@ -34,11 +34,41 @@ var GridView = GObject.registerClass(
             });
             this.focusedCell = null;
             makeSortable(this);
-            // makeZoomable(this);
+            makeZoomable(this);
             // makePannable(this);
             this.populate();
             // this.show();
+            this.boxes = [];
 
+        }
+        showBoxes(metaWindow) {
+            let frame = metaWindow.get_frame_rect()
+            let inputFrame = metaWindow.get_buffer_rect()
+            let actor = metaWindow.get_compositor_private();
+
+            this.boxes.forEach(box => {
+                global.stage.remove_child(box);
+            });            
+            this.boxes = [];
+
+            const makeFrameBox = function({x, y, width, height}, color) {
+                let frameBox = new St.Widget();
+                frameBox.set_position(x, y)
+                frameBox.set_size(width, height)
+                frameBox.set_style("border: 2px" + color + " solid");
+                return frameBox;
+            }
+        
+        
+            this.boxes.push(makeFrameBox(frame, "red"));
+            this.boxes.push(makeFrameBox(inputFrame, "blue"));
+        
+            if(inputFrame.x !== actor.x || inputFrame.y !== actor.y
+               || inputFrame.width !== actor.width || inputFrame.height !== actor.height) {
+                this.boxes.push(makeFrameBox(actor, "yellow"));
+            }
+        
+            this.boxes.forEach(box => global.stage.add_child(box));            
         }
         populate() {
             this.remove_all_children();
@@ -52,26 +82,22 @@ var GridView = GObject.registerClass(
                     const cell = new Cell(metaWindow);
                     cell.connect('button-press-event', (actor) => {
                         if (this.focusedCell) {
-                            this.focusedCell.metaWindowActor.hide();
+                            this.focusedCell.set_reactive(true);
                         }
                     });
                     cell.connect('button-release-event', (actor) => {
-                        // const rect = Meta.rect(1,1,200,200);
                         const br = actor.metaWindow.get_buffer_rect();
                         const fr = actor.metaWindow.get_frame_rect(); 
-                        log(actor.id);
+                        const fb = actor.metaWindow.get_frame_bounds(); 
+                        // log(actor.id, fb.getRectangle(0));
+                        Log.properties(fb)
                         let [x,y] = actor.get_transformed_position();
-                        // let [x,y] = actor.get_transformed_position();
-                        // arr = actor.get_abs_allocation_vertices();
-                        // let arr = actor.get_allocation_box();
-                        // log( arr.x1, arr.y1)
-                        log(br.x, fr.x, x);
-                        log(br.y, fr.y, y);
-                        log(br.width, fr.width, actor.width);
-                        log(br.height, fr.height, actor.height);
-                        let [x1, y1] = actor.get_position();
-                        actor.metaWindow.move_frame(true, x + br.x - fr.x, y)
-                        actor.metaWindowActor.show();
+                        actor.metaWindow.move_frame(true, x + (br.width - fr.width)/2, y)
+                        actor.set_reactive(false);
+                        Main.activateWindow(actor.metaWindow);
+                        // actor.metaWindow.focus();
+                        // actor.metaWindowActor.show();
+                        this.showBoxes(actor.metaWindow);
                         this.focusedCell = actor;
                     });
                     log(cell.id)
