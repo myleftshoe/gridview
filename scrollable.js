@@ -25,7 +25,12 @@ var Scrollable = GObject.registerClass({},
                 style_class: 'scrollbar-thumb', 
                 reactive:true
             });
+            this.makeThumbDraggable();
             this.scrollbar.add_child(this.thumb);
+            this.set_easing_duration(250);
+            this.add_child(this._content);
+        }
+        makeThumbDraggable() {
             this.dragAction = new Clutter.DragAction({
                 dragAxis:Clutter.DragAxis.X_AXIS,
             });
@@ -40,11 +45,9 @@ var Scrollable = GObject.registerClass({},
             });
             this.dragAction.connect('drag-motion', () => {
                 const [x,y] = this.thumb.get_position();
-                this.scroll_to_point(new Clutter.Point({x: x * this.get_width()/this._width, y: 0}))
+                this.scroll_to_point(new Clutter.Point({x: x * this._width/this._width, y: 0}))
             });
-            this.set_easing_duration(250);
             this.thumb.add_action(this.dragAction);
-            this.add_child(this._content);
         }
         update() {
             const thumbWidth = this._width * this._width/this._content.get_width();
