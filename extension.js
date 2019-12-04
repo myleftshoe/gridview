@@ -84,12 +84,9 @@ function prepare() {
     gridView.connect('focused', (gridViewActor, actor) => {
         log('focused', actor.id)
         // hideBoxes();
-        const [x,y] = actor.get_position();
-        const [width, height] = actor.get_size();
-        log(x,y, width,height)
         gridView.cells.forEach(cell => cell.set_reactive(true));
         actor.set_reactive(false);
-        scrollable.scroll_to_rect(new Clutter.Rect({origin: {x, y}, size: {width, height}}));
+        scrollable.scrollToActor(actor);
         const sig = scrollable.connect('transitions-completed', () => {
             log('transitions-completed');
             scrollable.disconnect(sig);
