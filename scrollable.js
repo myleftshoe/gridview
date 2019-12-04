@@ -67,5 +67,12 @@ var Scrollable = GObject.registerClass({},
             this.thumb.set_x(x / this.width * this.scrollbar.width);
             this.thumb.set_easing_duration(0)
         }
+        set onScrollEnd(callback) {
+            const sig = this.connect('transitions-completed', () => {
+                log('transitions-completed');
+                this.disconnect(sig);
+                callback();
+            });
+        }
     }
 );
