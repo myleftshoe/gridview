@@ -21,7 +21,7 @@ var GridView = GObject.registerClass(
             'cell-added': {
                 param_types: [GObject.TYPE_OBJECT]
             },
-            'clicked': {
+            'focused': {
                 param_types: [GObject.TYPE_OBJECT]
             }            
         }
@@ -35,13 +35,10 @@ var GridView = GObject.registerClass(
                 vertical: true,
                 x_expand: true,
             });
-            this.focusedCell = null;
             makeSortable(this);
             makeZoomable(this);
-            // makePannable(this);
-            this.populate();
-            // this.show();
             this.boxes = [];
+            this.cells = [];
 
         }
         showBoxes(metaWindow) {
@@ -61,8 +58,7 @@ var GridView = GObject.registerClass(
                 frameBox.set_style("border: 2px" + color + " solid");
                 return frameBox;
             }
-        
-        
+
             this.boxes.push(makeFrameBox(frame, "red"));
             this.boxes.push(makeFrameBox(inputFrame, "blue"));
         
@@ -74,7 +70,9 @@ var GridView = GObject.registerClass(
             this.boxes.forEach(box => global.stage.add_child(box));            
         }
         populate() {
+            log('populate')
             this.remove_all_children();
+            this.cells = [];
             UI.workspaces.forEach((workspace) => {
                 // const windows = workspace.list_windows();
                 // const windows = UI.getWorkspaceWindows(workspace);
@@ -82,17 +80,15 @@ var GridView = GObject.registerClass(
                 if (!windows.length) return;
                 const row = new Row(workspace);
                 windows.forEach(metaWindow => {
+                    metaWindow.connect('focus', () => {
+                        const cell = this.cells.find(cell => cell.metaWindow === metaWindow);
+                        this.emit('focused', cell);
+                    })
                     const cell = new Cell(metaWindow);
-                    cell.connect('button-press-event', (actor) => {
-                        if (this.focusedCell) {
-                            this.focusedCell.set_reactive(true);
-                        }
-                    });
                     cell.connect('button-release-event', (actor) => {
-                        this.emit('clicked', actor);
-                        actor.set_reactive(false);
-                        this.focusedCell = actor;
+                        Main.activateWindow(actor.metaWindow);
                     });
+                    this.cells.push(cell);
                     row.add_child(cell);
                     cell.metaWindowActor.hide();
                     this.emit('cell-added', cell);

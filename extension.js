@@ -39,7 +39,6 @@ function enable() {
         Main.layoutManager.connect('startup-complete', prepare);
     else
         prepare();
-
 }
 
 function disable() {
@@ -66,32 +65,29 @@ function prepare() {
     const scrollable = new Scrollable(gridView,{height:10, width:Main.uiGroup.get_width()});
     container.add_child(scrollable);
     // container.add_child(scrollable.scrollbar);
-    gridView.connect('clicked', (gridViewActor, actor) => {
+    gridView.connect('focused', (gridViewActor, actor) => {
+        log('focused', actor.id)
         const [x,y] = actor.get_position();
         const [width, height] = actor.get_size();
         log(x,y, width,height)
+        gridView.cells.forEach(cell => cell.set_reactive(true));
+        actor.set_reactive(false);
         scrollable.scroll_to_rect(new Clutter.Rect({origin: {x, y}, size: {width, height}}));
-        scrollable.connect('transitions-completed', () => {
+        const sig = scrollable.connect('transitions-completed', () => {
             log('transitions-completed');
+            scrollable.disconnect(sig);
             const br = actor.metaWindow.get_buffer_rect();
             const fr = actor.metaWindow.get_frame_rect(); 
-            // const fb = actor.metaWindow.get_frame_bounds(); 
-            // log(actor.id, fb.getRectangle(0));
             let [nx,ny] = actor.get_transformed_position();
             actor.metaWindow.move_frame(true, nx + (br.width - fr.width)/2, ny)
-            // actor.set_reactive(false);
-            Main.activateWindow(actor.metaWindow);
-            // actor.metaWindow.focus();
-            // actor.metaWindowActor.show();
-            // this.showBoxes(actor.metaWindow);
         })
-    });
+    })
     scrollable.update();
     show();
 }
 
 function show() {
-    // if (container.isOnStage) return;
+    if (container.isOnStage) return;
     gridView.populate();
     container.show();
 }
