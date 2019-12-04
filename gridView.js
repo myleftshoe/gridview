@@ -28,7 +28,7 @@ var GridView = GObject.registerClass(
             super._init({
                 style_class,
                 opacity:255,
-                reactive: true,
+                // reactive: true,
                 vertical: true,
                 x_expand: true,
             });
@@ -97,7 +97,7 @@ var GridView = GObject.registerClass(
                         Main.activateWindow(actor.metaWindow);
                         // actor.metaWindow.focus();
                         // actor.metaWindowActor.show();
-                        this.showBoxes(actor.metaWindow);
+                        // this.showBoxes(actor.metaWindow);
                         this.focusedCell = actor;
                     });
                     log(cell.id)
