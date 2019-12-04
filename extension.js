@@ -79,7 +79,7 @@ function prepare() {
     gridView = new GridView();
     const scrollable = new Scrollable(gridView,{height:10, width:Main.uiGroup.get_width()});
     container.add_child(scrollable);
-    // container.add_child(scrollable.scrollbar);
+    container.add_child(scrollable.scrollbar);
     gridView.connect('focused', (gridViewActor, actor) => {
         log('focused', actor.id)
         hideBoxes();
@@ -99,8 +99,8 @@ function prepare() {
             showBoxes(actor.metaWindow);
         })
     });
-    scrollable.update();
     show();
+    scrollable.update();
 }
 
 function show() {
