@@ -22,11 +22,11 @@ var Cell = GObject.registerClass(
             this.metaWindow = metaWindow;
             this.metaWindowActor = this.metaWindow.get_compositor_private();
             this.metaWindow.maximize(Meta.MaximizeFlags.VERTICAL);
-            
+            this.clone = new Clone(this.metaWindow);
             
             // if (metaWindow.has_focus())
             //     this.add_style_pseudo_class('focused');
-            this.add_child(new Clone(metaWindow));
+            this.add_child(this.clone);
         }
     }
 );

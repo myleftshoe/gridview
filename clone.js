@@ -18,7 +18,13 @@ var Clone = class Clone extends Clutter.Actor {
 
         const br = metaWindow.get_buffer_rect();
         const fr = metaWindow.get_frame_rect(); 
+
         this.translation_y = br.y - fr.y + 36;
+        
+        const marginX = 50 - Math.round((br.width - fr.width) / 2);
+        // this.set_margin(new Clutter.Margin({left:marginX, right:marginX}))
+        this.set_margin_left(marginX);
+        this.set_margin_right(marginX);
 
         // Show entire window even if part of it is offscreen.
         clone.remove_clip();
