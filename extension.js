@@ -61,8 +61,10 @@ function prepare() {
     global.display.connect('window-created', (display, metaWindow) => {
         // log('cscscscscscsc',display,metaWindow);
         // if (!metaWindow.get_transient_for()) return;
-        if (metaWindow.get_window_type() < 2) 
+        if (metaWindow.get_window_type() < 2) {
+            gridView.populate();
             return;
+        }
         /*
             Make dialogs, popups, tooltips, etc visible by reparenting
             them to the global stage.
