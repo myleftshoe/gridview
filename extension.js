@@ -63,18 +63,18 @@ function prepare() {
     // const hotLeft = new HotLeft({width:13});
     container = new Container();
     gridView = new GridView();
-    // const scrollable = new Scrollable(gridView,{height:10, width:Main.uiGroup.get_width()});
-    container.add_child(gridView);
+    const scrollable = new Scrollable(gridView,{height:10, width:Main.uiGroup.get_width()});
+    container.add_child(scrollable);
     // container.add_child(scrollable.scrollbar);
-    // gridView.connect('button-release-event', (actor, event) => {
-    //     // log('------------', actor, event);
-    //     // const clickedActor = actor.get_stage().get_actor_at_pos(Clutter.PickMode.REACTIVE,...event.get_coords());
-    //     // if (!clickedActor instanceof Cell) return;
-    //     // const [x,y] = clickedActor.get_position();
-    //     // const [width, height] = clickedActor.get_size();
-    //     // scrollable.scroll_to_rect(new Clutter.Rect({origin: {x, y}, size: {width, height}}));
-    // });
-    // scrollable.update();
+    gridView.connect('button-release-event', (actor, event) => {
+        log('------------', actor, event);
+        const clickedActor = actor.get_stage().get_actor_at_pos(Clutter.PickMode.REACTIVE,...event.get_coords());
+        if (!clickedActor instanceof Cell) return;
+        const [x,y] = clickedActor.get_position();
+        const [width, height] = clickedActor.get_size();
+        scrollable.scroll_to_rect(new Clutter.Rect({origin: {x, y}, size: {width, height}}));
+    });
+    scrollable.update();
     show();
 }
 

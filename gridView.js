@@ -28,7 +28,7 @@ var GridView = GObject.registerClass(
             super._init({
                 style_class,
                 opacity:255,
-                // reactive: true,
+                reactive: true,
                 vertical: true,
                 x_expand: true,
             });
@@ -90,7 +90,6 @@ var GridView = GObject.registerClass(
                         const fr = actor.metaWindow.get_frame_rect(); 
                         const fb = actor.metaWindow.get_frame_bounds(); 
                         // log(actor.id, fb.getRectangle(0));
-                        Log.properties(fb)
                         let [x,y] = actor.get_transformed_position();
                         actor.metaWindow.move_frame(true, x + (br.width - fr.width)/2, y)
                         actor.set_reactive(false);
@@ -100,7 +99,6 @@ var GridView = GObject.registerClass(
                         // this.showBoxes(actor.metaWindow);
                         this.focusedCell = actor;
                     });
-                    log(cell.id)
                     row.add_child(cell);
                     cell.metaWindowActor.hide();
                     this.emit('cell-added', cell);
