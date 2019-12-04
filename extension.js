@@ -58,7 +58,20 @@ function prepare() {
         show();
     });
     const hotBottom = new HotBottom({width: 36});
-
+    global.display.connect('window-created', (display, metaWindow) => {
+        // log('cscscscscscsc',display,metaWindow);
+        // if (!metaWindow.get_transient_for()) return;
+        if (metaWindow.get_window_type() < 2) 
+            return;
+        /*
+            Make dialogs, popups, tooltips, etc visible by reparenting
+            them to the global stage.
+        */
+        const metaWindowActor = metaWindow.get_compositor_private();
+        const parent = metaWindowActor.get_parent();
+        parent.remove_child(metaWindowActor);
+        global.stage.add_child(metaWindowActor)
+    });
     // const hotLeft = new HotLeft({width:64});
     container = new Container();
     gridView = new GridView();
