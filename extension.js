@@ -98,8 +98,39 @@ function prepare() {
         parent.remove_child(metaWindowActor);
         global.stage.add_child(metaWindowActor)
     });
+
+    // global.display.connect('grab-op-begin', (display, window, op) => {
+    //     if (window == this._currentWindow &&
+    //         (op == Meta.GrabOp.MOVING || op == Meta.GrabOp.KEYBOARD_MOVING))
+    //         this.emit('reset');
+    // });
+
+    global.display.connect('grab-op-begin', (display, screen, window, op) => {
+        // Log.properties(window);
+        // log(window.titlebar_is_onscreen())
+        if (op == Meta.GrabOp.MOVING || op == Meta.GrabOp.KEYBOARD_MOVING) {
+            display.end_grab_op(display);
+            window.get_compositor_private().lower_bottom();
+            // window.get_compositor_private().hide();
+            gridView.cells.forEach(cell => {
+                cell.metaWindowActor.hide();
+                cell.set_opacity(255);
+            });
+            // Main.activateWindow(gridView.cells[0].metaWindow)
+
+        }
+    })
     // const hotLeft = new HotLeft({width:64});
     container = new Container();
+    container.connect('captured-event', (actor, event) => {
+        // log(event.type())
+        if (event.type() == 6) {
+            gridView.cells.forEach(cell => {
+                cell.metaWindowActor.hide();
+                cell.set_opacity(255);
+            })
+        }
+    });
     gridView = new GridView();
     const scrollable = new Scrollable(gridView,{height:1, width:Main.uiGroup.get_width()});
     scrollable.connect('scroll-begin', () => {
@@ -110,9 +141,13 @@ function prepare() {
     container.add_child(scrollable.scrollbar);
     gridView.connect('focused', (gridViewActor, actor) => {
         log('focused', actor.id)
+        actor.metaWindowActor.raise_top();
+        // return;
         // hideBoxes();
-        gridView.cells.forEach(cell => cell.set_reactive(true));
-        actor.set_reactive(false);
+        // gridView.cells.forEach(cell => cell.set_reactive(true));
+        // actor.set_reactive(false);
+        gridView.cells.forEach(cell => cell.set_opacity(255));
+        gridView.cells.forEach(cell => cell.metaWindowActor.hide())
         scrollable.scrollToActor(actor);
         scrollable.onScrollEnd(() => {
             log('onScrollEnd');
@@ -120,7 +155,11 @@ function prepare() {
             const fr = actor.metaWindow.get_frame_rect(); 
             let [nx,ny] = actor.get_transformed_position();
             actor.metaWindow.move_frame(true, nx + (br.width - fr.width)/2 + actor.clone.get_margin_left(), ny);
-            // showBoxes(actor.metaWindow);
+            global.window_group.remove_child(actor.metaWindowActor);
+            global.stage.add_child(actor.metaWindowActor);
+            actor.metaWindowActor.show();
+            actor.set_opacity(120);
+                // showBoxes(actor.metaWindow);
         });
     });
     show();
@@ -147,7 +186,7 @@ function hide() {
 const Container = GObject.registerClass({},
     class Container extends St.Widget {
         _init() {
-            super._init();
+            super._init({reactive:true});
             this._hideSignal = this.connect('key-press-event', (actor, event) => {
                 if (event.get_key_symbol() === Clutter.Escape) {
                     hide();
