@@ -83,6 +83,7 @@ function prepare() {
     global.display.connect('window-created', (display, metaWindow) => {
         // log('cscscscscscsc',display,metaWindow);
         // if (!metaWindow.get_transient_for()) return;
+        log('ft',metaWindow.title,metaWindow.get_frame_type())
         if (metaWindow.get_window_type() < 2) {
             gridView.populate();
             metaWindow.get_compositor_private().hide();

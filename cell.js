@@ -7,6 +7,8 @@ const DnD = Extension.imports.dnd;
 const { Clone } = Extension.imports.clone;
 const { Log } = Extension.imports.utils.logger;
 
+const WindowUtils = Extension.imports.windows;
+
 
 const style_class = 'gridview-cell';
 
@@ -20,6 +22,7 @@ var Cell = GObject.registerClass(
             });
             this.id = metaWindow.title;
             this.metaWindow = metaWindow;
+            WindowUtils.setTitleBarVisibility(this.metaWindow, false);
             this.metaWindowActor = this.metaWindow.get_compositor_private();
             this.metaWindow.maximize(Meta.MaximizeFlags.VERTICAL);
             this.clone = new Clone(this.metaWindow);
