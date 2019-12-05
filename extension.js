@@ -110,7 +110,6 @@ function prepare() {
         // log(window.titlebar_is_onscreen())
         if (op == Meta.GrabOp.MOVING || op == Meta.GrabOp.KEYBOARD_MOVING) {
             display.end_grab_op(display);
-            Log.properties(display)
             // display.focus_default_window(global.get_current_time());
             // display.focus_the_no_focus_window(display, screen, global.get_current_time());
             // window.get_compositor_private().lower_bottom();
