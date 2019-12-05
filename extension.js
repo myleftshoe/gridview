@@ -141,7 +141,10 @@ function prepare() {
     const scrollable = new Scrollable(gridView,{height:1, width:Main.uiGroup.get_width()});
     scrollable.connect('scroll-begin', () => {
         log('scroll-begin')
-        // gridView.cells.forEach(cell => cell.set_reactive(true));
+        gridView.cells.forEach(cell => {
+            cell.set_opacity(255);
+            cell.metaWindowActor.lower_bottom();
+        });
     })
     container.add_child(scrollable);
     Main.uiGroup.add_child(scrollable.scrollbar);
