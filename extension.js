@@ -102,6 +102,10 @@ function prepare() {
     container = new Container();
     gridView = new GridView();
     const scrollable = new Scrollable(gridView,{height:1, width:Main.uiGroup.get_width()});
+    scrollable.connect('scroll-begin', () => {
+        log('scroll-begin')
+        // gridView.cells.forEach(cell => cell.set_reactive(true));
+    })
     container.add_child(scrollable);
     container.add_child(scrollable.scrollbar);
     gridView.connect('focused', (gridViewActor, actor) => {

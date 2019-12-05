@@ -4,7 +4,14 @@ const Extension = imports.misc.extensionUtils.getCurrentExtension();
 
 const style_class = 'scrollbar';
 
-var Scrollable = GObject.registerClass({}, 
+var Scrollable = GObject.registerClass(
+    {
+        Signals: {
+            'scroll-begin': {
+                param_types: []
+            },
+        }
+    }, 
     class Scrollable extends Clutter.ScrollActor {
         _init(actor, { 
             width = Main.uiGroup.get_width(),
@@ -35,9 +42,9 @@ var Scrollable = GObject.registerClass({},
                 dragAxis:Clutter.DragAxis.X_AXIS,
             });
             this.dragAction.connect('drag-begin', (a,b) => {
+                this.emit('scroll-begin');
                 this.scrollbar.add_style_pseudo_class('pressed');
                 this.thumb.add_style_pseudo_class('pressed');
-
             });
             this.dragAction.connect('drag-end', () => {
                 this.scrollbar.remove_style_pseudo_class('pressed');
