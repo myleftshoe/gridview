@@ -110,11 +110,17 @@ function prepare() {
         // log(window.titlebar_is_onscreen())
         if (op == Meta.GrabOp.MOVING || op == Meta.GrabOp.KEYBOARD_MOVING) {
             display.end_grab_op(display);
-            window.get_compositor_private().lower_bottom();
+            Log.properties(display)
+            // display.focus_default_window(global.get_current_time());
+            // display.focus_the_no_focus_window(display, screen, global.get_current_time());
+            // window.get_compositor_private().lower_bottom();
             // window.get_compositor_private().hide();
             gridView.cells.forEach(cell => {
-                cell.metaWindowActor.hide();
+                cell.save_easing_state();
+                cell.set_easing_duration(0);
                 cell.set_opacity(255);
+                cell.restore_easing_state();
+                cell.metaWindowActor.hide();
             });
             // Main.activateWindow(gridView.cells[0].metaWindow)
 
@@ -138,7 +144,7 @@ function prepare() {
         // gridView.cells.forEach(cell => cell.set_reactive(true));
     })
     container.add_child(scrollable);
-    container.add_child(scrollable.scrollbar);
+    Main.uiGroup.add_child(scrollable.scrollbar);
     gridView.connect('focused', (gridViewActor, actor) => {
         log('focused', actor.id)
         actor.metaWindowActor.raise_top();
@@ -155,11 +161,14 @@ function prepare() {
             const fr = actor.metaWindow.get_frame_rect(); 
             let [nx,ny] = actor.get_transformed_position();
             actor.metaWindow.move_frame(true, nx + (br.width - fr.width)/2 + actor.clone.get_margin_left(), ny);
-            global.window_group.remove_child(actor.metaWindowActor);
-            global.stage.add_child(actor.metaWindowActor);
+            // global.window_group.remove_child(actor.metaWindowActor);
+            // Main.uiGroup.add_child(actor.metaWindowActor);
+            actor.metaWindowActor.raise_top();
+            // global.window_group.raise_top();
             actor.metaWindowActor.show();
             actor.set_opacity(120);
                 // showBoxes(actor.metaWindow);
+            // global.display.focus_default_window(global.get_current_time());
         });
     });
     show();
@@ -199,15 +208,15 @@ const Container = GObject.registerClass({},
             // });
         }
         get isOnStage() {
-            return Main.uiGroup.contains(this);
+            return global.window_group.contains(this);
         }
         show() {
-            Main.uiGroup.add_child(this);
+            global.window_group.add_child(this);
             // Main.pushModal(this, { actionMode: Shell.ActionMode.OVERVIEW })
         }
         hide() {
             // Main.popModal(this);
-            Main.uiGroup.remove_child(this);
+            global.window_group.remove_child(this);
         }
         destroy() {
             this.disconnect(this._hideSignal);
