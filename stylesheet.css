@@ -12,11 +12,14 @@
 }
 
 .gridview-cell {
-    background-color: rgba(255, 0, 0, 0.2);
-    /* margin:20px; */
+    /* background-color: rgba(255, 0, 0, 0.2); */
+    margin:20px;
     /* border:2px solid cyan; */
 }
 
+.clone {
+    /* border: 2px solid cyan; */
+}
 .gridview-cell:focused {
     /* border:4px solid orange; */
 }
@@ -43,4 +46,15 @@
 
 .thumb {
     background-color: rgba(255, 255, 255, 0.3);
+}
+
+.button {
+    color: white;
+    background-color: transparent;
+    border:none;
+    padding-top:8px;
+    padding-bottom:0;
+    margin-top:8px;
+    font-weight:600;
+    font-size:.9em;
 }

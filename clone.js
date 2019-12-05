@@ -1,4 +1,4 @@
-const { Clutter } = imports.gi;
+const { Clutter, St } = imports.gi;
 const Tweener = imports.ui.tweener;
 const Main = imports.ui.main;
 
@@ -7,11 +7,16 @@ const { Log } = Extension.imports.utils.logger;
 
 const [scale_x, scale_y] = [1, 1];
 
-var Clone = class Clone extends Clutter.Actor {
+const style_class = 'clone';
+
+var Clone = class Clone extends St.Bin {
 
     constructor(metaWindow) {
 
-        super({ reactive: false });
+        super({ 
+            style_class,
+            reactive: false 
+        });
 
         const source = metaWindow.get_compositor_private();
         const clone = new Clutter.Clone({ source });
@@ -19,7 +24,7 @@ var Clone = class Clone extends Clutter.Actor {
         const br = metaWindow.get_buffer_rect();
         const fr = metaWindow.get_frame_rect(); 
 
-        this.translation_y = br.y - fr.y + 36;
+        this.translation_y = br.y - fr.y;
         
         const marginX = 20 - Math.round((br.width - fr.width) / 2);
         // this.set_margin(new Clutter.Margin({left:marginX, right:marginX}))
@@ -28,7 +33,7 @@ var Clone = class Clone extends Clutter.Actor {
 
         // Show entire window even if part of it is offscreen.
         clone.remove_clip();
-        this.add_child(clone);
+        this.set_child(clone);
         
         Tweener.addTween(clone, {
             scale_x,
