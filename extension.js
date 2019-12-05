@@ -11,18 +11,6 @@ const { Scrollable } = Extension.imports.scrollable;
 const { Cell } = Extension.imports.cell;
 const { Log } = Extension.imports.utils.logger;
 
-let acceleratorSignal;
-
-function addAccelerator(accelerator) {
-    const action = global.display.grab_accelerator(accelerator, Meta.KeyBindingFlags.NONE);
-    if (action == Meta.KeyBindingAction.NONE) {
-        log('Unable to grab accelerator [binding={}]', accelerator);
-    }
-    else {
-        const name = Meta.external_binding_name_for_action(action);
-        Main.wm.allowKeybinding(name, Shell.ActionMode.ALL)
-    }
-}
 
 function init() {
     log(`***************************************************************`);
@@ -32,8 +20,6 @@ function init() {
 
 function enable() {
     log(`${Extension.metadata.uuid} enable()`);
-    addAccelerator("<super><alt>o")
-    acceleratorSignal = global.display.connect('accelerator-activated', show);
     // stage actors do not report correct sizes before startup-complete
     if (Main.layoutManager._startingUp) 
         Main.layoutManager.connect('startup-complete', prepare);
@@ -43,7 +29,6 @@ function enable() {
 
 function disable() {
     log(`${Extension.metadata.uuid} disable()`);
-    global.display.disconnect(acceleratorSignal);
     hide();
 }
 
@@ -99,21 +84,10 @@ function prepare() {
         global.stage.add_child(metaWindowActor)
     });
 
-    // global.display.connect('grab-op-begin', (display, window, op) => {
-    //     if (window == this._currentWindow &&
-    //         (op == Meta.GrabOp.MOVING || op == Meta.GrabOp.KEYBOARD_MOVING))
-    //         this.emit('reset');
-    // });
-
     global.display.connect('grab-op-begin', (display, screen, window, op) => {
-        // Log.properties(window);
         // log(window.titlebar_is_onscreen())
         if (op == Meta.GrabOp.MOVING || op == Meta.GrabOp.KEYBOARD_MOVING) {
             display.end_grab_op(display);
-            // display.focus_default_window(global.get_current_time());
-            // display.focus_the_no_focus_window(display, screen, global.get_current_time());
-            // window.get_compositor_private().lower_bottom();
-            // window.get_compositor_private().hide();
             gridView.cells.forEach(cell => {
                 cell.save_easing_state();
                 cell.set_easing_duration(0);
@@ -121,8 +95,6 @@ function prepare() {
                 cell.restore_easing_state();
                 cell.metaWindowActor.hide();
             });
-            // Main.activateWindow(gridView.cells[0].metaWindow)
-
         }
     })
     // const hotLeft = new HotLeft({width:64});
@@ -150,10 +122,7 @@ function prepare() {
     gridView.connect('focused', (gridViewActor, actor) => {
         log('focused', actor.id)
         actor.metaWindowActor.raise_top();
-        // return;
         // hideBoxes();
-        // gridView.cells.forEach(cell => cell.set_reactive(true));
-        // actor.set_reactive(false);
         gridView.cells.forEach(cell => cell.set_opacity(255));
         gridView.cells.forEach(cell => cell.metaWindowActor.hide())
         scrollable.scrollToActor(actor);
@@ -163,13 +132,10 @@ function prepare() {
             const fr = actor.metaWindow.get_frame_rect(); 
             let [nx,ny] = actor.get_transformed_position();
             actor.metaWindow.move_frame(true, nx + (br.width - fr.width)/2 + actor.clone.get_margin_left(), ny);
-            // global.window_group.remove_child(actor.metaWindowActor);
-            // Main.uiGroup.add_child(actor.metaWindowActor);
             actor.metaWindowActor.raise_top();
-            // global.window_group.raise_top();
             actor.metaWindowActor.show();
             actor.set_opacity(120);
-                // showBoxes(actor.metaWindow);
+            // showBoxes(actor.metaWindow);
             // global.display.focus_default_window(global.get_current_time());
         });
     });
