@@ -164,16 +164,6 @@ const Container = GObject.registerClass({},
     class Container extends St.Widget {
         _init() {
             super._init({reactive:true});
-            this._hideSignal = this.connect('key-press-event', (actor, event) => {
-                if (event.get_key_symbol() === Clutter.Escape) {
-                    hide();
-                }
-            });
-            // const backgroundManager = new Background.BackgroundManager({
-            //     monitorIndex: Main.layoutManager.primaryIndex,
-            //     container: this,
-            //     vignette: true
-            // });
         }
         get isOnStage() {
             return global.window_group.contains(this);
