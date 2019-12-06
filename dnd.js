@@ -211,9 +211,8 @@ var _Draggable = class _Draggable {
         return Clutter.EVENT_PROPAGATE;
     }
 
-    startDrag(event = null, coords = [null,null]) {
+    startDrag(event = null, coords = []) {
         log('dnd.startDrag');
-        log(coords)
 
         const [stageX, stageY] = event ? event.get_coords() : coords;
 
