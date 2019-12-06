@@ -41,6 +41,9 @@ var GridView = GObject.registerClass(
             this.cells = [];
 
         }
+        getCellForMetaWindow(metaWindow) {
+            return this.cells.find(cell => cell.metaWindow === metaWindow);
+        }
         populate() {
             log('populate')
             this.remove_all_children();
@@ -52,14 +55,13 @@ var GridView = GObject.registerClass(
                 if (!windows.length) return;
                 const row = new Row(workspace);
                 windows.forEach(metaWindow => {
-                    metaWindow.connect('focus', () => {
-                        const cell = this.cells.find(cell => cell.metaWindow === metaWindow);
-                        this.emit('focused', cell);
-                    })
                     const cell = new Cell(metaWindow);
                     cell.connect('button-release-event', (actor) => {
                         Main.activateWindow(actor.metaWindow);
                     });
+                    cell.metaWindow.connect('focus', () => {
+                        this.emit('focused', cell);
+                    })
                     this.cells.push(cell);
                     row.add_child(cell);
                     cell.metaWindowActor.hide();
