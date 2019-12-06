@@ -21,7 +21,7 @@ function init() {
 function enable() {
     log(`${Extension.metadata.uuid} enable()`);
     // stage actors do not report correct sizes before startup-complete
-    if (Main.layoutManager._startingUp) 
+    if (Main.layoutManager._startingUp)
         Main.layoutManager.connect('startup-complete', prepare);
     else
         prepare();
@@ -44,14 +44,14 @@ function hidePanelBox() {
     });
     Main.overview.connect('shown', () => {
         Tweener.addTween(panelBox, {
-            translation_y:0,
-            time:.25,
+            translation_y: 0,
+            time: .25,
         });
     });
     Main.overview.connect('hidden', () => {
         Tweener.addTween(panelBox, {
-            translation_y:-27,
-            time:.25,
+            translation_y: -27,
+            time: .25,
         })
         container.show();
     });
@@ -59,16 +59,16 @@ function hidePanelBox() {
 
 function prepare() {
     hidePanelBox();
-    hotTop = new HotTop({width: 36});
+    hotTop = new HotTop({ width: 36 });
     hotTop.connect('enter-event', (actor, event) => {
         log('enter-event')
         show();
     });
-    const hotBottom = new HotBottom({width: 36});
+    const hotBottom = new HotBottom({ width: 36 });
     global.display.connect('window-created', (display, metaWindow) => {
         // log('cscscscscscsc',display,metaWindow);
         // if (!metaWindow.get_transient_for()) return;
-        log('ft',metaWindow.title,metaWindow.get_frame_type())
+        log('ft', metaWindow.title, metaWindow.get_frame_type())
         if (metaWindow.get_window_type() < 2) {
             gridView.populate();
             metaWindow.get_compositor_private().hide();
@@ -85,16 +85,22 @@ function prepare() {
     });
 
     global.display.connect('grab-op-begin', (display, screen, window, op) => {
+        if (!window) return;
+        log('grab-op-begin', op, window.title)
         // log(window.titlebar_is_onscreen())
-        if (op == Meta.GrabOp.MOVING || op == Meta.GrabOp.KEYBOARD_MOVING) {
+        // if (op == Meta.GrabOp.MOVING || op == Meta.GrabOp.KEYBOARD_MOVING) {
+        if (op === Meta.GrabOp.WINDOW_BASE) {
+            log('grab-op-window-base', window.title)
             display.end_grab_op(display);
-            gridView.cells.forEach(cell => {
-                cell.save_easing_state();
-                cell.set_easing_duration(0);
-                cell.set_opacity(255);
-                cell.restore_easing_state();
-                cell.metaWindowActor.hide();
-            });
+            const cell = gridView.getCellForMetaWindow(window);
+            cell.save_easing_state();
+            cell.set_easing_duration(0);
+            cell.set_opacity(255);
+            cell.restore_easing_state();
+            cell.metaWindowActor.lower_bottom();
+            // const ev = new Clutter.Event();
+            const coords = global.get_pointer(); 
+            cell.draggable.startDrag(null, coords);
         }
     })
     // const hotLeft = new HotLeft({width:64});
@@ -103,13 +109,13 @@ function prepare() {
         // log(event.type())
         if (event.type() == 6) {
             gridView.cells.forEach(cell => {
-                cell.metaWindowActor.hide();
+                cell.metaWindowActor.lower_bottom();
                 cell.set_opacity(255);
             })
         }
     });
     gridView = new GridView();
-    const scrollable = new Scrollable(gridView,{height:1, width:Main.uiGroup.get_width()});
+    const scrollable = new Scrollable(gridView, { height: 1, width: Main.uiGroup.get_width() });
     scrollable.connect('scroll-begin', () => {
         log('scroll-begin')
         gridView.cells.forEach(cell => {
@@ -120,21 +126,21 @@ function prepare() {
     container.add_child(scrollable);
     Main.uiGroup.add_child(scrollable.scrollbar);
     gridView.connect('focused', (gridViewActor, actor) => {
-        log('focused', actor.id)
+        log('focused', actor.id);
         actor.metaWindowActor.raise_top();
         // hideBoxes();
         gridView.cells.forEach(cell => cell.set_opacity(255));
-        gridView.cells.forEach(cell => cell.metaWindowActor.hide())
+        // gridView.cells.forEach(cell => cell.metaWindowActor.hide())
         scrollable.scrollToActor(actor);
         scrollable.onScrollEnd(() => {
             log('onScrollEnd');
             const br = actor.metaWindow.get_buffer_rect();
-            const fr = actor.metaWindow.get_frame_rect(); 
-            let [nx,ny] = actor.get_transformed_position();
-            actor.metaWindow.move_frame(true, nx + (br.width - fr.width)/2 + actor.clone.get_margin_left(), ny);
+            const fr = actor.metaWindow.get_frame_rect();
+            let [nx, ny] = actor.get_transformed_position();
+            actor.metaWindow.move_frame(true, nx + (br.width - fr.width) / 2 + actor.clone.get_margin_left(), ny);
             actor.metaWindowActor.raise_top();
-            actor.metaWindowActor.show();
-            actor.set_opacity(120);
+            // actor.metaWindowActor.show();
+            actor.set_opacity(255);
             // showBoxes(actor.metaWindow);
             // global.display.focus_default_window(global.get_current_time());
         });
@@ -163,7 +169,7 @@ function hide() {
 const Container = GObject.registerClass({},
     class Container extends St.Widget {
         _init() {
-            super._init({reactive:true});
+            super._init({ reactive: true });
         }
         get isOnStage() {
             return global.window_group.contains(this);
@@ -178,7 +184,7 @@ const Container = GObject.registerClass({},
         }
         destroy() {
             this.disconnect(this._hideSignal);
-        }        
+        }
     }
 );
 
@@ -187,7 +193,7 @@ let boxes = [];
 function hideBoxes() {
     boxes.forEach(box => {
         global.stage.remove_child(box);
-    });            
+    });
     boxes = [];
 }
 
@@ -197,7 +203,7 @@ function showBoxes(metaWindow) {
     let actor = metaWindow.get_compositor_private();
 
     hideBoxes();
-    const makeFrameBox = function({x, y, width, height}, color) {
+    const makeFrameBox = function ({ x, y, width, height }, color) {
         let frameBox = new St.Widget();
         frameBox.set_position(x, y)
         frameBox.set_size(width, height)
@@ -208,10 +214,10 @@ function showBoxes(metaWindow) {
     boxes.push(makeFrameBox(frame, "rgba(255,0,0,0.5)"));
     boxes.push(makeFrameBox(inputFrame, "rgba(0,100,255,0.5)"));
 
-    if(inputFrame.x !== actor.x || inputFrame.y !== actor.y
-       || inputFrame.width !== actor.width || inputFrame.height !== actor.height) {
+    if (inputFrame.x !== actor.x || inputFrame.y !== actor.y
+        || inputFrame.width !== actor.width || inputFrame.height !== actor.height) {
         boxes.push(makeFrameBox(actor, "yellow"));
     }
 
-    boxes.forEach(box => global.stage.add_child(box));            
+    boxes.forEach(box => global.stage.add_child(box));
 }

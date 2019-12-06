@@ -211,9 +211,11 @@ var _Draggable = class _Draggable {
         return Clutter.EVENT_PROPAGATE;
     }
 
-    startDrag(event) {
+    startDrag(event = null, coords = [null,null]) {
+        log('dnd.startDrag');
+        log(coords)
 
-        const [stageX, stageY] = event.get_coords();
+        const [stageX, stageY] = event ? event.get_coords() : coords;
 
         const target = this.actor.get_stage().get_actor_at_pos(
             Clutter.PickMode.ALL,
@@ -231,7 +233,8 @@ var _Draggable = class _Draggable {
         if (this._onEventId)
             this._ungrabActor();
 
-        this._grabEvents(event.get_device(), this._touchSequence);
+        const device = event ? event.get_device() : Clutter.DeviceManager.get_default().get_core_device(Clutter.InputDeviceType.POINTER_DEVICE);
+        this._grabEvents(device, this._touchSequence);
         global.display.set_cursor(Meta.Cursor.DND_IN_DRAG);
 
         this._dragX = this._dragStartX = stageX;
@@ -263,6 +266,7 @@ var _Draggable = class _Draggable {
     }
 
     _maybeStartDrag(event) {
+        log('dnd._maybeStartDrag');
         if (currentDraggable)
             return true;
 
