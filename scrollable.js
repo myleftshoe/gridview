@@ -17,7 +17,7 @@ var Scrollable = GObject.registerClass(
             width = Main.uiGroup.get_width(),
             height = 10
         }) {
-            super._init();
+            super._init({scroll_mode: Clutter.ScrollMode.HORIZONTALLY});
             this._content = actor;
             this._width = width;
             this._height = height;
@@ -52,7 +52,7 @@ var Scrollable = GObject.registerClass(
             });
             this.dragAction.connect('drag-motion', () => {
                 const [x] = this.thumb.get_position();
-                this.scroll_to_point(new Clutter.Point({x: x * this._width/this._width, y: 0}))
+                this.scroll_to_point(new Clutter.Point({x: x * this._width/this._width, y: 6}))
             });
             this.thumb.add_action(this.dragAction);
         }
