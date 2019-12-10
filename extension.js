@@ -92,7 +92,7 @@ function prepare() {
             cell.set_opacity(255);
             cell.restore_easing_state();
             cell.metaWindowActor.lower_bottom();
-            const coords = global.get_pointer(); 
+            const coords = global.get_pointer();
             cell.draggable.startDrag(null, coords);
         }
     })
@@ -120,7 +120,7 @@ function prepare() {
     gridView.connect('focused', (gridViewActor, actor) => {
         log('focused', actor.id);
         // hideBoxes();
-        gridView.cells.forEach(cell => { 
+        gridView.cells.forEach(cell => {
             cell.set_opacity(255);
             cell.metaWindowActor.hide();
         });
