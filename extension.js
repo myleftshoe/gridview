@@ -61,28 +61,16 @@ function prepare() {
     const hotTop = new HotTop({ width: 5 });
     const hotBottom = new HotBottom({ width: 5 });
     global.display.connect('window-created', (display, metaWindow) => {
-        // if (!metaWindow.get_transient_for()) return;
         log('ft', metaWindow.title, metaWindow.get_frame_type())
         if (metaWindow.get_window_type() < 2) {
             gridView.populate();
             metaWindow.get_compositor_private().hide();
-            return;
         }
-        /*
-            Make dialogs, popups, tooltips, etc visible by reparenting
-            them to the global stage.
-        */
-        const metaWindowActor = metaWindow.get_compositor_private();
-        const parent = metaWindowActor.get_parent();
-        parent.remove_child(metaWindowActor);
-        global.stage.add_child(metaWindowActor)
     });
 
     global.display.connect('grab-op-begin', (display, screen, window, op) => {
         if (!window) return;
         log('grab-op-begin', op, window.title)
-        // log(window.titlebar_is_onscreen())
-        // if (op == Meta.GrabOp.MOVING || op == Meta.GrabOp.KEYBOARD_MOVING) {
         if (op === Meta.GrabOp.WINDOW_BASE) {
             log('grab-op-window-base', window.title)
             display.end_grab_op(display);
@@ -98,7 +86,6 @@ function prepare() {
     })
     container = new Container();
     container.connect('captured-event', (actor, event) => {
-        // log(event.type())
         if (event.type() == 6) {
             gridView.cells.forEach(cell => {
                 cell.metaWindowActor.lower_bottom();
@@ -177,4 +164,3 @@ const Container = GObject.registerClass({},
         }
     }
 );
-
