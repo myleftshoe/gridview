@@ -69,7 +69,7 @@ var Scrollable = GObject.registerClass(
             const [x,y] = actor.get_position();
             const [width, height] = actor.get_size();
             log(x,y, width,height)
-            this.scroll_to_rect(new Clutter.Rect({origin: {x: x-30, y}, size: {width, height}}));
+            this.scroll_to_rect(new Clutter.Rect({origin: {x: x - (Main.uiGroup.get_width() - width) / 2, y}, size: {width, height}}));
             this.thumb.set_easing_duration(750)
             this.thumb.set_x(x / this.width * this.scrollbar.width);
             this.thumb.set_easing_duration(0)

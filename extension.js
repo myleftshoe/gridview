@@ -118,7 +118,7 @@ function prepare() {
             actor.metaWindowActor.lower_bottom();
             actor.metaWindowActor.hide();
             // actor.set_opacity(0);
-            showBoxes(actor.metaWindow);
+            // showBoxes(actor.metaWindow);
 
         });
     })
