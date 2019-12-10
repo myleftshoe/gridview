@@ -12,9 +12,9 @@
 }
 
 .gridview-cell {
-    background-color: rgba(255, 0, 0, 0.2);
+    /* background-color: rgba(255, 0, 0, 0.2); */
     /* margin:20px; */
-    border:1px solid cyan;
+    /* border:1px solid cyan; */
 }
 
 .clone {

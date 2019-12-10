@@ -34,30 +34,37 @@ function disable() {
 
 let container;
 let gridView;
+let scrollable;
 
 function hidePanelBox() {
     const panelBox = Main.layoutManager.panelBox;
     panelBox.translation_y = -panelBox.get_height();
     Main.overview.connect('showing', () => {
-        container.hide();
+        Main.uiGroup.remove_child(scrollable.scrollbar);
     });
     Main.overview.connect('shown', () => {
-        Tweener.addTween(panelBox, {
-            translation_y: 0,
-            time: .25,
-        });
+        // Tweener.addTween(panelBox, {
+        //     translation_y: 0,
+        //     time: .25,
+        // });
     });
     Main.overview.connect('hidden', () => {
-        Tweener.addTween(panelBox, {
-            translation_y: -27,
-            time: .25,
-        })
-        container.show();
+        log('hiding')
+        // Main.overview._overview.remove_all_transitions();
+    });
+    Main.overview.connect('hidden', () => {
+        // Tweener.addTween(panelBox, {
+        //     translation_y: -27,
+        //     time: .25,
+        //     // onComplete: () => container.show()
+        // })
+        Main.uiGroup.add_child(scrollable.scrollbar);
     });
 }
 
 function prepare() {
     hidePanelBox();
+    log('yyyyyyy', global.display.focus_window.title);
     const hotTop = new HotTop({ width: 5 });
     const hotBottom = new HotBottom({ width: 5 });
     global.display.connect('window-created', (display, metaWindow) => {
@@ -94,34 +101,52 @@ function prepare() {
         }
     });
     gridView = new GridView();
-    const scrollable = new Scrollable(gridView, { height: 6, width: Main.uiGroup.get_width() });
+    scrollable = new Scrollable(gridView, { height: 6, width: Main.uiGroup.get_width() });
     scrollable.connect('scroll-begin', () => {
         log('scroll-begin')
         gridView.cells.forEach(cell => {
             cell.set_opacity(255);
             cell.metaWindowActor.lower_bottom();
         });
-    })
-    container.add_child(scrollable);
-    Main.uiGroup.add_child(scrollable.scrollbar);
-    gridView.connect('focused', (gridViewActor, actor) => {
-        log('focused', actor.id);
-        // hideBoxes();
-        gridView.cells.forEach(cell => {
-            cell.set_opacity(255);
-            cell.metaWindowActor.hide();
-        });
-        scrollable.scrollToActor(actor);
         scrollable.onScrollEnd(() => {
-            log('onScrollEnd');
+            log('onScrollEnd2');
+            const actor = gridView.getCellForMetaWindow(global.display.focus_window);
             const br = actor.metaWindow.get_buffer_rect();
             const fr = actor.metaWindow.get_frame_rect();
             let [nx, ny] = actor.get_transformed_position();
             actor.metaWindow.move_frame(true, nx + (br.width - fr.width) / 2 + actor.clone.get_margin_left(), ny);
-            actor.metaWindowActor.raise_top();
-            actor.metaWindowActor.show();
-            actor.set_opacity(0);
+            actor.metaWindowActor.lower_bottom();
+            actor.metaWindowActor.hide();
+            // actor.set_opacity(0);
             showBoxes(actor.metaWindow);
+
+        });
+    })
+    container.add_child(scrollable);
+    Main.uiGroup.add_child(scrollable.scrollbar);
+    gridView.connect('focused', (gridViewActor, cell) => {
+        log('focused', cell.id);
+        // hideBoxes();
+        gridView.cells.forEach(cell => {
+            cell.save_easing_state();
+            cell.set_easing_duration(0);
+            cell.set_opacity(255);
+            cell.metaWindowActor.hide();
+        });
+        scrollable.scrollToActor(cell);
+        scrollable.onScrollEnd(() => {
+            log('onScrollEnd');
+            const br = cell.metaWindow.get_buffer_rect();
+            const fr = cell.metaWindow.get_frame_rect();
+            const [x, y] = cell.get_transformed_position();
+            const [nx, ny] = [Math.round(x), Math.round(y)];
+            log("ny", nx, ny)
+            cell.metaWindow.move_frame(true, nx + (br.width - fr.width) / 2 + cell.clone.get_margin_left(), fr.y);
+            // actor.metaWindowActor.raise_top();
+            cell.metaWindowActor.show();
+            cell.set_opacity(0);
+            cell.restore_easing_state();
+            // showBoxes(actor.metaWindow);
         });
     });
     show();
