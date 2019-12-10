@@ -34,7 +34,6 @@ function disable() {
 
 let container;
 let gridView;
-let hotTop;
 
 function hidePanelBox() {
     const panelBox = Main.layoutManager.panelBox;
@@ -59,12 +58,8 @@ function hidePanelBox() {
 
 function prepare() {
     hidePanelBox();
-    hotTop = new HotTop({ width: 36 });
-    hotTop.connect('enter-event', (actor, event) => {
-        log('enter-event')
-        show();
-    });
-    const hotBottom = new HotBottom({ width: 36 });
+    const hotTop = new HotTop({ width: 5 });
+    const hotBottom = new HotBottom({ width: 5 });
     global.display.connect('window-created', (display, metaWindow) => {
         // log('cscscscscscsc',display,metaWindow);
         // if (!metaWindow.get_transient_for()) return;
@@ -115,7 +110,7 @@ function prepare() {
         }
     });
     gridView = new GridView();
-    const scrollable = new Scrollable(gridView, { height: 1, width: Main.uiGroup.get_width() });
+    const scrollable = new Scrollable(gridView, { height: 6, width: Main.uiGroup.get_width() });
     scrollable.connect('scroll-begin', () => {
         log('scroll-begin')
         gridView.cells.forEach(cell => {
@@ -127,9 +122,12 @@ function prepare() {
     Main.uiGroup.add_child(scrollable.scrollbar);
     gridView.connect('focused', (gridViewActor, actor) => {
         log('focused', actor.id);
-        actor.metaWindowActor.raise_top();
+        // actor.metaWindowActor.set_opacity(0);
         // hideBoxes();
-        gridView.cells.forEach(cell => cell.set_opacity(255));
+        gridView.cells.forEach(cell => { 
+            cell.set_opacity(255);
+            cell.metaWindowActor.hide();
+        });
         // gridView.cells.forEach(cell => cell.metaWindowActor.hide())
         scrollable.scrollToActor(actor);
         scrollable.onScrollEnd(() => {
@@ -139,9 +137,9 @@ function prepare() {
             let [nx, ny] = actor.get_transformed_position();
             actor.metaWindow.move_frame(true, nx + (br.width - fr.width) / 2 + actor.clone.get_margin_left(), ny);
             actor.metaWindowActor.raise_top();
-            // actor.metaWindowActor.show();
-            actor.set_opacity(255);
-            // showBoxes(actor.metaWindow);
+            actor.metaWindowActor.show();
+            actor.set_opacity(0);
+            showBoxes(actor.metaWindow);
             // global.display.focus_default_window(global.get_current_time());
         });
     });

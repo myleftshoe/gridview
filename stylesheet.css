@@ -12,9 +12,9 @@
 }
 
 .gridview-cell {
-    /* background-color: rgba(255, 0, 0, 0.2); */
-    margin:20px;
-    /* border:2px solid cyan; */
+    background-color: rgba(255, 0, 0, 0.2);
+    /* margin:20px; */
+    border:1px solid cyan;
 }
 
 .clone {
@@ -29,15 +29,17 @@
 }
 
 .scrollbar {
-    background-color: rgba(100, 100, 100, 0.2);
+    /* background-color: rgba(100, 100, 100, 0.2); */
+    background-color: black;
 }
 
 .scrollbar:pressed {
-    background-color: rgba(100, 100, 100, 0.3);
+    /* background-color: rgba(100, 100, 100, 0.3); */
 }
 
 .scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.8);
+    /* border-radius: 1px; */
 }
 
 .scrollbar-thumb:pressed {

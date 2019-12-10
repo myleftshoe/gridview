@@ -30,10 +30,11 @@ var GridView = GObject.registerClass(
         _init() {
             super._init({
                 style_class,
-                opacity:255,
+                opacity: 255,
                 reactive: true,
-                vertical: true,
+                // vertical: true,
                 x_expand: true,
+                y: 5,
             });
             makeSortable(this);
             makeZoomable(this);
@@ -48,18 +49,20 @@ var GridView = GObject.registerClass(
             log('populate')
             this.remove_all_children();
             this.cells = [];
-            UI.workspaces.forEach((workspace) => {
+            // UI.workspaces.forEach((workspace) => {this.get_parent().width
                 // const windows = workspace.list_windows();
                 // const windows = UI.getWorkspaceWindows(workspace);
-                const windows = global.display.get_tab_list(Meta.TabList.NORMAL, workspace);
+                // const windows = global.display.get_tab_list(Meta.TabList.NORMAL, workspace);
+                const windows = UI.windows;
                 if (!windows.length) return;
-                const row = new Row(workspace);
+                // const row = new Row(workspace);
                 windows.forEach(metaWindow => {
                     const cell = new Cell(metaWindow);
                     cell.connect('button-release-event', (actor) => {
                         Main.activateWindow(actor.metaWindow);
                     });
                     cell.metaWindow.connect('focus', () => {
+                        log('focus')
                         this.emit('focused', cell);
                     })
                     cell.metaWindow.connect('unmanaged', () => {
@@ -67,25 +70,13 @@ var GridView = GObject.registerClass(
                         log('UNMANAGED window', cell.id);
                     })
                     this.cells.push(cell);
-                    row.add_child(cell);
+                    // row.add_child(cell);
                     cell.metaWindowActor.hide();
+                    this.add_child(cell);
                     this.emit('cell-added', cell);
                 });
-                this.add_child(row);
-            });
-        }
-        // show() {
-        //     Main.pushModal(this, { actionMode: Shell.ActionMode.OVERVIEW })
-        // }
-        hide() {
-            this.get_children().forEach((row, rowIndex) => {
-                const cells = row.get_children();
-                cells.forEach(cell => {
-                    let [x,y] = cell.get_position();
-                    cell.metaWindow.move_frame(true,x + 13, 0);
-                })
-            });
-            // Main.popModal(this);
+                // this.add_child(row);
+            // });
         }
         destroy() {
             // this.hide();
