@@ -10,7 +10,7 @@ const { GridView } = Extension.imports.gridView;
 const { Scrollable } = Extension.imports.scrollable;
 const { Cell } = Extension.imports.cell;
 const { Log } = Extension.imports.utils.logger;
-
+const { showBoxes, hideBoxes } = Extension.imports.debug;
 
 function init() {
     log(`***************************************************************`);
@@ -61,7 +61,6 @@ function prepare() {
     const hotTop = new HotTop({ width: 5 });
     const hotBottom = new HotBottom({ width: 5 });
     global.display.connect('window-created', (display, metaWindow) => {
-        // log('cscscscscscsc',display,metaWindow);
         // if (!metaWindow.get_transient_for()) return;
         log('ft', metaWindow.title, metaWindow.get_frame_type())
         if (metaWindow.get_window_type() < 2) {
@@ -93,12 +92,10 @@ function prepare() {
             cell.set_opacity(255);
             cell.restore_easing_state();
             cell.metaWindowActor.lower_bottom();
-            // const ev = new Clutter.Event();
             const coords = global.get_pointer(); 
             cell.draggable.startDrag(null, coords);
         }
     })
-    // const hotLeft = new HotLeft({width:64});
     container = new Container();
     container.connect('captured-event', (actor, event) => {
         // log(event.type())
@@ -122,13 +119,11 @@ function prepare() {
     Main.uiGroup.add_child(scrollable.scrollbar);
     gridView.connect('focused', (gridViewActor, actor) => {
         log('focused', actor.id);
-        // actor.metaWindowActor.set_opacity(0);
         // hideBoxes();
         gridView.cells.forEach(cell => { 
             cell.set_opacity(255);
             cell.metaWindowActor.hide();
         });
-        // gridView.cells.forEach(cell => cell.metaWindowActor.hide())
         scrollable.scrollToActor(actor);
         scrollable.onScrollEnd(() => {
             log('onScrollEnd');
@@ -140,7 +135,6 @@ function prepare() {
             actor.metaWindowActor.show();
             actor.set_opacity(0);
             showBoxes(actor.metaWindow);
-            // global.display.focus_default_window(global.get_current_time());
         });
     });
     show();
@@ -174,10 +168,8 @@ const Container = GObject.registerClass({},
         }
         show() {
             global.window_group.add_child(this);
-            // Main.pushModal(this, { actionMode: Shell.ActionMode.OVERVIEW })
         }
         hide() {
-            // Main.popModal(this);
             global.window_group.remove_child(this);
         }
         destroy() {
@@ -186,36 +178,3 @@ const Container = GObject.registerClass({},
     }
 );
 
-let boxes = [];
-
-function hideBoxes() {
-    boxes.forEach(box => {
-        global.stage.remove_child(box);
-    });
-    boxes = [];
-}
-
-function showBoxes(metaWindow) {
-    let frame = metaWindow.get_frame_rect()
-    let inputFrame = metaWindow.get_buffer_rect()
-    let actor = metaWindow.get_compositor_private();
-
-    hideBoxes();
-    const makeFrameBox = function ({ x, y, width, height }, color) {
-        let frameBox = new St.Widget();
-        frameBox.set_position(x, y)
-        frameBox.set_size(width, height)
-        frameBox.set_style("border: 2px" + color + " solid");
-        return frameBox;
-    }
-
-    boxes.push(makeFrameBox(frame, "rgba(255,0,0,0.5)"));
-    boxes.push(makeFrameBox(inputFrame, "rgba(0,100,255,0.5)"));
-
-    if (inputFrame.x !== actor.x || inputFrame.y !== actor.y
-        || inputFrame.width !== actor.width || inputFrame.height !== actor.height) {
-        boxes.push(makeFrameBox(actor, "yellow"));
-    }
-
-    boxes.forEach(box => global.stage.add_child(box));
-}
