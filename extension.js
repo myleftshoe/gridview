@@ -71,8 +71,9 @@ function scroll(scrollable, cell) {
         cell.metaWindowActor.hide();
     });
     scrollable.scrollToActor(cell);
-    scrollable.onScrollEnd(() => {
-        log('onScrollEnd');
+    const signal = scrollable.connect('scroll-end', () => {
+        scrollable.disconnect(signal);
+        log('scroll-end');
         const br = cell.metaWindow.get_buffer_rect();
         const fr = cell.metaWindow.get_frame_rect();
         const [x, y] = cell.get_transformed_position();
@@ -85,14 +86,14 @@ function scroll(scrollable, cell) {
         cell.restore_easing_state();
         const fc = gridView.getFocusedCell();
         log('focused:', fc.id)
-        // showBoxes(actor.metaWindow);
+        showBoxes(fc.metaWindow);
     });
 }
 
 
 function prepare() {
     hidePanelBox();
-    log('yyyyyyy', global.display.focus_window.title);
+    log('initial focused window', global.display.focus_window.title);
     const hotTop = new HotTop({ width: 32 });
 
 
@@ -110,7 +111,6 @@ function prepare() {
 
     // const fullscreenButton = new St.Button({label:'test'});
     fullscreenButton.connect('clicked', () => {
-        log('clicked');
         gridView.cells.forEach(({metaWindow, metaWindowActor}) => {
             if (metaWindow.is_fullscreen())
                 metaWindow.unmake_fullscreen();
@@ -121,28 +121,29 @@ function prepare() {
     });
     hotTop.add_child(fullscreenButton);
     const hotBottom = new HotBottom({ width: 5 });
-    global.display.connect('in-fullscreen-changed', (a,b,c,d) => {
-        log('in-fullscreen-changed')
-        log(a,b,c,d)
-    });
-    // global.display.connect('window-created', (display, metaWindow) => {
-    //     log('ft', metaWindow.title, metaWindow.get_frame_type())
-    //     if (metaWindow.get_window_type() < 2) {
-    //         gridView.populate();
-    //         // metaWindow.get_compositor_private().hide();
-    //     }
+    // global.display.connect('in-fullscreen-changed', (a,b,c,d) => {
+    //     log('in-fullscreen-changed')
+    //     log(a,b,c,d)
     // });
-    global.display.connect('window-left-monitor', () => {
-        log('window-left-monitor');
-        gridView.populate();
-    })
-    global.display.connect('window-entered-monitor', () => {
-        log('window-entered-monitor')
-        gridView.populate();
-    })
+    global.display.connect('window-created', (display, metaWindow) => {
+        log('ft', metaWindow.title, metaWindow.get_frame_type())
+        if (metaWindow.get_window_type() < 2) {
+            const cell = gridView.addCell(metaWindow);
+            // scrollable.scrollToActor(cell);
+            // metaWindow.get_compositor_private().hide();
+        }
+    });
+    // global.display.connect('window-left-monitor', () => {
+    //     log('window-left-monitor');
+    //     gridView.populate();
+    // })
+    // global.display.connect('window-entered-monitor', () => {
+    //     log('window-entered-monitor')
+    //     gridView.populate();
+    // })
 
     global.display.connect('grab-op-begin', (display, screen, window, op) => {
-        log('fffffff', op)
+        log('grab-op-begin', op)
         if (!window) return;
         log('grab-op-begin', op, window.title)
         if (op === Meta.GrabOp.WINDOW_BASE) {
@@ -160,6 +161,7 @@ function prepare() {
     })
     container = new Container();
     container.connect('captured-event', (actor, event) => {
+        // log('captured-event', event.type())
         if (event.type() == 6) {
             gridView.cells.forEach(cell => {
                 cell.metaWindowActor.lower_bottom();
@@ -171,16 +173,28 @@ function prepare() {
     scrollable = new Scrollable(gridView, { height: 5, width: Main.uiGroup.get_width() });
 
 
-    scrollable.connect('scroll-begin', () => {
-        const cell = gridView.getCellForMetaWindow(global.display.focus_window);
-        log('scroll-begin', cell.id)
-        scroll(scrollable, cell);
-    })
+    // scrollable.connect('scroll-begin', () => {
+    //     const cell = gridView.getCellForMetaWindow(global.display.focus_window);
+    //     log('scroll-begin', cell.id)
+    //     scroll(scrollable, cell);
+    // })
     container.add_child(scrollable);
     hotBottom.add_child(scrollable.scrollbar);
     gridView.connect('focused', (gridViewActor, cell) => {
         log('focused', cell.id);
-        scroll(scrollable, cell);
+        scrollable.scrollToActor(cell);
+        const signal = scrollable.connect('scroll-end', () => {
+            scrollable.disconnect(signal);
+            log('scrolled to actor', cell.id);
+            const br = cell.metaWindow.get_buffer_rect();
+            const fr = cell.metaWindow.get_frame_rect();
+            const [x, y] = cell.get_transformed_position();
+            const [nx, ny] = [Math.round(x), Math.round(y)];
+            log("ny", nx, ny)
+            cell.metaWindow.move_frame(true, nx + (br.width - fr.width) / 2 + cell.clone.get_margin_left(), ny);
+            showBoxes(cell.metaWindow)
+        });
+        // scroll(scrollable, cell);
     });
     show();
     scrollable.update();

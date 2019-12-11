@@ -38,9 +38,9 @@ var GridView = GObject.registerClass(
             });
             makeSortable(this);
             makeZoomable(this);
-            this.boxes = [];
-            this.cells = [];
-
+        }
+        get cells() {
+            return this.get_children().filter(child => (child instanceof Cell));
         }
         getCellForMetaWindow(metaWindow) {
             return this.cells.find(cell => cell.metaWindow === metaWindow);
@@ -48,36 +48,40 @@ var GridView = GObject.registerClass(
         getFocusedCell() {
             return this.cells.find(cell => cell.metaWindow.has_focus());
         }
+        addCell(metaWindow) {
+            const cell = new Cell(metaWindow);
+            cell.connect('button-release-event', (actor) => {
+                Main.activateWindow(actor.metaWindow);
+            });
+            cell.metaWindow.connect('focus', (a,b,c) => {
+                // log('focus',a,b,c)
+                this.emit('focused', cell);
+            })
+            cell.metaWindow.connect('unmanaged', () => {
+                log('*****************************************************************');
+                log('UNMANAGED window', cell.id);
+            })
+            cell.metaWindowActor.connect('destroy', () => {
+                log('*****************************************************************');
+                log('DESTROYED window', cell.id);
+                this.remove_child(cell);
+            })
+            // row.add_child(cell);
+            cell.metaWindowActor.hide();
+            // this.add_child(cell);
+            this.insert_child_at_index(cell,0);
+            this.emit('cell-added', cell);
+            return cell;
+        }
         populate() {
             log('populate')
             this.remove_all_children();
-            this.cells = [];
             // UI.workspaces.forEach((workspace) => {this.get_parent().width
                 // const windows = workspace.list_windows();
                 // const windows = UI.getWorkspaceWindows(workspace);
                 // const windows = global.display.get_tab_list(Meta.TabList.NORMAL, workspace);
-                const windows = UI.windows;
-                if (!windows.length) return;
                 // const row = new Row(workspace);
-                windows.forEach(metaWindow => {
-                    const cell = new Cell(metaWindow);
-                    cell.connect('button-release-event', (actor) => {
-                        Main.activateWindow(actor.metaWindow);
-                    });
-                    cell.metaWindow.connect('focus', () => {
-                        log('focus')
-                        this.emit('focused', cell);
-                    })
-                    cell.metaWindow.connect('unmanaged', () => {
-                        log('*****************************************************************');
-                        log('UNMANAGED window', cell.id);
-                    })
-                    this.cells.push(cell);
-                    // row.add_child(cell);
-                    cell.metaWindowActor.hide();
-                    this.add_child(cell);
-                    this.emit('cell-added', cell);
-                });
+                UI.windows.forEach(this.addCell.bind(this));
                 // this.add_child(row);
             // });
         }

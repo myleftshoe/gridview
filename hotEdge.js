@@ -17,14 +17,12 @@ var HotTop = GObject.registerClass({},
                 y: 1 - width,
             });
             this.connect('enter-event', () => {
-                log('enter')
                 Tweener.addTween(this, {
                     y:0,
                     time:.25,
                 });
             });
             this.connect('leave-event', () => {
-                log('leave')
                 Tweener.addTween(this, {
                     y: 1 - width,
                     time:.25,

@@ -10,6 +10,9 @@ var Scrollable = GObject.registerClass(
             'scroll-begin': {
                 param_types: []
             },
+            'scroll-end': {
+                param_types: []
+            },
         }
     }, 
     class Scrollable extends Clutter.ScrollActor {
@@ -50,6 +53,11 @@ var Scrollable = GObject.registerClass(
             this.dragAction.connect('drag-end', () => {
                 this.scrollbar.remove_style_pseudo_class('pressed');
                 this.thumb.remove_style_pseudo_class('pressed');
+                const signal = this.connect('transitions-completed', () => {
+                    log('transitions-completed');
+                    this.disconnect(signal);
+                    this.emit('scroll-end');
+                });
             });
             this.dragAction.connect('drag-motion', () => {
                 const [x] = this.thumb.get_position();
@@ -59,7 +67,7 @@ var Scrollable = GObject.registerClass(
         }
         update() {
             const thumbWidth = this._width * this._width/this._content.get_width();
-            log(this._content.get_width())
+            // log(this._content.get_width())
             this.thumb.set_width(thumbWidth);
             this.dragAction.set_drag_area(new Clutter.Rect({
                 origin: {x:0, y:0}, 
@@ -67,19 +75,17 @@ var Scrollable = GObject.registerClass(
             }));
         }
         scrollToActor(actor) {
+            this.emit('scroll-begin');
             const [x,y] = actor.get_position();
             const [width, height] = actor.get_size();
             log(x,y, width,height)
             this.scroll_to_rect(new Clutter.Rect({origin: {x: x - (Main.uiGroup.get_width() - width) / 2, y}, size: {width, height}}));
-            this.thumb.set_easing_duration(750)
+            this.thumb.set_easing_duration(750);
             this.thumb.set_x(x / this.width * this.scrollbar.width);
             this.thumb.set_easing_duration(0)
-        }
-        onScrollEnd(callback) {
-            const sig = this.connect('transitions-completed', () => {
-                log('transitions-completed');
-                this.disconnect(sig);
-                callback();
+            const signal = this.connect('transitions-completed', () => {
+                this.disconnect(signal);
+                this.emit('scroll-end');
             });
         }
     }
