@@ -25,7 +25,8 @@
 }
 
 .hot-edge {
-    background-color: rgba(100, 100, 0, 0.6);
+    /* background-color: rgba(100, 100, 0, 0.6); */
+    background-color: black;
 }
 
 .scrollbar {

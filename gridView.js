@@ -45,6 +45,9 @@ var GridView = GObject.registerClass(
         getCellForMetaWindow(metaWindow) {
             return this.cells.find(cell => cell.metaWindow === metaWindow);
         }
+        getFocusedCell() {
+            return this.cells.find(cell => cell.metaWindow.has_focus());
+        }
         populate() {
             log('populate')
             this.remove_all_children();
