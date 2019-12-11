@@ -102,7 +102,9 @@ function prepare() {
         log('ft', metaWindow.title, metaWindow.get_frame_type())
         if (metaWindow.get_window_type() < 2) {
             const cell = gridView.addCell(metaWindow);
+            return;
         }
+        metaWindow.get_compositor_private().raise_top();
     });
     global.display.connect('grab-op-begin', (display, screen, window, op) => {
         log('grab-op-begin', op)
