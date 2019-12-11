@@ -34,7 +34,7 @@ var GridView = GObject.registerClass(
                 reactive: true,
                 // vertical: true,
                 x_expand: true,
-                y: 5,
+                // y: 5,
             });
             makeSortable(this);
             makeZoomable(this);

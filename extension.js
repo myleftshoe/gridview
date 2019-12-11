@@ -65,8 +65,12 @@ function hidePanelBox() {
 function prepare() {
     hidePanelBox();
     log('yyyyyyy', global.display.focus_window.title);
-    const hotTop = new HotTop({ width: 5 });
+    // const hotTop = new HotTop({ width: 5 });
     const hotBottom = new HotBottom({ width: 5 });
+    global.display.connect('in-fullscreen-changed', (a,b,c,d) => {
+        log('in-fullscreen-changed')
+        log(a,b,c,d)
+    });
     global.display.connect('window-created', (display, metaWindow) => {
         log('ft', metaWindow.title, metaWindow.get_frame_type())
         if (metaWindow.get_window_type() < 2) {
@@ -76,6 +80,7 @@ function prepare() {
     });
 
     global.display.connect('grab-op-begin', (display, screen, window, op) => {
+        log('fffffff', op)
         if (!window) return;
         log('grab-op-begin', op, window.title)
         if (op === Meta.GrabOp.WINDOW_BASE) {
@@ -101,7 +106,7 @@ function prepare() {
         }
     });
     gridView = new GridView();
-    scrollable = new Scrollable(gridView, { height: 6, width: Main.uiGroup.get_width() });
+    scrollable = new Scrollable(gridView, { height: 5, width: Main.uiGroup.get_width() });
     scrollable.connect('scroll-begin', () => {
         log('scroll-begin')
         gridView.cells.forEach(cell => {
@@ -113,17 +118,18 @@ function prepare() {
             const actor = gridView.getCellForMetaWindow(global.display.focus_window);
             const br = actor.metaWindow.get_buffer_rect();
             const fr = actor.metaWindow.get_frame_rect();
-            let [nx, ny] = actor.get_transformed_position();
+            const [x, y] = actor.get_transformed_position();
+            const [nx, ny] = [Math.round(x), Math.round(y)];
             actor.metaWindow.move_frame(true, nx + (br.width - fr.width) / 2 + actor.clone.get_margin_left(), ny);
-            actor.metaWindowActor.lower_bottom();
+            // actor.metaWindowActor.raise_top();
             actor.metaWindowActor.hide();
-            // actor.set_opacity(0);
+            actor.set_opacity(0);
             // showBoxes(actor.metaWindow);
 
         });
     })
     container.add_child(scrollable);
-    Main.uiGroup.add_child(scrollable.scrollbar);
+    hotBottom.add_child(scrollable.scrollbar);
     gridView.connect('focused', (gridViewActor, cell) => {
         log('focused', cell.id);
         // hideBoxes();
@@ -141,7 +147,7 @@ function prepare() {
             const [x, y] = cell.get_transformed_position();
             const [nx, ny] = [Math.round(x), Math.round(y)];
             log("ny", nx, ny)
-            cell.metaWindow.move_frame(true, nx + (br.width - fr.width) / 2 + cell.clone.get_margin_left(), fr.y);
+            cell.metaWindow.move_frame(true, nx + (br.width - fr.width) / 2 + cell.clone.get_margin_left(), ny);
             // actor.metaWindowActor.raise_top();
             cell.metaWindowActor.show();
             cell.set_opacity(0);

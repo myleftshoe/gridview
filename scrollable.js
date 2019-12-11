@@ -27,8 +27,9 @@ var Scrollable = GObject.registerClass(
                 style_class
             });
             this.thumb = new St.Widget({
-                height: this._height - 3,
+                height: this._height,
                 width: this._width,
+                y:3,
                 style_class: 'scrollbar-thumb', 
                 reactive:true
             });
@@ -52,7 +53,7 @@ var Scrollable = GObject.registerClass(
             });
             this.dragAction.connect('drag-motion', () => {
                 const [x] = this.thumb.get_position();
-                this.scroll_to_point(new Clutter.Point({x: x * this.get_parent().width/this._width, y: 6}))
+                this.scroll_to_point(new Clutter.Point({x: x * this.get_parent().width/this._width, y: 0}))
             });
             this.thumb.add_action(this.dragAction);
         }

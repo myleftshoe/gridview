@@ -30,7 +30,7 @@ var HotBottom = GObject.registerClass({},
                 style_class,
                 reactive:true
             });
-            Main.layoutManager.addChrome(this, { affectsStruts: true });
+            Main.layoutManager.addChrome(this, { affectsStruts: false });
         }
     }
 );
