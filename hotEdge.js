@@ -1,21 +1,36 @@
 const Main = imports.ui.main;
-
 const { GObject, Clutter, Meta, St } = imports.gi;
+const Tweener = imports.ui.tweener;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
 
 const style_class = 'hot-edge';
 
 var HotTop = GObject.registerClass({},
-    class HotTop extends St.Widget {
+    class HotTop extends St.BoxLayout {
         _init({width = 10}) {
             super._init({
                 height: width,
                 width: global.stage.get_width(),
                 style_class,
-                reactive:true
+                reactive:true,
+                y: 1 - width,
             });
-            Main.layoutManager.addChrome(this, { affectsStruts: true });
+            this.connect('enter-event', () => {
+                log('enter')
+                Tweener.addTween(this, {
+                    y:0,
+                    time:.25,
+                });
+            });
+            this.connect('leave-event', () => {
+                log('leave')
+                Tweener.addTween(this, {
+                    y: 1 - width,
+                    time:.25,
+                });
+            });
+            Main.layoutManager.addChrome(this, { affectsStruts: false });
         }
     }
 );

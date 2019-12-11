@@ -65,7 +65,18 @@ function hidePanelBox() {
 function prepare() {
     hidePanelBox();
     log('yyyyyyy', global.display.focus_window.title);
-    // const hotTop = new HotTop({ width: 5 });
+    const hotTop = new HotTop({ width: 32 });
+    const fullscreenButton = new St.Button({label:'test'});
+    fullscreenButton.connect('clicked', () => {
+        log('clicked');
+        gridView.cells.forEach(({metaWindow, metaWindowActor}) => {
+            if (metaWindow.is_fullscreen())
+                metaWindow.unmake_fullscreen();
+            else
+                metaWindow.make_fullscreen();
+        });
+    });
+    hotTop.add_child(fullscreenButton);
     const hotBottom = new HotBottom({ width: 5 });
     global.display.connect('in-fullscreen-changed', (a,b,c,d) => {
         log('in-fullscreen-changed')
