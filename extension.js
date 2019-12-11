@@ -1,4 +1,4 @@
-const { Clutter, GLib, GObject, Meta, Shell, St } = imports.gi;
+const { Atk, Clutter, GLib, GObject, Meta, Shell, St } = imports.gi;
 const Main = imports.ui.main;
 const Tweener = imports.ui.tweener;
 const Signals = imports.signals;
@@ -66,7 +66,21 @@ function prepare() {
     hidePanelBox();
     log('yyyyyyy', global.display.focus_window.title);
     const hotTop = new HotTop({ width: 32 });
-    const fullscreenButton = new St.Button({label:'test'});
+
+
+    let gearIcon = new St.Icon({ icon_name: 'emblem-system-symbolic' });
+    const fullscreenButton = new St.Button({ 
+        style_class: 'login-dialog-session-list-button',
+        reactive: true,
+        track_hover: true,
+        can_focus: true,
+        accessible_name: _("Choose Session"),
+        accessible_role: Atk.Role.MENU,
+        child: gearIcon 
+    });
+
+
+    // const fullscreenButton = new St.Button({label:'test'});
     fullscreenButton.connect('clicked', () => {
         log('clicked');
         gridView.cells.forEach(({metaWindow, metaWindowActor}) => {
