@@ -68,7 +68,8 @@ function prepare() {
     log('initial focused window', global.display.focus_window.title);
     const hotTop = new HotTop({ width: 32 });
 
-
+    const layout = new Clutter.BoxLayout({spacing:20});
+    const bin = new St.Widget({layout_manager: layout});
     let gearIcon = new St.Icon({ icon_name: 'emblem-system-symbolic' });
     const fullscreenButton = new St.Button({ 
         style_class: 'login-dialog-session-list-button',
@@ -89,7 +90,13 @@ function prepare() {
         });
         gridView.populate();
     });
-    hotTop.add_child(fullscreenButton);
+
+    const title = new St.Label({text:'test'});
+
+    bin.add_child(fullscreenButton);
+    bin.add_child(title);
+    hotTop.add_child(bin);
+
     const hotBottom = new HotBottom({ width: 5 });
     global.display.connect('window-created', (display, metaWindow) => {
         log('ft', metaWindow.title, metaWindow.get_frame_type())
@@ -138,11 +145,11 @@ function prepare() {
         log('cell', cell.id);
         log('focu', focusedCell.id);
         if (cell !== focusedCell) {
-            cell.metaWindow.raise();
             log('a', cell.metaWindow.is_override_redirect());
             Main.activateWindow(cell.metaWindow);
             log('b')
         }
+        title.set_text(cell.id);
     })
     show();
     scrollable.update();
