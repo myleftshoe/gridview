@@ -70,7 +70,7 @@ function prepare() {
 
     const layout = new Clutter.BoxLayout({spacing:20});
     const bin = new St.Widget({layout_manager: layout});
-    let gearIcon = new St.Icon({ icon_name: 'emblem-system-symbolic' });
+    let gearIcon = new St.Icon({ icon_name: 'view-fullscreen-symbolic' });
     const fullscreenButton = new St.Button({ 
         style_class: 'login-dialog-session-list-button',
         reactive: true,
