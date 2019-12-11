@@ -25,7 +25,9 @@ var UI = class UI {
     // }
 
     static get windows() {
-        return global.get_window_actors().map((actor) => actor.get_meta_window());
+        return global.get_window_actors()
+            .map((actor) => actor.get_meta_window())
+            .filter(metaWindow => !metaWindow.is_override_redirect());
     }
 
     // static get fullscreenWindows() {

@@ -48,6 +48,13 @@ var GridView = GObject.registerClass(
         getFocusedCell() {
             return this.cells.find(cell => cell.metaWindow.has_focus());
         }
+        getFirstVisibleCell() {
+            return this.cells.find(cell => {
+                const [x,y] = cell.get_transformed_position();
+                log(x, cell.id, x >= 0);
+                return (x >= -1);
+            })
+        }
         addCell(metaWindow) {
             const cell = new Cell(metaWindow);
             cell.connect('button-release-event', (actor) => {
