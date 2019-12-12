@@ -176,11 +176,12 @@ function prepare() {
         scrollable.scrollToActor(cell);
     });
     scrollable.connect('scroll-begin', () => {
-        hideBoxes();
+        // hideBoxes();
         gridView.cells.forEach(cell => {
             cell.metaWindowActor.hide();
         })
     });
+    let isReverting = false;
     scrollable.connect('scroll-end', () => {
         log('scroll-end');
         const cell = gridView.getFirstVisibleCell();
@@ -191,10 +192,18 @@ function prepare() {
             Main.activateWindow(cell.metaWindow);
             return;
         }
+        if (!isReverting) {
+            isReverting = true;
+            log('not reverting')
+            scrollable.scrollToActor(focusedCell);
+            return;
+        }
+        log('referted')
+        isReverting = false;
         cell.alignMetaWindow();
-        cell.set_opacity(150);
+        // cell.set_opacity(150);
+        cell.metaWindowActor.show();
         cell.metaWindowActor.raise_top();
-        cell.lower_bottom();
         title.set_text(cell.id);
         // showBoxes(cell.metaWindow)
     })
