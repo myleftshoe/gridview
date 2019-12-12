@@ -171,7 +171,7 @@ function prepare() {
         // cell.metaWindowActor.show();
         // cell.lower_bottom();
         title.set_text(cell.id);
-        showBoxes(cell.metaWindow)
+        // showBoxes(cell.metaWindow)
     })
     show();
     scrollable.update();
@@ -197,7 +197,10 @@ function hide() {
 const Container = GObject.registerClass({},
     class Container extends St.Widget {
         _init() {
-            super._init({ reactive: true });
+            super._init({ 
+                style_class: 'container',
+                reactive: true 
+            });
         }
         get isOnStage() {
             return global.window_group.contains(this);

@@ -1,5 +1,9 @@
+.container {
+    background-color: rgba(50, 50, 50, 1.0);
+}
+
 .gridview {
-    background-color: rgba(255, 0, 0, .5);
+    /* background-color: rgba(255, 0, 0, .5); */
     /* background-color: black; */
     /* margin: 120px 80px; */
     /* padding: 20px 10px; */
