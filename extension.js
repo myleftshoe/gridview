@@ -5,7 +5,7 @@ const Signals = imports.signals;
 const Background = imports.ui.background;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
-const { HotTop, HotLeft, HotBottom } = Extension.imports.hotEdge;
+const { HotTop, HotLeft, HotBottom, HotRight } = Extension.imports.hotEdge;
 const { GridView } = Extension.imports.gridView;
 const { Scrollable } = Extension.imports.scrollable;
 const { Cell } = Extension.imports.cell;
@@ -67,6 +67,28 @@ function prepare() {
     hidePanelBox();
     log('initial focused window', global.display.focus_window.title);
     const hotTop = new HotTop({ width: 32 });
+    const hotLeft = new HotLeft({width:1});
+    const hotRight = new HotRight({width:1});
+
+    const hotLeftClickAction = new Clutter.ClickAction();
+    hotLeftClickAction.connect('clicked', () => {
+        const focusedCell = gridView.getFocusedCell();
+        const i = gridView.cells.indexOf(focusedCell);
+        log('hotLeft clicked', i, focusedCell.id);
+        prevCell = gridView.cells[i - 1] || focusedCell;
+        Main.activateWindow(prevCell.metaWindow);
+    });
+    hotLeft.add_action(hotLeftClickAction);
+
+    const hotRightClickAction = new Clutter.ClickAction();
+    hotRightClickAction.connect('clicked', () => {
+        const focusedCell = gridView.getFocusedCell();
+        const i = gridView.cells.indexOf(focusedCell);
+        log('hotRight clicked', i, focusedCell.id);
+        nextCell = gridView.cells[i + 1] || focusedCell;
+        Main.activateWindow(nextCell.metaWindow);
+    });
+    hotRight.add_action(hotRightClickAction);
 
     const layout = new Clutter.BoxLayout({spacing:20});
     const bin = new St.Widget({layout_manager: layout});
