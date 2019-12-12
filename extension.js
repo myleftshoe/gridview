@@ -81,20 +81,46 @@ function prepare() {
         child: gearIcon 
     });
 
+    let closeIcon = new St.Icon({ icon_name: 'cancel-symbolic' });
+    const closeButton = new St.Button({ 
+        style_class: 'login-dialog-session-list-button',
+        reactive: true,
+        track_hover: true,
+        can_focus: true,
+        accessible_name: _("Close Window"),
+        accessible_role: Atk.Role.MENU,
+        child: closeIcon 
+    });
+
+
     fullscreenButton.connect('clicked', () => {
         gridView.cells.forEach(({metaWindow, metaWindowActor}) => {
-            if (metaWindow.is_fullscreen())
-                metaWindow.unmake_fullscreen();
+            if (metaWindow.maximized_horizontally) {
+                metaWindow.unmaximize(Meta.MaximizeFlags.HORIZONTAL);
+            }
             else
-                metaWindow.make_fullscreen();
+                metaWindow.maximize(Meta.MaximizeFlags.BOTH);
         });
-        gridView.populate();
+        // gridView.cells.forEach(({metaWindow, metaWindowActor}) => {
+        //     if (metaWindow.is_fullscreen())
+        //         metaWindow.unmake_fullscreen();
+        //     else
+        //         metaWindow.make_fullscreen();
+        // });
+        // gridView.populate();
+    });
+
+    closeButton.connect('clicked', () => {
+        const focusedCell = gridView.getFocusedCell();
+        focusedCell.metaWindow.delete(global.get_current_time);
+        // gridView.populate();
     });
 
     const title = new St.Label({text:'test'});
 
     bin.add_child(fullscreenButton);
     bin.add_child(title);
+    bin.add_child(closeButton);
     hotTop.add_child(bin);
 
     const hotBottom = new HotBottom({ width: 5 });
@@ -166,10 +192,9 @@ function prepare() {
             return;
         }
         cell.alignMetaWindow();
-        // cell.set_opacity(150);
-        // cell.metaWindowActor.raise_top();
-        // cell.metaWindowActor.show();
-        // cell.lower_bottom();
+        cell.set_opacity(150);
+        cell.metaWindowActor.raise_top();
+        cell.lower_bottom();
         title.set_text(cell.id);
         // showBoxes(cell.metaWindow)
     })
@@ -185,6 +210,9 @@ function show() {
 
 function hide() {
     if (!container.isOnStage) return;
+    gridView.cells.forEach(cell => {
+        cell.metaWindow.show();
+    });
     Tweener.addTween(gridView, {
         scale_x: 1,
         scale_y: 1,
@@ -199,7 +227,7 @@ const Container = GObject.registerClass({},
         _init() {
             super._init({ 
                 style_class: 'container',
-                reactive: true 
+                reactive: true,
             });
         }
         get isOnStage() {

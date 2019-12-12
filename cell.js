@@ -23,7 +23,7 @@ var Cell = GObject.registerClass(
             });
             this.id = metaWindow.title;
             this.metaWindow = metaWindow;
-            WindowUtils.setTitleBarVisibility(this.metaWindow, true);
+            WindowUtils.setTitleBarVisibility(this.metaWindow, false);
             this.metaWindow.maximize(Meta.MaximizeFlags.VERTICAL);
             this.metaWindowActor = this.metaWindow.get_compositor_private();
             this.clone = new Clutter.Clone({source: this.metaWindowActor});
