@@ -72,7 +72,7 @@ function prepare() {
 
     const hotLeftClickAction = new Clutter.ClickAction();
     hotLeftClickAction.connect('clicked', () => {
-        const focusedCell = gridView.getFocusedCell();
+        const focusedCell = gridView.focusedCell;
         const i = gridView.cells.indexOf(focusedCell);
         log('hotLeft clicked', i, focusedCell.id);
         prevCell = gridView.cells[i - 1] || focusedCell;
@@ -82,7 +82,7 @@ function prepare() {
 
     const hotRightClickAction = new Clutter.ClickAction();
     hotRightClickAction.connect('clicked', () => {
-        const focusedCell = gridView.getFocusedCell();
+        const focusedCell = gridView.focusedCell;
         const i = gridView.cells.indexOf(focusedCell);
         log('hotRight clicked', i, focusedCell.id);
         nextCell = gridView.cells[i + 1] || focusedCell;
