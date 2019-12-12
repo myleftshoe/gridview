@@ -108,8 +108,9 @@ function prepare() {
     });
     global.display.connect('grab-op-begin', (display, screen, window, op) => {
         log('grab-op-begin', op)
+        // gridView.setEasingOff();
         if (!window) return;
-        log('grab-op-begin', op, window.title)
+        log('grab-op-begin', op, window.title);
         if (op === Meta.GrabOp.WINDOW_BASE) {
             log('grab-op-window-base', window.title)
             display.end_grab_op(display);
@@ -118,21 +119,28 @@ function prepare() {
             cell.set_easing_duration(0);
             cell.set_opacity(255);
             cell.restore_easing_state();
-            cell.metaWindowActor.lower_bottom();
+            // cell.metaWindowActor.lower_bottom();
             const coords = global.get_pointer();
             cell.draggable.startDrag(null, coords);
         }
-    })
-    container = new Container();
-    container.connect('captured-event', (actor, event) => {
-        // log('captured-event', event.type())
-        if (event.type() == 6) {
-            gridView.cells.forEach(cell => {
-                cell.metaWindowActor.lower_bottom();
-                cell.set_opacity(255);
-            })
+        if (op !== Meta.GrabOp.RESIZING_E) {
+            display.end_grab_op(display);
         }
-    });
+    })
+    // global.display.connect('grab-op-end', (display, screen, window, op) => {
+    //     log('grab-op-end')
+    //     gridView.setEasingOn();
+    // });
+    container = new Container();
+    // container.connect('captured-event', (actor, event) => {
+    //     // log('captured-event', event.type())
+    //     if (event.type() == 6) {
+    //         gridView.cells.forEach(cell => {
+    //             cell.metaWindowActor.lower_bottom();
+    //             cell.set_opacity(255);
+    //         })
+    //     }
+    // });
     gridView = new GridView();
     scrollable = new Scrollable(gridView, { height: 5, width: Main.uiGroup.get_width() });
     container.add_child(scrollable);
@@ -141,17 +149,29 @@ function prepare() {
         log('focused', cell.id);
         scrollable.scrollToActor(cell);
     });
+    scrollable.connect('scroll-begin', () => {
+        hideBoxes();
+        gridView.cells.forEach(cell => {
+            cell.metaWindowActor.hide();
+        })
+    });
     scrollable.connect('scroll-end', () => {
+        log('scroll-end');
         const cell = gridView.getFirstVisibleCell();
         const focusedCell = gridView.getFocusedCell();
-        log('cell', cell.id);
+        log('cell:', cell.id);
         log('focu', focusedCell.id);
         if (cell !== focusedCell) {
-            log('a', cell.metaWindow.is_override_redirect());
             Main.activateWindow(cell.metaWindow);
-            log('b')
+            return;
         }
+        cell.alignMetaWindow();
+        // cell.set_opacity(150);
+        // cell.metaWindowActor.raise_top();
+        // cell.metaWindowActor.show();
+        // cell.lower_bottom();
         title.set_text(cell.id);
+        showBoxes(cell.metaWindow)
     })
     show();
     scrollable.update();

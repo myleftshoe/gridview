@@ -37,7 +37,8 @@ var GridView = GObject.registerClass(
                 // y: 5,
             });
             makeSortable(this);
-            makeZoomable(this);
+            // makeZoomable(this);
+            makePannable(this);
         }
         get cells() {
             return this.get_children().filter(child => (child instanceof Cell));
@@ -51,7 +52,7 @@ var GridView = GObject.registerClass(
         getFirstVisibleCell() {
             return this.cells.find(cell => {
                 const [x,y] = cell.get_transformed_position();
-                log(x, cell.id, x >= 0);
+                // log('getFirstVisibleCell', x, cell.id, x >= 0);
                 return (x >= -1);
             })
         }
@@ -91,6 +92,17 @@ var GridView = GObject.registerClass(
                 UI.windows.forEach(this.addCell.bind(this));
                 // this.add_child(row);
             // });
+        }
+        setEasingOff() {
+            this.cells.forEach(cell => {
+                cell.save_easing_state();
+                cell.set_easing_duration(0);
+            });
+        }
+        setEasingOn() {
+            this.cells.forEach(cell => {
+                cell.restore_easing_state();
+            });
         }
         destroy() {
             // this.hide();

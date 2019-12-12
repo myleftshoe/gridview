@@ -23,7 +23,7 @@ var Cell = GObject.registerClass(
             });
             this.id = metaWindow.title;
             this.metaWindow = metaWindow;
-            WindowUtils.setTitleBarVisibility(this.metaWindow, false);
+            WindowUtils.setTitleBarVisibility(this.metaWindow, true);
             this.metaWindow.maximize(Meta.MaximizeFlags.VERTICAL);
             this.metaWindowActor = this.metaWindow.get_compositor_private();
             this.clone = new Clutter.Clone({source: this.metaWindowActor});
@@ -31,6 +31,12 @@ var Cell = GObject.registerClass(
             const frameRect = this.metaWindow.get_frame_rect();
             this.clone.translation_y = bufferRect.y - frameRect.y;
             this.add_child(this.clone);
+        }
+        alignMetaWindow() {
+            const br = this.metaWindow.get_buffer_rect();
+            const fr = this.metaWindow.get_frame_rect();
+            const [nx, ny] = this.get_transformed_position();
+            this.metaWindow.move_frame(true, nx + (br.width - fr.width) / 2 + this.clone.get_margin_left(), ny);
         }
     }
 );
