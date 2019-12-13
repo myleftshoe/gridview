@@ -170,11 +170,23 @@ function prepare() {
             // cell.metaWindowActor.lower_bottom();
             const coords = global.get_pointer();
             cell.draggable.startDrag(null, coords);
+            return;
         }
-        if (op !== Meta.GrabOp.RESIZING_E) {
+        if (op === Meta.GrabOp.RESIZING_E) {
+            gridView.cells.forEach(cell => {
+                cell.set_easing_duration(0);
+            });
+        }
+        else {
             display.end_grab_op(display);
         }
-    })
+    });
+    global.display.connect('grab-op-end', (display, screen, window, op) => {
+        gridView.cells.forEach(cell => {
+            cell.set_easing_duration(250);
+        });
+    });
+
     // global.display.connect('grab-op-end', (display, screen, window, op) => {
     //     log('grab-op-end')
     //     gridView.setEasingOn();
