@@ -111,7 +111,7 @@ function prepare() {
         can_focus: true,
         accessible_name: _("Close Window"),
         accessible_role: Atk.Role.MENU,
-        child: closeIcon 
+        child: closeIcon
     });
 
 
@@ -237,6 +237,7 @@ function show() {
     if (container.isOnStage) return;
     gridView.populate();
     container.show();
+    scrollable.scrollToActor(gridView.focusedCell);
 }
 
 function hide() {
@@ -260,6 +261,11 @@ const Container = GObject.registerClass({},
                 style_class: 'container',
                 reactive: true,
             });
+            // const backgroundManager = new Background.BackgroundManager({
+            //     monitorIndex: Main.layoutManager.primaryIndex,
+            //     container: this,
+            //     vignette: true
+            // });
         }
         get isOnStage() {
             return global.window_group.contains(this);

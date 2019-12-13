@@ -25,6 +25,7 @@ var Cell = GObject.registerClass(
             this.metaWindow = metaWindow;
             WindowUtils.setTitleBarVisibility(this.metaWindow, false);
             this.metaWindow.maximize(Meta.MaximizeFlags.VERTICAL);
+            this.metaWindow.unmaximize(Meta.MaximizeFlags.HORIZONTAL);
             this.metaWindowActor = this.metaWindow.get_compositor_private();
             this.clone = new Clutter.Clone({source: this.metaWindowActor});
             const bufferRect = this.metaWindow.get_buffer_rect();

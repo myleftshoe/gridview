@@ -12,7 +12,11 @@ const dropPlaceholder = new St.Widget();
 let lastCell = null;
 
 function makeSortable(actor) {
-    actor.connect('cell-added', (source, cell) => makeCellDraggable(cell));
+    actor.connect('actor-added', (source, actor) => {
+        if (actor instanceof Cell) {
+            makeCellDraggable(actor);
+        }
+    });
 }
 
 function unmakeSortable(actor) {

@@ -18,9 +18,6 @@ const style_class = 'gridview';
 var GridView = GObject.registerClass(
     {
         Signals: {
-            'cell-added': {
-                param_types: [GObject.TYPE_OBJECT]
-            },
             'focused': {
                 param_types: [GObject.TYPE_OBJECT]
             }            
@@ -81,7 +78,6 @@ var GridView = GObject.registerClass(
             cell.metaWindowActor.hide();
             // this.add_child(cell);
             this.insert_child_at_index(cell,0);
-            this.emit('cell-added', cell);
             return cell;
         }
         populate() {
