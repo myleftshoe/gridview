@@ -9,8 +9,12 @@ const { HotTop, HotLeft, HotBottom, HotRight } = Extension.imports.hotEdge;
 const { GridView } = Extension.imports.gridView;
 const { Scrollable } = Extension.imports.scrollable;
 const { Cell } = Extension.imports.cell;
+const { addChrome } = Extension.imports.addChrome;
 const { Log } = Extension.imports.utils.logger;
 const { showBoxes, hideBoxes } = Extension.imports.debug;
+
+const CHROME_SIZE = 32;
+
 
 function init() {
     log(`***************************************************************`);
@@ -65,6 +69,7 @@ function hidePanelBox() {
 
 function prepare() {
     hidePanelBox();
+    addChrome(CHROME_SIZE);
     global.display.connect('in-fullscreen-changed', (a,b,c) => {
         log('-----------------------------------------fullscreen',a,b,c);
         // const w = gridView.cells.find(cell => cell.metaWindow.is_fullscreen());
@@ -280,6 +285,7 @@ const Container = GObject.registerClass({},
             super._init({ 
                 style_class: 'container',
                 reactive: true,
+                y: CHROME_SIZE
             });
             // const backgroundManager = new Background.BackgroundManager({
             //     monitorIndex: Main.layoutManager.primaryIndex,
