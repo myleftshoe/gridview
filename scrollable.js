@@ -26,6 +26,7 @@ var Scrollable = GObject.registerClass(
             this._width = width;
             this._height = height;
             this.scrollbar = new St.Widget({
+                reactive:true,
                 height: this._height,
                 width: this._width,
                 style_class

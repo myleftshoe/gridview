@@ -1,6 +1,6 @@
 const Main = imports.ui.main;
 
-const { GObject, Clutter, Meta, St } = imports.gi;
+const { GObject, Clutter, Meta, St, Shell } = imports.gi;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const DnD = Extension.imports.dnd;
@@ -14,12 +14,16 @@ const style_class = 'gridview-cell';
 
 var Cell = GObject.registerClass(
     {},
-    class Cell extends St.BoxLayout {
+    class Cell extends St.Widget {
         _init(metaWindow) {
             super._init({
                 style_class,
                 reactive: true,
-                vertical:true,
+            });
+            this.layout_manager = new Clutter.BinLayout({
+                x_align: Clutter.BinAlignment.FILL,
+                y_align: Clutter.BinAlignment.START,
+
             });
             this.id = metaWindow.title;
             this.metaWindow = metaWindow;
@@ -27,11 +31,36 @@ var Cell = GObject.registerClass(
             this.metaWindow.maximize(Meta.MaximizeFlags.VERTICAL);
             this.metaWindow.unmaximize(Meta.MaximizeFlags.HORIZONTAL);
             this.metaWindowActor = this.metaWindow.get_compositor_private();
+            // this.metaWindowActor.no_shadow = true;
+            this.metaWindowActor.shadow_mode = Meta.ShadowMode.FORCED_OFF;
             this.clone = new Clutter.Clone({source: this.metaWindowActor});
             const bufferRect = this.metaWindow.get_buffer_rect();
             const frameRect = this.metaWindow.get_frame_rect();
             this.clone.translation_y = bufferRect.y - frameRect.y;
+            Log.properties(this.metaWindowActor);
+            log(this.metaWindow.get_gtk_application_id())
+            this.metaWindow.shove_titlebar_onscreen()
             this.add_child(this.clone);
+            this.overlay = new St.Widget({
+                reactive:true,
+                height:40,
+                // width:132,
+                style_class: 'overlay',
+                style: `margin: 0 ${frameRect.x - bufferRect.x}px`
+            });
+            this.add_child(this.overlay);
+            // Main.layoutManager.trackChrome(this.overlay)
+            this.overlay.raise_top();
+            this.overlay.connect('scroll-event', () => {
+                log('se')
+                const { x, y, width, height } = this.metaWindow.get_frame_rect();
+                this.metaWindow.move_resize_frame(
+                    true,
+                    x, y,
+                    width - 1,
+                    height
+                )
+            });
         }
         alignMetaWindow() {
             const br = this.metaWindow.get_buffer_rect();

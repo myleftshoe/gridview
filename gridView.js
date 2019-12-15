@@ -33,9 +33,10 @@ var GridView = GObject.registerClass(
                 x_expand: true,
                 // y: 5,
             });
+            this.activeCell = null;
             makeSortable(this);
             // makeZoomable(this);
-            makePannable(this);
+            // makePannable(this);
         }
         get cells() {
             return this.get_children().filter(child => (child instanceof Cell));
@@ -63,6 +64,7 @@ var GridView = GObject.registerClass(
             });
             cell.metaWindow.connect('focus', (a,b,c) => {
                 // log('focus',a,b,c)
+                this.activeCell = cell;
                 this.emit('focused', cell);
             })
             cell.metaWindow.connect('unmanaged', () => {
@@ -91,6 +93,8 @@ var GridView = GObject.registerClass(
                 UI.windows.forEach(this.addCell.bind(this));
                 // this.add_child(row);
             // });
+            this.activeCell = this.cells[0];
+            Main.activateWindow(this.activeCell.metaWindow);
         }
         setEasingOff() {
             this.cells.forEach(cell => {

@@ -1,5 +1,5 @@
 .container {
-    background-color: rgba(50, 50, 50, 1.0);
+    /* background-color: rgba(50, 50, 50, 1.0); */
 }
 
 .gridview {
@@ -83,4 +83,15 @@
 
 .login-dialog-session-list-button:active {
     color: #747467;
+}
+
+.overlay {
+    background-color: rgba(60, 60, 60, 1);
+    /* background-color: black; */
+    /* margin:0 64px; */
+    box-shadow: 0px 5px 5px  rgba(0, 0, 0, .5); 
+    border: 1px solid black;
+    border-top: none;
+    border-left: none;
+    border-right: none;
 }
