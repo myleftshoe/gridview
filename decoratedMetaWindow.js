@@ -56,7 +56,6 @@ const decorateMetaWindow = function(metaWindow) {
     })
 
     titleBar.closeButton.connect('clicked', () => {
-        // log('fffffffsfsdfsdfsdfsdfds');
         metaWindow.delete(global.get_current_time());
     });
 
