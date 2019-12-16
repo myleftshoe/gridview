@@ -1,9 +1,10 @@
 const { Atk, Clutter, GObject, Shell, St } = imports.gi;
 const Main = imports.ui.main;
 const Tweener = imports.ui.tweener;
-const Extension = imports.misc.extensionUtils.getCurrentExtension();
 
+const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const { alignLeft, alignCenter, alignRight } = Extension.imports.alignConstraints;
+const { createAppIcon } = Extension.imports.appIcon;
 
 const Titlebar = GObject.registerClass({},
     class Titlebar extends St.Widget {
@@ -13,7 +14,6 @@ const Titlebar = GObject.registerClass({},
                 reactive: true,
                 layout_manager: new Clutter.BoxLayout({ spacing: 20 }),
                 ...props
-                // width:1920
             });
 
             const leftBox = alignLeft(this, new St.BoxLayout());
@@ -80,17 +80,3 @@ const Titlebar = GObject.registerClass({},
 
     }
 );
-
-function createAppIcon(metaWindow, size = 24) {
-    let tracker = Shell.WindowTracker.get_default();
-    let app = tracker.get_window_app(metaWindow);
-    let appIcon = app ? app.create_icon_texture(size)
-        : new St.Icon({
-            icon_name: 'icon-missing',
-            icon_size: size
-        });
-    appIcon.x_expand = appIcon.y_expand = true;
-    appIcon.x_align = appIcon.y_align = Clutter.ActorAlign.END;
-
-    return appIcon;
-}
