@@ -88,17 +88,10 @@ var GridView = GObject.registerClass(
         populate() {
             log('populate')
             this.remove_all_children();
-            // UI.workspaces.forEach((workspace) => {this.get_parent().width
-                // const windows = workspace.list_windows();
-                // const windows = UI.getWorkspaceWindows(workspace);
-                // const windows = global.display.get_tab_list(Meta.TabList.NORMAL, workspace);
-                // const row = new Row(workspace);
-                UI.windows.forEach(this.addCell.bind(this));
-                // this.add_child(row);
-            // });
+            UI.windows.forEach(this.addCell.bind(this));
             if (this.cells.length) {
                 this.activeCell = this.cells[0];
-                Main.activateWindow(this.activeCell.metaWindow);
+                // Main.activateWindow(this.activeCell.metaWindow);
             }
         }
         setEasingOff() {

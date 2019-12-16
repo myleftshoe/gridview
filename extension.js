@@ -278,11 +278,11 @@ const Container = GObject.registerClass({},
                 reactive: true,
                 // y: CHROME_SIZE
             });
-            const backgroundManager = new Background.BackgroundManager({
-                monitorIndex: Main.layoutManager.primaryIndex,
-                container: this,
-                vignette: false, // darken if true
-            });
+            // const backgroundManager = new Background.BackgroundManager({
+            //     monitorIndex: Main.layoutManager.primaryIndex,
+            //     container: this,
+            //     vignette: false, // darken if true
+            // });
         }
         get isOnStage() {
             return global.window_group.contains(this);
