@@ -80,8 +80,8 @@ function prepare() {
         // w.metaWindow.maximize(Meta.MaximizeFlags.BOTH);
     })
     global.display.connect('notify::focus-window', (display, paramSpec) => {
-        log('focus-window');
         const metaWindow = global.display.focus_window;
+        log('focus-window', metaWindow.title);
         if (metaWindow.is_client_decorated()) {
             metaWindow.get_compositor_private().raise_top();
         }
@@ -209,10 +209,12 @@ function prepare() {
     // };
     gridView.connect('focused', (gridView, cell) => {
         log('focused', cell.id);
-        scrollable.scrollToActor(cell);
+        if (cell !== gridView.firstVisibleCell)
+            scrollable.scrollToActor(cell);
     });
     scrollable.connect('scroll-begin', () => {
         // hideBoxes();
+        log('scroll-begin')
         gridView.cells.forEach(cell => {
             cell.metaWindowActor.hide();
         });
@@ -220,30 +222,19 @@ function prepare() {
     let isReverting = false;
     scrollable.connect('scroll-end', () => {
         log('scroll-end');
-        const cell = gridView.getFirstVisibleCell();
-        const focusedCell = gridView.activeCell;
-        // const focusedCell = gridView.getFocusedCell();
-        log('cell:', cell.id);
-        log('focu', focusedCell.id);
-        if (cell !== focusedCell) {
-            Main.activateWindow(cell.metaWindow);
-            return;
+        const visibleCell = gridView.firstVisibleCell;
+        if (visibleCell !== gridView.activeCell) {
+            log('**** activating')
+            Main.activateWindow(visibleCell.metaWindow);
+            gridView.activeCell = visibleCell;
         }
-        if (!isReverting) {
-            isReverting = true;
-            log('not reverting')
-            scrollable.scrollToActor(focusedCell);
-            return;
-        }
-        log('referted')
-        isReverting = false;
-        cell.alignMetaWindow();
-        // cell.set_opacity(150);
-        cell.metaWindowActor.show();
-        cell.metaWindowActor.raise_top();
-        // titlebar.title = cell.metaWindow.title;
-        // title.set_text(cell.id);
-        // showBoxes(cell.metaWindow)
+        log('******* same', visibleCell.id)
+        visibleCell.alignMetaWindow();
+        visibleCell.metaWindowActor.show();
+        visibleCell.metaWindowActor.raise_top();
+        // // titlebar.title = cell.metaWindow.title;
+        // // title.set_text(cell.id);
+        // // showBoxes(cell.metaWindow)
     })
     show();
     scrollable.update();

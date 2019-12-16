@@ -67,7 +67,6 @@ var GridView = GObject.registerClass(
             });
             cell.metaWindow.connect('focus', (a,b,c) => {
                 // log('focus',a,b,c)
-                this.activeCell = cell;
                 this.emit('focused', cell);
             })
             cell.metaWindow.connect('unmanaged', () => {
