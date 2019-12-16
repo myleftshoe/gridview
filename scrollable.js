@@ -92,6 +92,7 @@ var Scrollable = GObject.registerClass(
             }));
         }
         scrollToActor(actor) {
+            if (!actor) return;
             this.isScrolling = true;
             this.emit('scroll-begin');
             const [x,y] = actor.get_position();
