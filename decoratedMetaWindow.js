@@ -2,7 +2,7 @@ const { Clutter, St } = imports.gi;
 const Main = imports.ui.main;
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const WindowUtils = Extension.imports.windows;
-const { TitleBar } = Extension.imports.titleBar;
+const { Titlebar } = Extension.imports.titlebar;
 const Tweener = imports.ui.tweener;
 
 
@@ -11,51 +11,47 @@ const decorateMetaWindow = function(metaWindow) {
     const metaWindowActor = metaWindow.get_compositor_private();
     const { width, padding } = WindowUtils.getGeometry(metaWindow);
     
-    const hotTop = new St.Widget({
+    const hotspot = new St.Widget({
+        name: 'hotspot',
         reactive:true,
-        style_class: 'titlebar-hotspot',
+        style_class: 'hotspot',
         width: width,
         height: padding.top + 20,
         x: padding.left,
         y: -20
     });
-    let isexpanded = false;
-    hotTop.connect('enter-event', () => {
-        if (isexpanded) return;
-        Tweener.addTween(titleBar, {
-            scale_y: 1,
-            time: .25,
-            onComplete: () => {
-                isexpanded = true;
-                Main.layoutManager.trackChrome(titleBar);
-            }
+    hotspot.connect('enter-event', () => {
+        titlebar.show(true, () => {
+            Main.layoutManager.trackChrome(titlebar);
         });
     });
-
-    const titleBar = new TitleBar({
+    hotspot.connect('leave-event', (actor, event) => {
+        const enteredActor = event.get_related(); 
+        if (enteredActor.name === 'titlebar') return;
+        titlebar.hide(true, () => {
+            Main.layoutManager.untrackChrome(titlebar);
+        });
+    });
+    const titlebar = new Titlebar({
+            name: 'titlebar',
             reactive:true,
             height:40,
             scale_y: 0,
+            visible: false,
             style: `margin: ${padding.top -1}px ${padding.left-1}px`
         },
         metaWindow
     );
-    titleBar.title = metaWindow.title;
-    titleBar.connect('leave-event', (actor, event) => {
-        const r = event.get_related(); 
-        if (titleBar.contains(event.get_related())) return;
-        Tweener.addTween(titleBar, {
-            scale_y: 0,
-            time: .25,
-            delay: 1,
-            onComplete: () => {
-                isexpanded = false;
-                Main.layoutManager.untrackChrome(titleBar);
-            }
+    titlebar.title = metaWindow.title;
+    titlebar.connect('leave-event', (actor, event) => {
+        const enteredActor = event.get_related(); 
+        if (titlebar.contains(enteredActor) || enteredActor.name === 'hotspot' ) return;
+        titlebar.hide(true, () => {
+            Main.layoutManager.untrackChrome(titlebar);
         });
     })
 
-    titleBar.closeButton.connect('clicked', () => {
+    titlebar.closeButton.connect('clicked', () => {
         metaWindow.delete(global.get_current_time());
     });
 
@@ -63,8 +59,8 @@ const decorateMetaWindow = function(metaWindow) {
         source: metaWindowActor,
         coordinate: Clutter.BindCoordinate.WIDTH,
     });
-    titleBar.add_constraint(widthConstraint);
+    titlebar.add_constraint(widthConstraint);
 
-    metaWindowActor.add_child(hotTop);
-    metaWindowActor.add_child(titleBar);
+    metaWindowActor.add_child(hotspot);
+    metaWindowActor.add_child(titlebar);
 }

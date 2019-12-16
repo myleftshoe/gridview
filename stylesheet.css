@@ -70,7 +70,7 @@
 
 .login-dialog-session-list-button StIcon {
     icon-size: 1.25em;
-    padding: 5px 10px;
+    padding: 5px 20px;
 }
 
 .login-dialog-session-list-button {
@@ -85,7 +85,7 @@
     color: #747467;
 }
 
-.overlay {
+.titlebar {
     background-color: rgba(60, 60, 60, 1);
     /* background-color: black; */
     /* margin:0 64px; */
@@ -96,6 +96,6 @@
     border-right: none; */
 }
 
-.titlebar-hotspot {
+.hotspot {
     /* background-color: yellowgreen; */
 }

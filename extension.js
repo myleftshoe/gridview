@@ -9,7 +9,7 @@ const { HotTop, HotLeft, HotBottom, HotRight } = Extension.imports.hotEdge;
 const { GridView } = Extension.imports.gridView;
 const { Scrollable } = Extension.imports.scrollable;
 const { Cell } = Extension.imports.cell;
-const { TitleBar } = Extension.imports.titleBar;
+const { Titlebar } = Extension.imports.titlebar;
 const { addChrome } = Extension.imports.addChrome;
 const { Log } = Extension.imports.utils.logger;
 const { showBoxes, hideBoxes } = Extension.imports.debug;
@@ -96,7 +96,7 @@ function prepare() {
     // hotTopClickAction.connect('clicked', () => {
     //     log('ttttttttttttttttttttttttttttttttttttt')
     //     const focusedCell = gridView.activeCell;
-    //     focusedCell.titleBar.toggle();
+    //     focusedCell.titlebar.toggle();
     //     // const i = gridView.cells.indexOf(focusedCell);
     //     // log('hotLeft clicked', i, focusedCell.id);
     //     // prevCell = gridView.cells[i - 1] || focusedCell;
@@ -126,8 +126,8 @@ function prepare() {
     });
     hotRight.add_action(hotRightClickAction);
 
-    const titleBar = new TitleBar({width:1920});
-    hotTop.add_child(titleBar);
+    const titlebar = new Titlebar({width:1920});
+    hotTop.add_child(titlebar);
 
     const hotBottom = new HotBottom({ width: 5 });
     global.display.connect('window-created', (display, metaWindow) => {
@@ -205,7 +205,7 @@ function prepare() {
             scrollable.scrollToActor(gridView.cells[i + 1])
         }
     });
-    // titleBar.onCloseClick = () => {
+    // titlebar.onCloseClick = () => {
     //     log('fsfsdfsdfsdfsdfds');
     //     gridView.activeCell.metaWindow.delete(global.get_current_time());
     // };
@@ -243,7 +243,7 @@ function prepare() {
         // cell.set_opacity(150);
         cell.metaWindowActor.show();
         cell.metaWindowActor.raise_top();
-        titleBar.title = cell.metaWindow.title;
+        titlebar.title = cell.metaWindow.title;
         // title.set_text(cell.id);
         // showBoxes(cell.metaWindow)
     })
