@@ -9,6 +9,7 @@ const { HotTop, HotLeft, HotBottom, HotRight } = Extension.imports.hotEdge;
 const { GridView } = Extension.imports.gridView;
 const { Scrollable } = Extension.imports.scrollable;
 const { Cell } = Extension.imports.cell;
+const { TitleBar } = Extension.imports.titleBar;
 const { addChrome } = Extension.imports.addChrome;
 const { Log } = Extension.imports.utils.logger;
 const { showBoxes, hideBoxes } = Extension.imports.debug;
@@ -86,10 +87,24 @@ function prepare() {
         }
     });
 
-    log('initial focused window', global.display.focus_window.title);
+    // log('initial focused window', global.display.focus_window.title);
     const hotTop = new HotTop({ width: 32 });
     const hotLeft = new HotLeft({width:1});
     const hotRight = new HotRight({width:1});
+
+    // const hotTopClickAction = new Clutter.ClickAction();
+    // hotTopClickAction.connect('clicked', () => {
+    //     log('ttttttttttttttttttttttttttttttttttttt')
+    //     const focusedCell = gridView.activeCell;
+    //     focusedCell.titleBar.toggle();
+    //     // const i = gridView.cells.indexOf(focusedCell);
+    //     // log('hotLeft clicked', i, focusedCell.id);
+    //     // prevCell = gridView.cells[i - 1] || focusedCell;
+    //     // Main.activateWindow(prevCell.metaWindow);
+    // });
+    // hotTop.add_action(hotTopClickAction);
+
+
 
     const hotLeftClickAction = new Clutter.ClickAction();
     hotLeftClickAction.connect('clicked', () => {
@@ -111,60 +126,8 @@ function prepare() {
     });
     hotRight.add_action(hotRightClickAction);
 
-    const layout = new Clutter.BoxLayout({spacing:20});
-    const bin = new St.Widget({layout_manager: layout});
-    let gearIcon = new St.Icon({ icon_name: 'view-fullscreen-symbolic' });
-    const fullscreenButton = new St.Button({ 
-        style_class: 'login-dialog-session-list-button',
-        reactive: true,
-        track_hover: true,
-        can_focus: true,
-        accessible_name: _("Choose Session"),
-        accessible_role: Atk.Role.MENU,
-        child: gearIcon 
-    });
-
-    let closeIcon = new St.Icon({ icon_name: 'cancel-symbolic' });
-    const closeButton = new St.Button({ 
-        style_class: 'login-dialog-session-list-button',
-        reactive: true,
-        track_hover: true,
-        can_focus: true,
-        accessible_name: _("Close Window"),
-        accessible_role: Atk.Role.MENU,
-        child: closeIcon
-    });
-
-
-    fullscreenButton.connect('clicked', () => {
-        gridView.cells.forEach(({metaWindow, metaWindowActor}) => {
-            if (metaWindow.maximized_horizontally) {
-                metaWindow.unmaximize(Meta.MaximizeFlags.HORIZONTAL);
-            }
-            else
-                metaWindow.maximize(Meta.MaximizeFlags.BOTH);
-        });
-        // gridView.cells.forEach(({metaWindow, metaWindowActor}) => {
-        //     if (metaWindow.is_fullscreen())
-        //         metaWindow.unmake_fullscreen();
-        //     else
-        //         metaWindow.make_fullscreen();
-        // });
-        // gridView.populate();
-    });
-
-    closeButton.connect('clicked', () => {
-        const focusedCell = gridView.getFocusedCell();
-        focusedCell.metaWindow.delete(global.get_current_time);
-        // gridView.populate();
-    });
-
-    const title = new St.Label({text:'test'});
-
-    bin.add_child(fullscreenButton);
-    bin.add_child(title);
-    bin.add_child(closeButton);
-    hotTop.add_child(bin);
+    const titleBar = new TitleBar({width:1920});
+    hotTop.add_child(titleBar);
 
     const hotBottom = new HotBottom({ width: 5 });
     global.display.connect('window-created', (display, metaWindow) => {
@@ -242,6 +205,10 @@ function prepare() {
             scrollable.scrollToActor(gridView.cells[i + 1])
         }
     });
+    // titleBar.onCloseClick = () => {
+    //     log('fsfsdfsdfsdfsdfds');
+    //     gridView.activeCell.metaWindow.delete(global.get_current_time());
+    // };
     gridView.connect('focused', (gridView, cell) => {
         log('focused', cell.id);
         scrollable.scrollToActor(cell);
@@ -276,7 +243,8 @@ function prepare() {
         // cell.set_opacity(150);
         cell.metaWindowActor.show();
         cell.metaWindowActor.raise_top();
-        title.set_text(cell.id);
+        titleBar.title = cell.metaWindow.title;
+        // title.set_text(cell.id);
         // showBoxes(cell.metaWindow)
     })
     show();

@@ -37,3 +37,17 @@ var getWindowXID = function(win) {
 
     return match[0];
 };
+
+var getGeometry = function(metaWindow) {
+    const fr = metaWindow.get_frame_rect();
+    const br = metaWindow.get_buffer_rect();
+    const top = fr.y - br.y;
+    const bottom = br.height - br.height - top;
+    const left = fr.x - br.x;
+    const right = br.width - br.width - top;
+    return { 
+        width: fr.width,
+        height: fr.height,
+        padding : { top, right, bottom, left }
+    };
+}

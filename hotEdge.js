@@ -16,18 +16,18 @@ var HotTop = GObject.registerClass({},
                 reactive:true,
                 y: 1 - width,
             });
-            this.connect('enter-event', () => {
-                Tweener.addTween(this, {
-                    y:0,
-                    time:.25,
-                });
-            });
-            this.connect('leave-event', () => {
-                Tweener.addTween(this, {
-                    y: 1 - width,
-                    time:.25,
-                });
-            });
+            // this.connect('enter-event', () => {
+            //     Tweener.addTween(this, {
+            //         y:0,
+            //         time:.25,
+            //     });
+            // });
+            // this.connect('leave-event', () => {
+            //     Tweener.addTween(this, {
+            //         y: 1 - width,
+            //         time:.25,
+            //     });
+            // });
             Main.layoutManager.addChrome(this, { affectsStruts: false });
         }
     }
