@@ -4,7 +4,7 @@ const { GObject, Clutter, Meta, St, Shell } = imports.gi;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const DnD = Extension.imports.dnd;
-const { decorateMetaWindow } = Extension.imports.decoratedMetaWindow;
+const { decorateMetaWindow } = Extension.imports.decorateMetaWindow;
 // const { Clone } = Extension.imports.clone;
 const { Log } = Extension.imports.utils.logger;
 
