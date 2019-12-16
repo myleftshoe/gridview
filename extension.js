@@ -88,48 +88,45 @@ function prepare() {
     });
 
     // log('initial focused window', global.display.focus_window.title);
-    const hotTop = new HotTop({ width: 32 });
-    const hotLeft = new HotLeft({width:1});
-    const hotRight = new HotRight({width:1});
 
-    // const hotTopClickAction = new Clutter.ClickAction();
-    // hotTopClickAction.connect('clicked', () => {
-    //     log('ttttttttttttttttttttttttttttttttttttt')
-    //     const focusedCell = gridView.activeCell;
-    //     focusedCell.titlebar.toggle();
-    //     // const i = gridView.cells.indexOf(focusedCell);
-    //     // log('hotLeft clicked', i, focusedCell.id);
-    //     // prevCell = gridView.cells[i - 1] || focusedCell;
-    //     // Main.activateWindow(prevCell.metaWindow);
-    // });
-    // hotTop.add_action(hotTopClickAction);
-
-
-
-    const hotLeftClickAction = new Clutter.ClickAction();
-    hotLeftClickAction.connect('clicked', () => {
-        const focusedCell = gridView.focusedCell;
-        const i = gridView.cells.indexOf(focusedCell);
-        log('hotLeft clicked', i, focusedCell.id);
-        prevCell = gridView.cells[i - 1] || focusedCell;
-        Main.activateWindow(prevCell.metaWindow);
+    const hotLeft = new HotLeft({
+        width:1,
+        onClick: () => {
+            const focusedCell = gridView.focusedCell;
+            const i = gridView.cells.indexOf(focusedCell);
+            log('hotLeft clicked', i, focusedCell.id);
+            prevCell = gridView.cells[i - 1] || focusedCell;
+            Main.activateWindow(prevCell.metaWindow);
+        }, 
     });
-    hotLeft.add_action(hotLeftClickAction);
 
-    const hotRightClickAction = new Clutter.ClickAction();
-    hotRightClickAction.connect('clicked', () => {
-        const focusedCell = gridView.focusedCell;
-        const i = gridView.cells.indexOf(focusedCell);
-        log('hotRight clicked', i, focusedCell.id);
-        nextCell = gridView.cells[i + 1] || focusedCell;
-        Main.activateWindow(nextCell.metaWindow);
+    const hotRight = new HotRight({
+        width:1,
+        onClick: () => {
+            const focusedCell = gridView.focusedCell;
+            const i = gridView.cells.indexOf(focusedCell);
+            log('hotRight clicked', i, focusedCell.id);
+            nextCell = gridView.cells[i + 1] || focusedCell;
+            Main.activateWindow(nextCell.metaWindow);
+        }
     });
-    hotRight.add_action(hotRightClickAction);
 
-    const titlebar = new Titlebar({width:1920});
-    hotTop.add_child(titlebar);
 
-    const hotBottom = new HotBottom({ width: 5 });
+    // const hotTop = new HotTop({ width: 32 });
+    // // const hotTopClickAction = new Clutter.ClickAction();
+    // // hotTopClickAction.connect('clicked', () => {
+    // //     log('ttttttttttttttttttttttttttttttttttttt')
+    // //     const focusedCell = gridView.activeCell;
+    // //     focusedCell.titlebar.toggle();
+    // //     // const i = gridView.cells.indexOf(focusedCell);
+    // //     // log('hotLeft clicked', i, focusedCell.id);
+    // //     // prevCell = gridView.cells[i - 1] || focusedCell;
+    // //     // Main.activateWindow(prevCell.metaWindow);
+    // // });
+    // // hotTop.add_action(hotTopClickAction);
+    // const titlebar = new Titlebar({width:1920});
+    // hotTop.add_child(titlebar);
+
     global.display.connect('window-created', (display, metaWindow) => {
         log('ft', metaWindow.title, metaWindow.get_frame_type())
         if (metaWindow.is_client_decorated()) return;
@@ -191,6 +188,7 @@ function prepare() {
     gridView.y = CHROME_SIZE;
     scrollable = new Scrollable(gridView, { height: 5, width: Main.uiGroup.get_width() });
     container.add_child(scrollable);
+    const hotBottom = new HotBottom({ width: 5 });
     hotBottom.add_child(scrollable.scrollbar);
     scrollable.scrollbar.connect('scroll-event', (actor, event) => {
         // let i = gridView.cells.indexOf(gridView.focusedCell);
@@ -243,7 +241,7 @@ function prepare() {
         // cell.set_opacity(150);
         cell.metaWindowActor.show();
         cell.metaWindowActor.raise_top();
-        titlebar.title = cell.metaWindow.title;
+        // titlebar.title = cell.metaWindow.title;
         // title.set_text(cell.id);
         // showBoxes(cell.metaWindow)
     })
