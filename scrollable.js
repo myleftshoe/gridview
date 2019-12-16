@@ -91,14 +91,20 @@ var Scrollable = GObject.registerClass(
                 size: {width: this._width - thumbWidth, height: this._height}
             }));
         }
-        scrollToActor(actor) {
+        scrollToActor(actor, align = 'center') {
             if (!actor) return;
             this.isScrolling = true;
             this.emit('scroll-begin');
-            const [x,y] = actor.get_position();
+            const [ax,ay] = actor.get_position();
             const [width, height] = actor.get_size();
-            log(x,y, width,height)
-            this.scroll_to_rect(new Clutter.Rect({origin: {x: x - (Main.uiGroup.get_width() - width) / 2, y}, size: {width, height}}));
+
+            let x = ax - (Main.uiGroup.get_width() - width) / 2;
+            let y = ay;
+            if (align === 'left')
+                x = ax;
+            if (align === 'right')
+                x = ax - (Main.uiGroup.get_width() - width);
+            this.scroll_to_rect(new Clutter.Rect({origin: {x, y}, size: {width, height}}));
             // this.scroll_to_rect(new Clutter.Rect({origin: {x: x - (Main.uiGroup.get_width() - width) / 2, y}, size: {width, height}}));
             this.thumb.set_easing_duration(750);
             this.thumb.set_x(x / this.width * this.scrollbar.width);
