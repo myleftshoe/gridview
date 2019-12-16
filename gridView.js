@@ -80,7 +80,7 @@ var GridView = GObject.registerClass(
                 this.remove_child(cell);
             })
             // row.add_child(cell);
-            cell.metaWindowActor.hide();
+            // cell.metaWindowActor.hide();
             // this.add_child(cell);
             this.insert_child_at_index(cell,0);
             return cell;

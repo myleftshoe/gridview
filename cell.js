@@ -34,7 +34,7 @@ var Cell = GObject.registerClass(
             this.clone = new Clutter.Clone({source: this.metaWindowActor});
             const { padding } = WindowUtils.getGeometry(this.metaWindow);
             this.clone.translation_y = -padding.top;
-            Log.properties(this.metaWindowActor);
+            // Log.properties(this.metaWindowActor);
             this.add_child(this.clone);
 
             decorateMetaWindow(this.metaWindow);

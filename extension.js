@@ -174,6 +174,7 @@ function prepare() {
     //     log('grab-op-end')
     //     gridView.setEasingOn();
     // });
+    const hotBottom = new HotBottom({ width: 5 });
     container = new Container();
     // container.connect('captured-event', (actor, event) => {
     //     // log('captured-event', event.type())
@@ -188,7 +189,6 @@ function prepare() {
     gridView.y = CHROME_SIZE;
     scrollable = new Scrollable(gridView, { height: 5, width: Main.uiGroup.get_width() });
     container.add_child(scrollable);
-    const hotBottom = new HotBottom({ width: 5 });
     hotBottom.add_child(scrollable.scrollbar);
     scrollable.scrollbar.connect('scroll-event', (actor, event) => {
         // let i = gridView.cells.indexOf(gridView.focusedCell);
