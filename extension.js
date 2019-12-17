@@ -73,11 +73,6 @@ function prepare() {
     addChrome(CHROME_SIZE);
     global.display.connect('in-fullscreen-changed', (a,b,c) => {
         log('-----------------------------------------fullscreen',a,b,c);
-        // const w = gridView.cells.find(cell => cell.metaWindow.is_fullscreen());
-        // if (!w) return;
-        // log(w.id);
-        // w.metaWindow.unmake_fullscreen();
-        // w.metaWindow.maximize(Meta.MaximizeFlags.BOTH);
     })
     global.display.connect('notify::focus-window', (display, paramSpec) => {
         const metaWindow = global.display.focus_window;
@@ -180,6 +175,7 @@ function prepare() {
         }
         log('******* same', visibleCell.id)
         visibleCell.showMetaWindow();
+        // showBoxes(visibleCell.metaWindow);
     })
     scrollable.scrollbar.connect('scroll-event', (actor, event) => {
         // let i = gridView.cells.indexOf(gridView.focusedCell);
