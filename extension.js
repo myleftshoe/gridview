@@ -163,8 +163,9 @@ function prepare() {
     });
     scrollable.connect('scroll-begin', () => {
         // hideBoxes();
-        log('scroll-begin')
+        log('scroll-begin');
         gridView.cells.forEach(cell => {
+            cell.metaWindow.unmake_fullscreen();
             cell.metaWindowActor.hide();
         });
     });
