@@ -151,7 +151,7 @@ function prepare() {
 
     container = new Container();
     gridView = new GridView();
-    gridView.y = CHROME_SIZE;
+    // gridView.y = CHROME_SIZE;
     scrollable = new Scrollable(gridView, { height: 5, width: Main.uiGroup.get_width() });
     container.add_child(scrollable);
     hotBottom.add_child(scrollable.scrollbar);
@@ -221,7 +221,7 @@ const Container = GObject.registerClass({},
             super._init({ 
                 style_class: 'container',
                 reactive: true,
-                // y: CHROME_SIZE
+                y: CHROME_SIZE
             });
             // const backgroundManager = new Background.BackgroundManager({
             //     monitorIndex: Main.layoutManager.primaryIndex,
