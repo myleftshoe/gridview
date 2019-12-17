@@ -12,7 +12,11 @@ const dropPlaceholder = new St.Widget();
 let lastCell = null;
 
 function makeSortable(actor) {
-    actor.connect('cell-added', (source, cell) => makeCellDraggable(cell));
+    actor.connect('actor-added', (source, actor) => {
+        if (actor instanceof Cell) {
+            makeCellDraggable(actor);
+        }
+    });
 }
 
 function unmakeSortable(actor) {
@@ -29,6 +33,7 @@ function makeCellDraggable(cell) {
     addSignal(cell.draggable, 'drag-motion', handleDragMotion);
     addSignal(cell.draggable, 'drag-dropped', handleDragDrop);
     addSignal(cell.draggable, 'drag-end', () => {
+        log('drag-end')
         cell.set_easing_duration(300);
     });
 }
