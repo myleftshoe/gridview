@@ -78,6 +78,7 @@ function prepare() {
     // !!!This includes broswer dropdown menus and comboboxes!!!
     global.display.connect('notify::focus-window', (display, paramSpec) => {
         const metaWindow = global.display.focus_window;
+        if (!metaWindow) return;``
         log('focus-window', metaWindow.title);
         if (metaWindow.is_client_decorated()) {
             metaWindow.get_compositor_private().raise_top();
