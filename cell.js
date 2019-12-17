@@ -45,6 +45,11 @@ var Cell = GObject.registerClass(
             const { padding } = WindowUtils.getGeometry(this.metaWindow);
             this.metaWindow.move_frame(true, x + padding.left, y);
         }
+        showMetaWindow() {
+            this.alignMetaWindow();
+            this.metaWindowActor.show();
+            this.metaWindowActor.raise_top();
+        }
     }
 );
 
