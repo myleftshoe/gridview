@@ -60,6 +60,20 @@ var GridView = GObject.registerClass(
         get firstVisibleCell() {
             return this.getFirstVisibleCell();
         }
+        getPreviousCell(cell = this.activeCell) {
+            const i = this.cells.indexOf(cell);
+            return this.cells[i-1];
+        }
+        get previousCell() {
+            return this.getPreviousCell();
+        }
+        getNextCell(cell = this.activeCell) {
+            const i = this.cells.indexOf(cell);
+            return this.cells[i+1];
+        }
+        get nextCell() {
+            return this.getNextCell();
+        }
         addCell(metaWindow) {
             const cell = new Cell(metaWindow);
             cell.connect('button-release-event', (actor) => {

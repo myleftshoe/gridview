@@ -178,17 +178,12 @@ function prepare() {
         // showBoxes(visibleCell.metaWindow);
     })
     scrollable.scrollbar.connect('scroll-event', (actor, event) => {
-        // let i = gridView.cells.indexOf(gridView.focusedCell);
-        const i = gridView.cells.indexOf(gridView.activeCell);
         const scrollDirection = event.get_scroll_direction();
-        log('srollab',i, scrollDirection);
-        if (i < 0) return;
-        if (scrollDirection === Clutter.ScrollDirection.DOWN) {
-            scrollable.scrollToActor(gridView.cells[i - 1])
-        }
-        if (scrollDirection === Clutter.ScrollDirection.UP) {
-            scrollable.scrollToActor(gridView.cells[i + 1])
-        }
+        const {DOWN, UP} = Clutter.ScrollDirection;
+        if (scrollDirection === DOWN) 
+            scrollable.scrollToActor(gridView.previousCell)
+        if (scrollDirection === UP)
+            scrollable.scrollToActor(gridView.nextCell)
     });
 
     show();
