@@ -73,7 +73,9 @@ function prepare() {
     addChrome(CHROME_SIZE);
     global.display.connect('in-fullscreen-changed', (a,b,c) => {
         log('-----------------------------------------fullscreen',a,b,c);
-    })
+    });
+    // Ensure transient windows: popups, dialogs, etc are displayed on top
+    // !!!This includes broswer dropdown menus and comboboxes!!!
     global.display.connect('notify::focus-window', (display, paramSpec) => {
         const metaWindow = global.display.focus_window;
         log('focus-window', metaWindow.title);
@@ -90,6 +92,7 @@ function prepare() {
         }
         metaWindow.get_compositor_private().raise_top();
     });
+    //
     global.display.connect('grab-op-begin', (display, screen, window, op) => {
         log('grab-op-begin', op)
         // gridView.setEasingOff();
