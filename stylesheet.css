@@ -1,4 +1,4 @@
-.container {
+/* .container {
     background-color: rgba(255, 0, 0, .2);
     border: 2px solid red;
 }
@@ -6,26 +6,15 @@
 .gridview {
     background-color: rgba(0, 255, 0, .2);
     border: 5px solid green;
-    /* margin: 80px 0; */
-    /* background-color: black; */
-    /* margin: 120px 80px; */
-    /* padding: 20px 10px; */
-    /* margin-top: 24px; */
 }
 
 .gridview-row {
-    /* background-color: rgba(0, 0, 255, 0.2); */
-    /* margin: 120px 80px; */
-    /* padding: 10px 20px; */
 }
 
 .gridview-cell {
     background-color: rgba(0, 0, 255, .2);
     border: 2px solid blue;
-    /* margin: 80px 0; */
-    /* margin: 20px; */
-    /* border: 1px solid cyan; */
-}
+} */
 
 .clone {
     /* border: 2px solid cyan; */

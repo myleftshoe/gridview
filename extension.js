@@ -19,10 +19,10 @@ const WindowUtils = Extension.imports.windows;
 
 
 
-const stage_height = global.stage.get_height();
-const grid_margin = 80;
-const grid_height  = stage_height - grid_margin * 2;
-const grid_stage_scale = grid_height/stage_height;
+var stage_height = global.stage.get_height();
+var grid_margin = 20;
+var grid_height  = stage_height - grid_margin * 2;
+var grid_stage_scale = grid_height/stage_height;
 
 function init() {
     log(`***************************************************************`);
@@ -76,6 +76,10 @@ function hidePanelBox() {
 
 
 function prepare() {
+    stage_height = global.stage.get_height();
+    grid_margin = 40;
+    grid_height  = stage_height - grid_margin * 2;
+    grid_stage_scale = grid_height/stage_height;
     hidePanelBox();
     prepareMetaWindows();
     // addChrome(CHROME_SIZE);
@@ -177,6 +181,7 @@ function prepare() {
         if (!modal) {
             Main.pushModal(container);
             modal = true;
+            global.display.set_cursor(Meta.Cursor.POINTING_HAND);
         }
         
         gridView.cells.forEach(cell => {
@@ -221,7 +226,7 @@ function prepare() {
                     Main.popModal(container);
                     modal = false;
                     cell.showMetaWindow();
-                    showBoxes(gridView.activeCell.metaWindow);
+                    // showBoxes(gridView.activeCell.metaWindow);
                 }
             });
             return;
@@ -232,7 +237,7 @@ function prepare() {
         Main.popModal(container);
         modal = false;
         cell.showMetaWindow();
-        showBoxes(gridView.activeCell.metaWindow);
+        // showBoxes(gridView.activeCell.metaWindow);
     })
     scrollable.scrollbar.connect('scroll-event', (actor, event) => {
         const scrollDirection = event.get_scroll_direction();
