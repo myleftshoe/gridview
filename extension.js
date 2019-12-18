@@ -14,7 +14,7 @@ const { addChrome } = Extension.imports.addChrome;
 const { Log } = Extension.imports.utils.logger;
 const { showBoxes, hideBoxes } = Extension.imports.debug;
 
-const CHROME_SIZE = 32;
+const CHROME_SIZE = 80;
 
 
 function init() {
@@ -188,7 +188,13 @@ function prepare() {
     scrollable.connect('scroll-end', () => {
         log('scroll-end');
         const cell = gridView.firstVisibleCell;
-
+        if (!cell) {
+            if (modal) { 
+                Main.popModal(container);
+                modal = false;
+            }
+            return;
+        }
         if (!cell.isFullyVisible) return;
 
         if (cell !== gridView.activeCell) {
@@ -204,10 +210,17 @@ function prepare() {
                 time: .5,
                 onComplete: () => {
                     cell.showMetaWindow();
+                    Main.popModal(container);
+                    modal = false;
+                    cell.showMetaWindow();
+                    showBoxes(gridView.activeCell.metaWindow);
                 }
             });
             return;
         }
+        // if (cell.isFullscreen) {
+        //     cell.metaWindow.make_fullscreen();
+        // }
         Main.popModal(container);
         modal = false;
         cell.showMetaWindow();
@@ -221,7 +234,6 @@ function prepare() {
         if (scrollDirection === UP)
             scrollable.scrollToActor(gridView.nextCell)
     });
-
     show();
     scrollable.update();
 }

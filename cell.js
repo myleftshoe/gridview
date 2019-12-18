@@ -38,6 +38,14 @@ var Cell = GObject.registerClass(
             this.add_child(this.clone);
 
             decorateMetaWindow(this.metaWindow);
+            this.isFullscreen = false;
+            this.metaWindow.connect('size-changed', () => {
+                log(this.id);
+                log('is_fullscreen', this.metaWindow.is_fullscreen())
+                log('is_monitor_sized', this.metaWindow.is_monitor_sized())
+                log('is_maximized', this.metaWindow.get_maximized());
+                this.isFullscreen = true;
+            });
 
         }
         alignMetaWindow() {
