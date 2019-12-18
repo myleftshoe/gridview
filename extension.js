@@ -13,6 +13,11 @@ const { Titlebar } = Extension.imports.titlebar;
 const { addChrome } = Extension.imports.addChrome;
 const { Log } = Extension.imports.utils.logger;
 const { showBoxes, hideBoxes } = Extension.imports.debug;
+const { UI } = Extension.imports.ui;
+const WindowUtils = Extension.imports.windows;
+
+
+
 
 const CHROME_SIZE = 80;
 
@@ -70,7 +75,8 @@ function hidePanelBox() {
 
 function prepare() {
     hidePanelBox();
-    addChrome(CHROME_SIZE);
+    prepareMetaWindows();
+    // addChrome(CHROME_SIZE);
     // global.display.connect('in-fullscreen-changed', (a, b, c) => {
     //     log('-----------------------------------------fullscreen', a, b, c);
     // });
@@ -173,11 +179,14 @@ function prepare() {
         
         gridView.cells.forEach(cell => {
             // cell.metaWindow.unmake_fullscreen();
-            if (cell.metaWindow.is_fullscreen()) {
-                const f = (1200 - 64) / 1200;
-                Tweener.addTween(cell.clone, {
+            if (cell.isFullsized()) {
+                const f = (1040) / 1200;
+                const width = cell.get_width();
+                cell.set_pivot_point(.5,.5);
+                Tweener.addTween(cell, {
                     scale_x: f,
                     scale_y: f,
+                    // width: 1920 * f,
                     time: .5,
                 });
                 // cell.clone.set_scale(f,f);
@@ -188,6 +197,7 @@ function prepare() {
     scrollable.connect('scroll-end', () => {
         log('scroll-end');
         const cell = gridView.firstVisibleCell;
+        log('***********************************************', cell && cell.id)
         if (!cell) {
             if (modal) { 
                 Main.popModal(container);
@@ -202,9 +212,9 @@ function prepare() {
             Main.activateWindow(cell.metaWindow);
             gridView.activeCell = cell;
         }
-        if (cell.metaWindow.is_fullscreen()) {
+        if (cell.isFullsized()) {
             // const f = (1200 - 64) / 1200;
-            Tweener.addTween(cell.clone, {
+            Tweener.addTween(cell, {
                 scale_x: 1,
                 scale_y: 1,
                 time: .5,
@@ -265,7 +275,8 @@ const Container = GObject.registerClass({},
             super._init({
                 style_class: 'container',
                 reactive: true,
-                y: CHROME_SIZE
+                height: 1200,
+                // y: CHROME_SIZE
             });
             // const backgroundManager = new Background.BackgroundManager({
             //     monitorIndex: Main.layoutManager.primaryIndex,
@@ -287,3 +298,11 @@ const Container = GObject.registerClass({},
         }
     }
 );
+
+function prepareMetaWindows() {
+    UI.windows.forEach(metaWindow => {
+        metaWindow.unmaximize(Meta.MaximizeFlags.BOTH);
+        const { x, y, width, height, padding } = WindowUtils.getGeometry(metaWindow);
+        metaWindow.move_resize_frame(true, x, CHROME_SIZE, width, 1200 - CHROME_SIZE * 2);
+    });
+}
