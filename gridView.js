@@ -30,7 +30,7 @@ var GridView = GObject.registerClass(
                 opacity: 255,
                 reactive: true,
                 // vertical: true,
-                height: 1200,
+                height: global.stage.get_height(),
                 x_expand: true,
                 // y: 5,
             });

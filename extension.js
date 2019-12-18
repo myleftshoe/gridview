@@ -19,8 +19,10 @@ const WindowUtils = Extension.imports.windows;
 
 
 
-const CHROME_SIZE = 80;
-
+const stage_height = global.stage.get_height();
+const grid_margin = 80;
+const grid_height  = stage_height - grid_margin * 2;
+const grid_stage_scale = grid_height/stage_height;
 
 function init() {
     log(`***************************************************************`);
@@ -180,13 +182,10 @@ function prepare() {
         gridView.cells.forEach(cell => {
             // cell.metaWindow.unmake_fullscreen();
             if (cell.isFullsized()) {
-                const f = (1040) / 1200;
-                const width = cell.get_width();
                 cell.set_pivot_point(.5,.5);
                 Tweener.addTween(cell, {
-                    scale_x: f,
-                    scale_y: f,
-                    // width: 1920 * f,
+                    scale_x: grid_stage_scale,
+                    scale_y: grid_stage_scale,
                     time: .5,
                 });
                 // cell.clone.set_scale(f,f);
@@ -213,7 +212,6 @@ function prepare() {
             gridView.activeCell = cell;
         }
         if (cell.isFullsized()) {
-            // const f = (1200 - 64) / 1200;
             Tweener.addTween(cell, {
                 scale_x: 1,
                 scale_y: 1,
@@ -275,7 +273,7 @@ const Container = GObject.registerClass({},
             super._init({
                 style_class: 'container',
                 reactive: true,
-                height: 1200,
+                height: stage_height,
                 // y: CHROME_SIZE
             });
             // const backgroundManager = new Background.BackgroundManager({
@@ -303,6 +301,6 @@ function prepareMetaWindows() {
     UI.windows.forEach(metaWindow => {
         metaWindow.unmaximize(Meta.MaximizeFlags.BOTH);
         const { x, y, width, height, padding } = WindowUtils.getGeometry(metaWindow);
-        metaWindow.move_resize_frame(true, x, CHROME_SIZE, width, 1200 - CHROME_SIZE * 2);
+        metaWindow.move_resize_frame(true, x, grid_margin, width, grid_height);
     });
 }
