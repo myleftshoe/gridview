@@ -51,11 +51,7 @@ var GridView = GObject.registerClass(
             return this.getFocusedCell();
         }
         getFirstVisibleCell() {
-            return this.cells.find(cell => {
-                const [x,y] = cell.get_transformed_position();
-                // log('getFirstVisibleCell', x, cell.id, x >= 0);
-                return (x >= -1);
-            })
+            return this.cells.find(cell => cell.isPartiallyVisible)
         }
         get firstVisibleCell() {
             return this.getFirstVisibleCell();
@@ -77,7 +73,8 @@ var GridView = GObject.registerClass(
         addCell(metaWindow) {
             const cell = new Cell(metaWindow);
             cell.connect('button-release-event', (actor) => {
-                Main.activateWindow(actor.metaWindow);
+                this.emit('focused', cell);
+                // Main.activateWindow(actor.metaWindow);
             });
             cell.metaWindow.connect('focus', (a,b,c) => {
                 // log('focus',a,b,c)

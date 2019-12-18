@@ -50,6 +50,15 @@ var Cell = GObject.registerClass(
             this.metaWindowActor.show();
             this.metaWindowActor.raise_top();
         }
+        get isPartiallyVisible() {
+            const [x] = this.get_transformed_position();
+            return (x >= -1);
+        }
+        get isFullyVisible() {
+            const [x] = this.get_transformed_position();
+            const [width] = this.get_transformed_size();
+            return (x > -1 && x + width <= global.stage.get_width());
+        }
     }
 );
 

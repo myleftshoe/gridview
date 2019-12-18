@@ -71,14 +71,14 @@ function hidePanelBox() {
 function prepare() {
     hidePanelBox();
     addChrome(CHROME_SIZE);
-    global.display.connect('in-fullscreen-changed', (a,b,c) => {
-        log('-----------------------------------------fullscreen',a,b,c);
-    });
+    // global.display.connect('in-fullscreen-changed', (a, b, c) => {
+    //     log('-----------------------------------------fullscreen', a, b, c);
+    // });
     // Ensure transient windows: popups, dialogs, etc are displayed on top
     // !!!This includes broswer dropdown menus and comboboxes!!!
     global.display.connect('notify::focus-window', (display, paramSpec) => {
         const metaWindow = global.display.focus_window;
-        if (!metaWindow) return;``
+        if (!metaWindow) return;
         log('focus-window', metaWindow.title);
         if (metaWindow.is_client_decorated()) {
             metaWindow.get_compositor_private().raise_top();
@@ -129,17 +129,17 @@ function prepare() {
     });
 
     const hotLeft = new HotLeft({
-        width:1,
+        width: 1,
         onClick: () => {
             const focusedCell = gridView.focusedCell;
             const i = gridView.cells.indexOf(focusedCell);
             log('hotLeft clicked', i, focusedCell.id);
             prevCell = gridView.cells[i - 1] || focusedCell;
             Main.activateWindow(prevCell.metaWindow);
-        }, 
+        },
     });
     const hotRight = new HotRight({
-        width:1,
+        width: 1,
         onClick: () => {
             const focusedCell = gridView.focusedCell;
             const i = gridView.cells.indexOf(focusedCell);
@@ -159,33 +159,64 @@ function prepare() {
 
     gridView.connect('focused', (gridView, cell) => {
         log('focused', cell.id);
-        if (cell !== gridView.firstVisibleCell)
+        // if (cell !== gridView.activeCell)
             scrollable.scrollToActor(cell);
     });
+    let modal = false;
     scrollable.connect('scroll-begin', () => {
         // hideBoxes();
         log('scroll-begin');
+        if (!modal) {
+            Main.pushModal(container);
+            modal = true;
+        }
+        
         gridView.cells.forEach(cell => {
-            cell.metaWindow.unmake_fullscreen();
+            // cell.metaWindow.unmake_fullscreen();
+            if (cell.metaWindow.is_fullscreen()) {
+                const f = (1200 - 64) / 1200;
+                Tweener.addTween(cell.clone, {
+                    scale_x: f,
+                    scale_y: f,
+                    time: .5,
+                });
+                // cell.clone.set_scale(f,f);
+            }
             cell.metaWindowActor.hide();
         });
     });
     scrollable.connect('scroll-end', () => {
         log('scroll-end');
-        const visibleCell = gridView.firstVisibleCell;
-        if (visibleCell !== gridView.activeCell) {
+        const cell = gridView.firstVisibleCell;
+
+        if (!cell.isFullyVisible) return;
+
+        if (cell !== gridView.activeCell) {
             log('**** activating')
-            Main.activateWindow(visibleCell.metaWindow);
-            gridView.activeCell = visibleCell;
+            Main.activateWindow(cell.metaWindow);
+            gridView.activeCell = cell;
         }
-        log('******* same', visibleCell.id)
-        visibleCell.showMetaWindow();
-        // showBoxes(visibleCell.metaWindow);
+        if (cell.metaWindow.is_fullscreen()) {
+            // const f = (1200 - 64) / 1200;
+            Tweener.addTween(cell.clone, {
+                scale_x: 1,
+                scale_y: 1,
+                time: .5,
+                onComplete: () => {
+                    cell.showMetaWindow();
+                }
+            });
+            return;
+        }
+        Main.popModal(container);
+        modal = false;
+        cell.showMetaWindow();
+        showBoxes(gridView.activeCell.metaWindow);
     })
     scrollable.scrollbar.connect('scroll-event', (actor, event) => {
         const scrollDirection = event.get_scroll_direction();
-        const {DOWN, UP} = Clutter.ScrollDirection;
-        if (scrollDirection === DOWN) 
+        const { DOWN, UP } = Clutter.ScrollDirection;
+        if (scrollDirection === DOWN)
             scrollable.scrollToActor(gridView.previousCell)
         if (scrollDirection === UP)
             scrollable.scrollToActor(gridView.nextCell)
@@ -219,7 +250,7 @@ function hide() {
 const Container = GObject.registerClass({},
     class Container extends St.Widget {
         _init() {
-            super._init({ 
+            super._init({
                 style_class: 'container',
                 reactive: true,
                 y: CHROME_SIZE
