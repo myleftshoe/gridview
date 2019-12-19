@@ -44,6 +44,13 @@ var Scrollable = GObject.registerClass(
             this.add_child(this._content);
             this.isScrolling = false;
             this.isDragging = false;
+            this.connect('transitions-completed', () => {
+                log('scrollable.transitions-completed');
+                this.isScrolling = false;
+                if (!this.isDragging) {
+                    this.emit('scroll-end');
+                }
+            });
         }
         makeThumbDraggable() {
             this.dragAction = new Clutter.DragAction({
@@ -65,13 +72,6 @@ var Scrollable = GObject.registerClass(
                 this.thumb.remove_style_pseudo_class('pressed');
                 this.isDragging = false;
                 if (!this.isScrolling) {
-                    this.emit('scroll-end');
-                }
-            });
-            this.connect('transitions-completed', () => {
-                log('scrollable.transitions-completed');
-                this.isScrolling = false;
-                if (!this.isDragging) {
                     this.emit('scroll-end');
                 }
             });

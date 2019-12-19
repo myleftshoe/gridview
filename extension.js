@@ -185,7 +185,11 @@ function prepare() {
         const sid = animator.connect('animation-complete', () => {
             animator.disconnect(sid);
             cell.showMetaWindow();
-            log('animations complete ===============================================')
+            if (modal) { 
+                Main.popModal(container);
+                modal = false;
+            }
+            log('activateCell complete ===============================================')
         })
     }
 
@@ -198,6 +202,8 @@ function prepare() {
         activateCell(cell);
     });
     scrollable.connect('scroll-begin', () => {
+        // gridView.activeCell.metaWindowActor.hide();
+        const animator = new Animator();
     });
 
     scrollable.scrollbar.connect('scroll-event', (actor, event) => {
@@ -298,8 +304,9 @@ var Animator = GObject.registerClass(
         }
     },
     class Animator extends GObject.Object {
-        _init() {
+        _init(cell) {
             super._init();
+            gridView.activeCell.metaWindowActor.hide();
             if (!modal) {
                 Main.pushModal(container);
                 modal = true;
@@ -310,10 +317,6 @@ var Animator = GObject.registerClass(
             signalGroup.add(scrollable, 'transitions-completed');
             signalGroup.add(gridView, 'transitions-completed');
             signalGroup.connect('all-signals-complete', () => {
-                if (modal) { 
-                    Main.popModal(container);
-                    modal = false;
-                }
                 this.emit('animation-complete');
             });
 
@@ -335,7 +338,7 @@ var Animator = GObject.registerClass(
             // });
         }
         animateToCell(cell) {
-            cell.metaWindowActor.hide();
+            // cell.metaWindowActor.hide();
             scrollable.scrollToActor(cell);
             // gridView.set_scale(.4,.4)
             const [scaleX, scaleY]  = gridView.get_scale(); 
@@ -352,13 +355,14 @@ var Animator = GObject.registerClass(
             }
         }
         zoom(direction = 'in') {
-            gridView.activeCell.metaWindowActor.hide();
+            // gridView.activeCell.metaWindowActor.hide();
             const scale = direction === 'in' ? 1 : 0.5;
             const pivotX = (gridView.firstVisibleCell.get_x() + gridView.firstVisibleCell.get_width()/2) / container.get_width();
             log('>>>>>>>>>>>>>>>>>>>>>>>>>>', pivotX, gridView.get_width(), container.get_width())
             gridView.set_easing_duration(250);
             gridView.set_pivot_point(pivotX,.5);
             gridView.set_scale(scale, scale);
+            scrollable.emit('transitions-completed');
         }
     }
 );
