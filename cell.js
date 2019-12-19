@@ -36,7 +36,7 @@ var Cell = GObject.registerClass(
             this.metaWindowActor.shadow_mode = Meta.ShadowMode.FORCED_OFF;
             this.clone = new Clutter.Clone({source: this.metaWindowActor});
             const { padding } = WindowUtils.getGeometry(this.metaWindow);
-            // this.clone.translation_y = -padding.top;
+            this.clone.translation_y = -padding.top;
             // Log.properties(this.metaWindowActor);
             this.add_child(this.clone);
 
@@ -56,7 +56,7 @@ var Cell = GObject.registerClass(
         alignMetaWindow() {
             const [x, y] = this.get_transformed_position();
             const { padding } = WindowUtils.getGeometry(this.metaWindow);
-            this.metaWindow.move_frame(false, x + padding.left, y);
+            this.metaWindow.move_frame(true, x + padding.left, y);
         }
         showMetaWindow() {
             this.alignMetaWindow();

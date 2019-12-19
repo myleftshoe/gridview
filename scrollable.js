@@ -69,7 +69,7 @@ var Scrollable = GObject.registerClass(
                 }
             });
             this.connect('transitions-completed', () => {
-                log('transitions-completed');
+                log('scrollable.transitions-completed');
                 this.isScrolling = false;
                 if (!this.isDragging) {
                     this.emit('scroll-end');
@@ -77,6 +77,8 @@ var Scrollable = GObject.registerClass(
             });
             this.dragAction.connect('drag-motion', () => {
                 log('scrolling')
+                if (!this.isScrolling)
+                    this.emit('scroll-begin');
                 const [x] = this.thumb.get_position();
                 this.scroll_to_point(new Clutter.Point({x: x * this.get_parent().width/this._width, y: 0}))
             });

@@ -73,12 +73,14 @@ var GridView = GObject.registerClass(
         }
         addCell(metaWindow) {
             const cell = new Cell(metaWindow);
-            cell.connect('button-release-event', (actor) => {
-                // this.emit('focused', cell);
-                Main.activateWindow(actor.metaWindow);
+            cell.connect('button-release-event', () => {
+                if (cell.metaWindow.has_focus())
+                    this.emit('focused', cell);
+                else
+                    Main.activateWindow(cell.metaWindow);
             });
-            cell.metaWindow.connect('focus', (a,b,c) => {
-                // log('focus',a,b,c)
+            cell.metaWindow.connect('focus', () => {
+                this.activeCell = cell;
                 this.emit('focused', cell);
             })
             cell.metaWindow.connect('unmanaged', () => {

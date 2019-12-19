@@ -74,6 +74,8 @@ function hidePanelBox() {
     });
 }
 
+let modal = false;
+
 
 function prepare() {
     stage_height = global.stage.get_height();
@@ -139,7 +141,7 @@ function prepare() {
         });
     });
 
-    const chrome = createChrome({left:1, right:1, bottom: 5});
+    const chrome = createChrome({left:1, right:1, bottom: 5, top:1});
     chrome.left.onClick = function() {
         const focusedCell = gridView.focusedCell;
         const i = gridView.cells.indexOf(focusedCell);
@@ -164,119 +166,64 @@ function prepare() {
     container.add_child(scrollable);
     chrome.bottom.add_child(scrollable.scrollbar);
 
-    gridView.connect('focused', (gridView, cell) => {
-        log('focused', cell.id);
-        // gridView.activeCell = cell;
-        // if (cell !== gridView.activeCell)
-        if (cell.metaWindow.is_fullscreen()) {
-            cell.metaWindow.unmake_fullscreen();
-            cell.metaWindow.maximize(Meta.MaximizeFlags.BOTH);
-        }        
-        scrollable.scrollToActor(cell);
-        Tweener.addTween(gridView, {
-            scale_x: 1,
-            scale_y: 1,
-            time:.5,
-        });
-    });
-    let modal = false;
-    scrollable.connect('scroll-begin', () => {
-        // hideBoxes();
-        log('scroll-begin');
-        if (!modal) {
-            Main.pushModal(container);
-            modal = true;
-            global.display.set_cursor(Meta.Cursor.POINTING_HAND);
-        }
-        
-        gridView.cells.forEach(cell => {
-            // cell.metaWindow.unmake_fullscreen();
-            if (cell.isFullsized()) {
-                cell.set_pivot_point(.5,.5);
-                Tweener.addTween(cell, {
-                    scale_x: grid_stage_scale,
-                    scale_y: grid_stage_scale,
-                    time: .25,
-                });
-                // cell.clone.set_scale(f,f);
-            }
-            cell.metaWindowActor.hide();
-        });
-    });
-    gridView.connect('transitions-completed', () => {
-        if (modal) { 
-            gridView.activeCell.showMetaWindow();
-            Main.popModal(container);
-            modal = false;
-        }
-    });
-    scrollable.connect('transitions-completed', () => {
-        if (modal) { 
-            gridView.activeCell = gridView.firstVisibleCell;
-            Main.activateWindow(gridView.activeCell.metaWindow);-
-            gridView.activeCell.showMetaWindow();
-            Main.popModal(container);
-            modal = false;
-        }
-    });
-    scrollable.scrollbar.connect('scroll-event', (actor, event) => {
 
+
+
+    chrome.top.onClick = function() {
+        log('>>>>>>>>>>>>>>>>>>>>>>>> popping modal')
+        global.display.set_cursor(Meta.Cursor.DEFAULT);
+        if (modal) { 
+            Main.popModal(container);
+            modal = false;
+        }
+    }
+
+    
+    function activateCell(cell) {
+        const animator = new Animator();
+        animator.animateToCell(cell);
+        const sid = animator.connect('animation-complete', () => {
+            animator.disconnect(sid);
+            cell.showMetaWindow();
+            log('animations complete ===============================================')
+        })
+    }
+
+    // gridView.connect('transitions-completed', () => {
+    //     log('gridView.transitions-completed')
+    // });
+
+    gridView.connect('focused', (_, cell) => {
+        log('focused', cell.id);
+        activateCell(cell);
+    });
+    scrollable.connect('scroll-begin', () => {
+    });
+
+    scrollable.scrollbar.connect('scroll-event', (actor, event) => {
+        const scrollDirection = event.get_scroll_direction();
+        log(scrollDirection)
+        if (scrollDirection > 1) return;
         // if (event.has_shift_modifier())
         if (event.get_state() & (
             Clutter.ModifierType.BUTTON1_MASK |
             Clutter.ModifierType.SHIFT_MASK
         )) {   
-            gridView.activeCell.metaWindowActor.hide();
-            const direction = event.get_scroll_direction();
-            if (direction > 1) return;
-            let amount = 0.05;
-            const [scaleX, scaleY] = gridView.get_scale();
-            if (direction === Clutter.ScrollDirection.DOWN) {
-                amount = 1;
-            }
-            if (direction === Clutter.ScrollDirection.UP) {
-                amount = 0.5;
-            }
-            const [sx,sy] = event.get_coords();
-            // const [sx, sy] = source.get_transformed_position();
-            // const [sw, sh] = source.get_transformed_size();
-            // const [x, y] = event.get_coords();
-            // source.set_pivot_point((x - sx) / sw, (y - sy) / sh);
-            // source.set_pivot_point((x - sx) / sw, 40 / 1200);
-            // const [_, ax, ay] = container.transform_stage_point(sx,sy);
-            // const pivotX = ax / 1920;
-            const pivotX = (gridView.firstVisibleCell.get_x() + gridView.firstVisibleCell.get_width()/2) / container.get_width();
-            log('>>>>>>>>>>>>>>>>>>>>>>>>>>', pivotX, gridView.get_width(), container.get_width())
-            if (!modal) {
-                Main.pushModal(container);
-                modal = true;
-                global.display.set_cursor(Meta.Cursor.POINTING_HAND);
-            }
-            gridView.set_easing_duration(250);
-        gridView.set_pivot_point(pivotX,.5);
-        // gridView.set_scale(scaleX + amount, scaleY + amount);
-        gridView.set_scale(amount, amount);
-            // source.set_scale_with_gravity(scaleX + amount, scaleY + amount, Clutter.Gravity.NORTH_WEST);
-            // this.set_size(...this.get_size());
+            const animator = new Animator();
+            const direction = scrollDirection === Clutter.ScrollDirection.DOWN ? 'in' : 'out';
+            animator.zoom(direction);
             return;
         };
-    
 
-
-
-
-
-
-
-        const scrollDirection = event.get_scroll_direction();
-        const { DOWN, UP } = Clutter.ScrollDirection;
-        if (scrollDirection === DOWN)
+        if (scrollDirection === Clutter.ScrollDirection.DOWN)
             scrollable.scrollToActor(gridView.previousCell)
-        if (scrollDirection === UP)
+        if (scrollDirection === Clutter.ScrollDirection.UP)
             scrollable.scrollToActor(gridView.nextCell)
     });
+
     show();
     scrollable.update();
+
 }
 
 function show() {
@@ -337,3 +284,93 @@ function prepareMetaWindows() {
         metaWindow.move_resize_frame(true, x, grid_margin, width, grid_height);
     });
 }
+
+
+var Animator = GObject.registerClass(
+    {
+        Signals: {
+            'animation-complete': {
+                param_types: []
+            }            
+        }
+    },
+    class Animator extends GObject.Object {
+        _init() {
+            super._init();
+            if (!modal) {
+                Main.pushModal(container);
+                modal = true;
+                global.display.set_cursor(Meta.Cursor.BUSY);
+            }
+            this.scaleComplete = false;
+            this.scrollComplete = false;
+            const scrollSid = scrollable.connect('transitions-completed', () => {
+                scrollable.disconnect(scrollSid);
+                this.scrollComplete = true;
+                if (this.scaleComplete) {
+                    this.emit('animation-complete');
+                }
+            });
+            const scaleSid = gridView.connect('transitions-completed', () => {
+                gridView.disconnect(scaleSid);
+                this.scaleComplete = true;
+                if (this.scrollComplete) {
+                    this.emit('animation-complete');
+                }
+            });
+        }
+        animateToCell(cell) {
+            cell.metaWindowActor.hide();
+            scrollable.scrollToActor(cell);
+    
+            const [scaleX, scaleY]  = gridView.get_scale(); 
+            if (scaleX !== 1 || scaleY !== 1) {
+                Tweener.addTween(gridView, {
+                    scale_x: 1,
+                    scale_y: 1,
+                    time:.5,
+                });
+            }
+            else {
+                gridView.emit('transitions-completed');
+            }
+        }
+        zoom(direction = 'in') {
+            gridView.activeCell.metaWindowActor.hide();
+            const scale = direction === 'in' ? 1 : 0.5;
+            const pivotX = (gridView.firstVisibleCell.get_x() + gridView.firstVisibleCell.get_width()/2) / container.get_width();
+            log('>>>>>>>>>>>>>>>>>>>>>>>>>>', pivotX, gridView.get_width(), container.get_width())
+            gridView.set_easing_duration(250);
+            gridView.set_pivot_point(pivotX,.5);
+            gridView.set_scale(scale, scale);
+        }
+    }
+);
+
+
+var SignalGroup = GObject.registerClass(
+    {
+        Signals: {
+            'all-signals-complete': {
+                param_types: []
+            }            
+        }
+    },
+    class SignalGroup extends GObject.Object {
+        _init() {
+            super._init();
+            this.signals = new Map();
+        }
+        add(actor, signal, callback) {
+            const _signal = {actor, signal, callback};
+            this.signals.set(_signal);
+            const sid = actor.connect(signal, () => {
+                actor.disconnect(sid);
+                this.signals.delete(_signal);
+                if (!this.signals.size)
+                    this.emit('all-signals-complete');
+            });
+            return actor.connect(signal, callback);
+        }
+    }
+);
