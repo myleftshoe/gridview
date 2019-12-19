@@ -5,12 +5,11 @@ const Signals = imports.signals;
 const Background = imports.ui.background;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
-const { HotTop, HotLeft, HotBottom, HotRight } = Extension.imports.hotEdge;
+const { createChrome } = Extension.imports.chrome;
 const { GridView } = Extension.imports.gridView;
 const { Scrollable } = Extension.imports.scrollable;
 const { Cell } = Extension.imports.cell;
 const { Titlebar } = Extension.imports.titlebar;
-const { addChrome } = Extension.imports.addChrome;
 const { Log } = Extension.imports.utils.logger;
 const { showBoxes, hideBoxes } = Extension.imports.debug;
 const { UI } = Extension.imports.ui;
@@ -82,7 +81,6 @@ function prepare() {
     grid_stage_scale = grid_height/stage_height;
     hidePanelBox();
     prepareMetaWindows();
-    // addChrome(CHROME_SIZE);
     // global.display.connect('in-fullscreen-changed', (a, b, c) => {
     //     log('-----------------------------------------fullscreen', a, b, c);
     // });
@@ -140,39 +138,39 @@ function prepare() {
         });
     });
 
-    const hotLeft = new HotLeft({
-        width: 1,
-        onClick: () => {
-            const focusedCell = gridView.focusedCell;
-            const i = gridView.cells.indexOf(focusedCell);
-            log('hotLeft clicked', i, focusedCell.id);
-            prevCell = gridView.cells[i - 1] || focusedCell;
-            Main.activateWindow(prevCell.metaWindow);
-        },
-    });
-    const hotRight = new HotRight({
-        width: 1,
-        onClick: () => {
-            const focusedCell = gridView.focusedCell;
-            const i = gridView.cells.indexOf(focusedCell);
-            log('hotRight clicked', i, focusedCell.id);
-            nextCell = gridView.cells[i + 1] || focusedCell;
-            Main.activateWindow(nextCell.metaWindow);
-        }
-    });
-    const hotBottom = new HotBottom({ width: 5 });
+    const chrome = createChrome({left:1, right:1, bottom: 5});
+    chrome.left.onClick = function() {
+        const focusedCell = gridView.focusedCell;
+        const i = gridView.cells.indexOf(focusedCell);
+        log('hotLeft clicked', i, focusedCell.id);
+        prevCell = gridView.cells[i - 1] || focusedCell;
+        Main.activateWindow(prevCell.metaWindow);
+    }
+    chrome.right.onClick = function() {
+        const focusedCell = gridView.focusedCell;
+        const i = gridView.cells.indexOf(focusedCell);
+        log('hotRight clicked', i, focusedCell.id);
+        nextCell = gridView.cells[i + 1] || focusedCell;
+        Main.activateWindow(nextCell.metaWindow);
+    }
+
+    // const hotBottom = new HotBottom({ width: 5 });
 
     container = new Container();
     gridView = new GridView();
     // gridView.y = CHROME_SIZE;
     scrollable = new Scrollable(gridView, { height: 5, width: Main.uiGroup.get_width() });
     container.add_child(scrollable);
-    hotBottom.add_child(scrollable.scrollbar);
+    chrome.bottom.add_child(scrollable.scrollbar);
 
     gridView.connect('focused', (gridView, cell) => {
         log('focused', cell.id);
         // if (cell !== gridView.activeCell)
-            scrollable.scrollToActor(cell);
+        if (cell.metaWindow.is_fullscreen()) {
+            cell.metaWindow.unmake_fullscreen();
+            cell.metaWindow.maximize(Meta.MaximizeFlags.BOTH);
+        }        
+        scrollable.scrollToActor(cell);
     });
     let modal = false;
     scrollable.connect('scroll-begin', () => {
