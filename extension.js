@@ -166,12 +166,18 @@ function prepare() {
 
     gridView.connect('focused', (gridView, cell) => {
         log('focused', cell.id);
+        // gridView.activeCell = cell;
         // if (cell !== gridView.activeCell)
         if (cell.metaWindow.is_fullscreen()) {
             cell.metaWindow.unmake_fullscreen();
             cell.metaWindow.maximize(Meta.MaximizeFlags.BOTH);
         }        
         scrollable.scrollToActor(cell);
+        Tweener.addTween(gridView, {
+            scale_x: 1,
+            scale_y: 1,
+            time:.5,
+        });
     });
     let modal = false;
     scrollable.connect('scroll-begin', () => {
@@ -190,55 +196,78 @@ function prepare() {
                 Tweener.addTween(cell, {
                     scale_x: grid_stage_scale,
                     scale_y: grid_stage_scale,
-                    time: .5,
+                    time: .25,
                 });
                 // cell.clone.set_scale(f,f);
             }
             cell.metaWindowActor.hide();
         });
     });
-    scrollable.connect('scroll-end', () => {
-        log('scroll-end');
-        const cell = gridView.firstVisibleCell;
-        log('***********************************************', cell && cell.id)
-        if (!cell) {
-            if (modal) { 
-                Main.popModal(container);
-                modal = false;
-            }
-            return;
+    gridView.connect('transitions-completed', () => {
+        if (modal) { 
+            gridView.activeCell.showMetaWindow();
+            Main.popModal(container);
+            modal = false;
         }
-        if (!cell.isFullyVisible) return;
-
-        if (cell !== gridView.activeCell) {
-            log('**** activating')
-            Main.activateWindow(cell.metaWindow);
-            gridView.activeCell = cell;
+    });
+    scrollable.connect('transitions-completed', () => {
+        if (modal) { 
+            gridView.activeCell = gridView.firstVisibleCell;
+            Main.activateWindow(gridView.activeCell.metaWindow);-
+            gridView.activeCell.showMetaWindow();
+            Main.popModal(container);
+            modal = false;
         }
-        if (cell.isFullsized()) {
-            Tweener.addTween(cell, {
-                scale_x: 1,
-                scale_y: 1,
-                time: .5,
-                onComplete: () => {
-                    cell.showMetaWindow();
-                    Main.popModal(container);
-                    modal = false;
-                    cell.showMetaWindow();
-                    // showBoxes(gridView.activeCell.metaWindow);
-                }
-            });
-            return;
-        }
-        // if (cell.isFullscreen) {
-        //     cell.metaWindow.make_fullscreen();
-        // }
-        Main.popModal(container);
-        modal = false;
-        cell.showMetaWindow();
-        // showBoxes(gridView.activeCell.metaWindow);
-    })
+    });
     scrollable.scrollbar.connect('scroll-event', (actor, event) => {
+
+        // if (event.has_shift_modifier())
+        if (event.get_state() & (
+            Clutter.ModifierType.BUTTON1_MASK |
+            Clutter.ModifierType.SHIFT_MASK
+        )) {   
+            gridView.activeCell.metaWindowActor.hide();
+            const direction = event.get_scroll_direction();
+            if (direction > 1) return;
+            let amount = 0.05;
+            const [scaleX, scaleY] = gridView.get_scale();
+            if (direction === Clutter.ScrollDirection.DOWN) {
+                amount = 1;
+            }
+            if (direction === Clutter.ScrollDirection.UP) {
+                amount = 0.5;
+            }
+            const [sx,sy] = event.get_coords();
+            // const [sx, sy] = source.get_transformed_position();
+            // const [sw, sh] = source.get_transformed_size();
+            // const [x, y] = event.get_coords();
+            // source.set_pivot_point((x - sx) / sw, (y - sy) / sh);
+            // source.set_pivot_point((x - sx) / sw, 40 / 1200);
+            // const [_, ax, ay] = container.transform_stage_point(sx,sy);
+            // const pivotX = ax / 1920;
+            const pivotX = (gridView.firstVisibleCell.get_x() + gridView.firstVisibleCell.get_width()/2) / container.get_width();
+            log('>>>>>>>>>>>>>>>>>>>>>>>>>>', pivotX, gridView.get_width(), container.get_width())
+            if (!modal) {
+                Main.pushModal(container);
+                modal = true;
+                global.display.set_cursor(Meta.Cursor.POINTING_HAND);
+            }
+            gridView.set_easing_duration(250);
+        gridView.set_pivot_point(pivotX,.5);
+        // gridView.set_scale(scaleX + amount, scaleY + amount);
+        gridView.set_scale(amount, amount);
+            // source.set_scale_with_gravity(scaleX + amount, scaleY + amount, Clutter.Gravity.NORTH_WEST);
+            // this.set_size(...this.get_size());
+            return;
+        };
+    
+
+
+
+
+
+
+
         const scrollDirection = event.get_scroll_direction();
         const { DOWN, UP } = Clutter.ScrollDirection;
         if (scrollDirection === DOWN)
