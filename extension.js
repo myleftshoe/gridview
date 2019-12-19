@@ -19,6 +19,7 @@ const WindowUtils = Extension.imports.windows;
 
 
 
+var stage_width = global.stage.get_width();
 var stage_height = global.stage.get_height();
 var grid_margin = 20;
 var grid_height  = stage_height - grid_margin * 2;
