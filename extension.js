@@ -78,6 +78,7 @@ let modal = false;
 
 
 function prepare() {
+    stage_width = global.stage.get_width();
     stage_height = global.stage.get_height();
     grid_margin = 40;
     grid_height  = stage_height - grid_margin * 2;
@@ -254,6 +255,7 @@ const Container = GObject.registerClass({},
                 style_class: 'container',
                 reactive: true,
                 height: stage_height,
+                min_width: stage_width,
                 // y: CHROME_SIZE
             });
             // const backgroundManager = new Background.BackgroundManager({
@@ -302,33 +304,46 @@ var Animator = GObject.registerClass(
                 modal = true;
                 global.display.set_cursor(Meta.Cursor.BUSY);
             }
-            this.scaleComplete = false;
-            this.scrollComplete = false;
-            const scrollSid = scrollable.connect('transitions-completed', () => {
-                scrollable.disconnect(scrollSid);
-                this.scrollComplete = true;
-                if (this.scaleComplete) {
-                    this.emit('animation-complete');
+
+            const signalGroup = new SignalGroup();
+            signalGroup.add(scrollable, 'transitions-completed');
+            signalGroup.add(gridView, 'transitions-completed');
+            signalGroup.connect('all-signals-complete', () => {
+                if (modal) { 
+                    Main.popModal(container);
+                    modal = false;
                 }
+                this.emit('animation-complete');
             });
-            const scaleSid = gridView.connect('transitions-completed', () => {
-                gridView.disconnect(scaleSid);
-                this.scaleComplete = true;
-                if (this.scrollComplete) {
-                    this.emit('animation-complete');
-                }
-            });
+
+            // this.scaleComplete = false;
+            // this.scrollComplete = false;
+            // const scrollSid = scrollable.connect('transitions-completed', () => {
+            //     scrollable.disconnect(scrollSid);
+            //     this.scrollComplete = true;
+            //     if (this.scaleComplete) {
+            //         this.emit('animation-complete');
+            //     }
+            // });
+            // const scaleSid = gridView.connect('transitions-completed', () => {
+            //     gridView.disconnect(scaleSid);
+            //     this.scaleComplete = true;
+            //     if (this.scrollComplete) {
+            //         this.emit('animation-complete');
+            //     }
+            // });
         }
         animateToCell(cell) {
             cell.metaWindowActor.hide();
             scrollable.scrollToActor(cell);
-    
+            // gridView.set_scale(.4,.4)
             const [scaleX, scaleY]  = gridView.get_scale(); 
             if (scaleX !== 1 || scaleY !== 1) {
                 Tweener.addTween(gridView, {
                     scale_x: 1,
                     scale_y: 1,
                     time:.5,
+                    onComplete: () => gridView.emit('transitions-completed'),
                 });
             }
             else {
@@ -359,18 +374,19 @@ var SignalGroup = GObject.registerClass(
     class SignalGroup extends GObject.Object {
         _init() {
             super._init();
-            this.signals = new Map();
+            this.signals = new Set();
         }
-        add(actor, signal, callback) {
-            const _signal = {actor, signal, callback};
-            this.signals.set(_signal);
+        add(actor, signal) {
+            const _signal = {actor, signal};
+            this.signals.add(_signal);
             const sid = actor.connect(signal, () => {
                 actor.disconnect(sid);
                 this.signals.delete(_signal);
+                log('----completed', actor, signal)
                 if (!this.signals.size)
                     this.emit('all-signals-complete');
             });
-            return actor.connect(signal, callback);
+            return sid;
         }
     }
 );
