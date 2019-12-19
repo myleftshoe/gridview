@@ -20,7 +20,7 @@ var GridView = GObject.registerClass(
         Signals: {
             'focused': {
                 param_types: [GObject.TYPE_OBJECT]
-            }            
+            },
         }
     },
     class GridView extends St.BoxLayout {
@@ -60,14 +60,14 @@ var GridView = GObject.registerClass(
         }
         getPreviousCell(cell = this.activeCell) {
             const i = this.cells.indexOf(cell);
-            return this.cells[i-1];
+            return this.cells[i - 1];
         }
         get previousCell() {
             return this.getPreviousCell();
         }
         getNextCell(cell = this.activeCell) {
             const i = this.cells.indexOf(cell);
-            return this.cells[i+1];
+            return this.cells[i + 1];
         }
         get nextCell() {
             return this.getNextCell();
@@ -96,7 +96,7 @@ var GridView = GObject.registerClass(
             // row.add_child(cell);
             // cell.metaWindowActor.hide();
             // this.add_child(cell);
-            this.insert_child_at_index(cell,0);
+            this.insert_child_at_index(cell, 0);
             return cell;
         }
         populate() {

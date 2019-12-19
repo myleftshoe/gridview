@@ -18,7 +18,7 @@ var Scrollable = GObject.registerClass(
     }, 
     class Scrollable extends Clutter.ScrollActor {
         _init(actor, { 
-            width = Main.uiGroup.get_width(),
+            width = global.stage.get_width(),
             height = 10
         }) {
             super._init({scroll_mode: Clutter.ScrollMode.HORIZONTALLY});
@@ -100,14 +100,14 @@ var Scrollable = GObject.registerClass(
             const [ax,ay] = actor.get_position();
             const [width, height] = actor.get_size();
 
-            let x = ax - (Main.uiGroup.get_width() - width) / 2;
+            let x = ax - (global.stage.get_width() - width) / 2;
             let y = ay;
             if (align === 'left')
                 x = ax;
             if (align === 'right')
-                x = ax - (Main.uiGroup.get_width() - width);
+                x = ax - (global.stage.get_width() - width);
             this.scroll_to_rect(new Clutter.Rect({origin: {x, y}, size: {width, height}}));
-            // this.scroll_to_rect(new Clutter.Rect({origin: {x: x - (Main.uiGroup.get_width() - width) / 2, y}, size: {width, height}}));
+            // this.scroll_to_rect(new Clutter.Rect({origin: {x: x - (global.stage.get_width() - width) / 2, y}, size: {width, height}}));
             this.thumb.set_easing_duration(750);
             this.thumb.set_x(x / this.width * this.scrollbar.width);
             this.thumb.set_easing_duration(0)

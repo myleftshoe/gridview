@@ -163,11 +163,9 @@ function prepare() {
     container = new Container();
     gridView = new GridView();
     // gridView.y = CHROME_SIZE;
-    scrollable = new Scrollable(gridView, { height: 5, width: Main.uiGroup.get_width() });
+    scrollable = new Scrollable(gridView, { height: 5 });
     container.add_child(scrollable);
     chrome.bottom.add_child(scrollable.scrollbar);
-
-
 
 
     chrome.top.onClick = function() {
@@ -231,7 +229,8 @@ function show() {
     if (container.isOnStage) return;
     gridView.populate();
     container.show();
-    scrollable.scrollToActor(gridView.focusedCell);
+    // scrollable.scrollToActor(gridView.focusedCell);
+    Main.activateWindow(gridView.focusedCell.metaWindow);
 }
 
 function hide() {
@@ -284,6 +283,7 @@ function prepareMetaWindows() {
         metaWindow.unmaximize(Meta.MaximizeFlags.BOTH);
         const { x, y, width, height, padding } = WindowUtils.getGeometry(metaWindow);
         metaWindow.move_resize_frame(true, x, grid_margin, width, grid_height);
+        metaWindow.get_compositor_private().hide();
     });
 }
 
