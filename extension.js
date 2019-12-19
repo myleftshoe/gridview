@@ -1,5 +1,6 @@
 const { Atk, Clutter, GLib, GObject, Meta, Shell, St } = imports.gi;
 const Main = imports.ui.main;
+const Mainloop = imports.mainloop;
 const Tweener = imports.ui.tweener;
 const Signals = imports.signals;
 const Background = imports.ui.background;
@@ -143,14 +144,14 @@ function prepare() {
         const focusedCell = gridView.focusedCell;
         const i = gridView.cells.indexOf(focusedCell);
         log('hotLeft clicked', i, focusedCell.id);
-        prevCell = gridView.cells[i - 1] || focusedCell;
+        const prevCell = gridView.cells[i - 1] || focusedCell;
         Main.activateWindow(prevCell.metaWindow);
     }
     chrome.right.onClick = function() {
         const focusedCell = gridView.focusedCell;
         const i = gridView.cells.indexOf(focusedCell);
         log('hotRight clicked', i, focusedCell.id);
-        nextCell = gridView.cells[i + 1] || focusedCell;
+        const nextCell = gridView.cells[i + 1] || focusedCell;
         Main.activateWindow(nextCell.metaWindow);
     }
 
