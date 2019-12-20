@@ -6,7 +6,7 @@ const Signals = imports.signals;
 const Background = imports.ui.background;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
-const Handlers = Extension.imports.signals;
+const { SignalManager, SignalGroup } = Extension.imports.signals;
 const { createChrome } = Extension.imports.chrome;
 const { GridView } = Extension.imports.gridView;
 const { Scrollable } = Extension.imports.scrollable;
@@ -78,9 +78,11 @@ function hidePanelBox() {
 
 let modal = false;
 
-let signals = new Handlers.Signals();
+let signals = new SignalManager();
 
 function prepare() {
+    modal = false;
+    signals.disconnectAll();
     stage_width = global.stage.get_width();
     stage_height = global.stage.get_height();
     grid_margin = 40;
@@ -344,31 +346,3 @@ var Animator = GObject.registerClass(
     }
 );
 
-
-var SignalGroup = GObject.registerClass(
-    {
-        Signals: {
-            'all-signals-complete': {
-                param_types: []
-            }            
-        }
-    },
-    class SignalGroup extends GObject.Object {
-        _init() {
-            super._init();
-            this.signals = new Set();
-        }
-        add(actor, signal) {
-            const _signal = {actor, signal};
-            this.signals.add(_signal);
-            const sid = actor.connect(signal, () => {
-                actor.disconnect(sid);
-                this.signals.delete(_signal);
-                log('----completed', actor, signal)
-                if (!this.signals.size)
-                    this.emit('all-signals-complete');
-            });
-            return sid;
-        }
-    }
-);

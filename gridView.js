@@ -2,7 +2,7 @@ const { Clutter, GObject, Meta, St, Shell } = imports.gi;
 const Main = imports.ui.main;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
-const { Signals } = Extension.imports.signals;
+const { SignalManager } = Extension.imports.signals;
 const { UI } = Extension.imports.ui;
 const { Row } = Extension.imports.row;
 const { Cell } = Extension.imports.cell;
@@ -36,7 +36,7 @@ var GridView = GObject.registerClass(
                 x_expand: true,
                 // y: 5,
             });
-            this.signals = new Signals();
+            this.signals = new SignalManager();
             this.activeCell = null;
             makeSortable(this);
             // makeZoomable(this);

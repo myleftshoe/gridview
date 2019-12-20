@@ -1,10 +1,16 @@
-var Signals = class Signals {
+const { GObject } = imports.gi;
+
+var SignalManager = class SignalManager {
     constructor() {
         this.signals = new Map()
     }
 
     has(key) {
         return this.signals.has(key)
+    }
+
+    get size() { 
+        return this.signals.size;
     }
 
     connect(object, name, callback) {
@@ -15,7 +21,7 @@ var Signals = class Signals {
 
     connectOnce(object, name, callback) {
         const key = object.connect(name, (...args) => {
-            object.disconnect(key)
+            this.disconnect(key)
             callback(...args)
         })
         this.signals.set(key, { object, name })
@@ -39,5 +45,37 @@ var Signals = class Signals {
             this.disconnect(key)
         }
     }
+    
 }
+
+
+/**
+ * Emits 'all-signals-complete' when all added signals have fired.
+ * ONLY FOR ONESHOT EVENTS
+ */
+var SignalGroup = GObject.registerClass(
+    {
+        Signals: {
+            'all-signals-complete': {
+                param_types: []
+            }            
+        }
+    },
+    class SignalGroup extends GObject.Object {
+        _init() {
+            super._init();
+            this.signals = new SignalManager();
+        }
+        add(object, name) {
+            const key = this.signals.connectOnce(object, name, () => {
+                log('----completed', object, name)
+                if (!this.signals.size)
+                    this.emit('all-signals-complete');
+            });
+            return key;
+        }
+    }
+);
+
+
 
