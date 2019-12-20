@@ -142,7 +142,7 @@ function prepare() {
 
     container = new Container();
     gridView = new GridView();
-    scrollable = new Scrollable(gridView, { height: 5 });
+    scrollable = new Scrollable(gridView, { height: 5, width: stage.width });
     container.add_child(scrollable);
     chrome.bottom.add_child(scrollable.scrollbar);
 

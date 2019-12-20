@@ -18,7 +18,7 @@ var Scrollable = GObject.registerClass(
     }, 
     class Scrollable extends Clutter.ScrollActor {
         _init(actor, { 
-            width = global.stage.get_width(),
+            width = 100,
             height = 10
         }) {
             super._init({scroll_mode: Clutter.ScrollMode.HORIZONTALLY});
