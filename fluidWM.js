@@ -127,7 +127,7 @@ const Container = GObject.registerClass({},
 function prepareMetaWindows() {
     UI.windows.forEach(metaWindow => {
         metaWindow.unmaximize(Meta.MaximizeFlags.BOTH);
-        const { x, y, width, height, padding } = WindowUtils.getGeometry(metaWindow);
+        const { x, width } = WindowUtils.getGeometry(metaWindow);
         metaWindow.move_resize_frame(true, x, content.margin, width, content.height);
         metaWindow.get_compositor_private().hide();
     });
