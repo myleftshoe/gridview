@@ -15,9 +15,8 @@ const { Titlebar } = Extension.imports.titlebar;
 const { Log } = Extension.imports.utils.logger;
 const { showBoxes, hideBoxes } = Extension.imports.debug;
 const { UI } = Extension.imports.ui;
-const WindowUtils = Extension.imports.windows;
-
 const { panelBox } = Extension.imports.panelBox;
+const WindowUtils = Extension.imports.windows;
 
 
 const stage = {
