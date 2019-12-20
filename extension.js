@@ -17,6 +17,8 @@ const { showBoxes, hideBoxes } = Extension.imports.debug;
 const { UI } = Extension.imports.ui;
 const WindowUtils = Extension.imports.windows;
 
+const { panelBox } = Extension.imports.panelBox;
+
 
 
 
@@ -50,32 +52,6 @@ let container;
 let gridView;
 let scrollable;
 
-function hidePanelBox() {
-    const panelBox = Main.layoutManager.panelBox;
-    panelBox.translation_y = -panelBox.get_height();
-    Main.overview.connect('showing', () => {
-        Main.uiGroup.remove_child(scrollable.scrollbar);
-    });
-    Main.overview.connect('shown', () => {
-        // Tweener.addTween(panelBox, {
-        //     translation_y: 0,
-        //     time: .25,
-        // });
-    });
-    Main.overview.connect('hidden', () => {
-        log('hiding')
-        // Main.overview._overview.remove_all_transitions();
-    });
-    Main.overview.connect('hidden', () => {
-        // Tweener.addTween(panelBox, {
-        //     translation_y: -27,
-        //     time: .25,
-        //     // onComplete: () => container.show()
-        // })
-        Main.uiGroup.add_child(scrollable.scrollbar);
-    });
-}
-
 let modal = false;
 
 let signals = new SignalManager();
@@ -88,7 +64,7 @@ function prepare() {
     grid_margin = 40;
     grid_height  = stage_height - grid_margin * 2;
     grid_stage_scale = grid_height/stage_height;
-    hidePanelBox();
+    panelBox.hide();
     prepareMetaWindows();
     // global.display.connect('in-fullscreen-changed', (a, b, c) => {
     //     log('-----------------------------------------fullscreen', a, b, c);
