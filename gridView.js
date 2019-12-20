@@ -82,28 +82,19 @@ var GridView = GObject.registerClass(
                 else
                     Main.activateWindow(cell.metaWindow);
             });
-            // cell.connect('button-release-event', () => {
-            //     if (cell.metaWindow.has_focus())
-            //         this.emit('focused', cell);
-            //     else
-            //         Main.activateWindow(cell.metaWindow);
-            // });
-            cell.metaWindow.connect('focus', () => {
+            this.signals.connect(cell.metaWindow, 'focus', () => {
                 this.activeCell = cell;
                 this.emit('focused', cell);
-            })
-            cell.metaWindow.connect('unmanaged', () => {
+            });
+            this.signals.connect(cell.metaWindow, 'unmanaged', () => {
                 log('*****************************************************************');
                 log('UNMANAGED window', cell.id);
-            })
-            cell.metaWindowActor.connect('destroy', () => {
+            });
+            this.signals.connect(cell.metaWindowActor, 'destroy', () => {
                 log('*****************************************************************');
                 log('DESTROYED window', cell.id);
                 this.remove_child(cell);
-            })
-            // row.add_child(cell);
-            // cell.metaWindowActor.hide();
-            // this.add_child(cell);
+            });
             this.insert_child_at_index(cell, 0);
             return cell;
         }
@@ -128,6 +119,7 @@ var GridView = GObject.registerClass(
             });
         }
         destroy() {
+            this.signals.disconnectAll();
             // this.hide();
             // unmakeSortable(this);
             // unmakeZoomable(this);
@@ -136,5 +128,3 @@ var GridView = GObject.registerClass(
         }
     }
 );
-
-
