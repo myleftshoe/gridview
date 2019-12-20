@@ -1,8 +1,6 @@
-const { Atk, Clutter, GLib, GObject, Meta, Shell, St } = imports.gi;
+const { Clutter, GObject, Meta, St } = imports.gi;
 const Main = imports.ui.main;
-const Mainloop = imports.mainloop;
 const Tweener = imports.ui.tweener;
-const Signals = imports.signals;
 const Background = imports.ui.background;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
@@ -11,12 +9,13 @@ const { createChrome } = Extension.imports.chrome;
 const { GridView } = Extension.imports.gridView;
 const { Scrollable } = Extension.imports.scrollable;
 const { Cell } = Extension.imports.cell;
-const { Titlebar } = Extension.imports.titlebar;
-const { Log } = Extension.imports.utils.logger;
-const { showBoxes, hideBoxes } = Extension.imports.debug;
 const { UI } = Extension.imports.ui;
 const { panelBox } = Extension.imports.panelBox;
 const WindowUtils = Extension.imports.windows;
+
+const { Log } = Extension.imports.utils.logger;
+const { showBoxes, hideBoxes } = Extension.imports.debug;
+
 
 
 const stage = {
