@@ -20,13 +20,17 @@ const WindowUtils = Extension.imports.windows;
 const { panelBox } = Extension.imports.panelBox;
 
 
+const stage = { 
+    get width() { return global.stage.get_width() },
+    get height() { return global.stage.get_height() },
+}
 
+const content = {
+    margin: 20,
+    get height() { return stage.height - this.margin * 2 },
+    // get scale() { return this.height / stage.height },
+}
 
-var stage_width = global.stage.get_width();
-var stage_height = global.stage.get_height();
-var grid_margin = 20;
-var grid_height  = stage_height - grid_margin * 2;
-var grid_stage_scale = grid_height/stage_height;
 
 function init() {
     log(`***************************************************************`);
@@ -59,11 +63,6 @@ let signals = new SignalManager();
 function prepare() {
     modal = false;
     signals.disconnectAll();
-    stage_width = global.stage.get_width();
-    stage_height = global.stage.get_height();
-    grid_margin = 40;
-    grid_height  = stage_height - grid_margin * 2;
-    grid_stage_scale = grid_height/stage_height;
     panelBox.hide();
     prepareMetaWindows();
     // global.display.connect('in-fullscreen-changed', (a, b, c) => {
@@ -234,8 +233,8 @@ const Container = GObject.registerClass({},
             super._init({
                 style_class: 'container',
                 reactive: true,
-                height: stage_height,
-                min_width: stage_width,
+                height: stage.height,
+                min_width: stage.width,
                 // y: CHROME_SIZE
             });
             // const backgroundManager = new Background.BackgroundManager({
@@ -263,7 +262,7 @@ function prepareMetaWindows() {
     UI.windows.forEach(metaWindow => {
         metaWindow.unmaximize(Meta.MaximizeFlags.BOTH);
         const { x, y, width, height, padding } = WindowUtils.getGeometry(metaWindow);
-        metaWindow.move_resize_frame(true, x, grid_margin, width, grid_height);
+        metaWindow.move_resize_frame(true, x, content.margin, width, content.height);
         metaWindow.get_compositor_private().hide();
     });
 }
