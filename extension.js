@@ -3,6 +3,7 @@ const Signals = imports.signals;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const FluidWM = Extension.imports.fluidWM;
+const { SignalManager } = Extension.imports.signals;
 
 function init() {
     log(`***************************************************************`);
@@ -23,7 +24,7 @@ function disable() {
 
 function wait() {
     if (Main.layoutManager._startingUp)
-        Main.layoutManager.connect('startup-complete', FluidWM.start);
+        new SignalManager().connectOnce(Main.layoutManager, 'startup-complete', FluidWM.start);
     else
         FluidWM.start();
 }
