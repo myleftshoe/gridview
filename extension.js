@@ -41,15 +41,19 @@ function init() {
 function enable() {
     log(`${Extension.metadata.uuid} enable()`);
     // stage actors do not report correct sizes before startup-complete
-    if (Main.layoutManager._startingUp)
-        Main.layoutManager.connect('startup-complete', prepare);
-    else
-        prepare();
+    wait();
 }
 
 function disable() {
     log(`${Extension.metadata.uuid} disable()`);
-    hide();
+    stop();
+}
+
+function wait() {
+    if (Main.layoutManager._startingUp)
+        Main.layoutManager.connect('startup-complete', prepare);
+    else
+        prepare();
 }
 
 let container;
@@ -83,12 +87,12 @@ function prepare() {
 
     initScrollHandler(scrollable);
 
-    show();
+    start();
     scrollable.update();
 
 }
 
-function show() {
+function start() {
     if (container.isOnStage) return;
     gridView.populate();
     container.show();
@@ -96,7 +100,7 @@ function show() {
     Main.activateWindow(gridView.focusedCell.metaWindow);
 }
 
-function hide() {
+function stop() {
     if (!container.isOnStage) return;
     gridView.cells.forEach(cell => {
         cell.metaWindow.show();
@@ -261,7 +265,7 @@ function initScrollHandler(scrollable) {
 }
 
 function connectDisplaySignals() {
-        // global.display.connect('in-fullscreen-changed', (a, b, c) => {
+    // global.display.connect('in-fullscreen-changed', (a, b, c) => {
     //     log('-----------------------------------------fullscreen', a, b, c);
     // });
     // Ensure transient windows: popups, dialogs, etc are displayed on top
