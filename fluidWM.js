@@ -67,6 +67,11 @@ function start() {
 
 }
 
+function stop() {
+    // TODO
+    hide();
+}
+
 function show() {
     if (container.isOnStage) return;
     gridView.populate();
@@ -87,11 +92,6 @@ function hide() {
         transition: 'easeOutQuad',
         onComplete: () => container.hide()
     });
-}
-
-function stop() {
-    // TODO
-    hide();
 }
 
 const Container = GObject.registerClass({},
@@ -135,7 +135,7 @@ function prepareMetaWindows() {
 }
 
 
-var Animator = GObject.registerClass(
+const Animator = GObject.registerClass(
     {
         Signals: {
             'animation-complete': {
