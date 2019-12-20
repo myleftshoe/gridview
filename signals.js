@@ -3,32 +3,29 @@ var Signals = class Signals {
         this.signals = new Map()
     }
 
-    registerHandler(object, name, callback) {
-        const key = `${object}[${name}]`
-
-        if (!this.hasSignal(key)) {
-            this.signals.set(key, {
-                object: object,
-                signalId: object.connect(name, callback)
-            })
-        }
-
-        return key
-    }
-
-    hasSignal(key) {
+    has(key) {
         return this.signals.has(key)
     }
 
     connect(object, name, callback) {
-        return this.registerHandler(object, name, callback)
+        const key = object.connect(name, callback)
+        this.signals.set(key, { object, name })
+        return key
+    }
+
+    connectOnce(object, name, callback) {
+        const key = object.connect(name, (...args) => {
+            object.disconnect(key)
+            callback(...args)
+        })
+        this.signals.set(key, { object, name })
+        return key
     }
 
     disconnect(key) {
-        if (this.hasSignal(key)) {
-            const data = this.signals.get(key)
-            data.object.disconnect(data.signalId)
-
+        if (this.has(key)) {
+            const signal = this.signals.get(key)
+            signal.object.disconnect(key)
             this.signals.delete(key)
         }
     }
