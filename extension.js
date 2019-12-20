@@ -165,7 +165,6 @@ function prepare() {
 
     container = new Container();
     gridView = new GridView();
-    // gridView.y = CHROME_SIZE;
     scrollable = new Scrollable(gridView, { height: 5 });
     container.add_child(scrollable);
     chrome.bottom.add_child(scrollable.scrollbar);
@@ -186,7 +185,6 @@ function prepare() {
         animator.animateToCell(cell);
 
         signals.connectOnce(animator, 'animation-complete', () => {
-            // animator.disconnect(sid);
             cell.showMetaWindow();
             if (modal) { 
                 Main.popModal(container);
@@ -194,27 +192,13 @@ function prepare() {
             }
             log('activateCell complete ===============================================')
         });
-        // const sid = animator.connect('animation-complete', () => {
-        //     animator.disconnect(sid);
-        //     cell.showMetaWindow();
-        //     if (modal) { 
-        //         Main.popModal(container);
-        //         modal = false;
-        //     }
-        //     log('activateCell complete ===============================================')
-        // })
     }
-
-    // gridView.connect('transitions-completed', () => {
-    //     log('gridView.transitions-completed')
-    // });
 
     gridView.connect('focused', (_, cell) => {
         log('focused', cell.id);
         activateCell(cell);
     });
     scrollable.connect('scroll-begin', () => {
-        // gridView.activeCell.metaWindowActor.hide();
         const animator = new Animator();
     });
 
@@ -331,26 +315,8 @@ var Animator = GObject.registerClass(
             signalGroup.connect('all-signals-complete', () => {
                 this.emit('animation-complete');
             });
-
-            // this.scaleComplete = false;
-            // this.scrollComplete = false;
-            // const scrollSid = scrollable.connect('transitions-completed', () => {
-            //     scrollable.disconnect(scrollSid);
-            //     this.scrollComplete = true;
-            //     if (this.scaleComplete) {
-            //         this.emit('animation-complete');
-            //     }
-            // });
-            // const scaleSid = gridView.connect('transitions-completed', () => {
-            //     gridView.disconnect(scaleSid);
-            //     this.scaleComplete = true;
-            //     if (this.scrollComplete) {
-            //         this.emit('animation-complete');
-            //     }
-            // });
         }
         animateToCell(cell) {
-            // cell.metaWindowActor.hide();
             scrollable.scrollToActor(cell);
             // gridView.set_scale(.4,.4)
             const [scaleX, scaleY]  = gridView.get_scale(); 
@@ -367,7 +333,6 @@ var Animator = GObject.registerClass(
             }
         }
         zoom(direction = 'in') {
-            // gridView.activeCell.metaWindowActor.hide();
             const scale = direction === 'in' ? 1 : 0.5;
             const pivotX = (gridView.firstVisibleCell.get_x() + gridView.firstVisibleCell.get_width()/2) / container.get_width();
             log('>>>>>>>>>>>>>>>>>>>>>>>>>>', pivotX, gridView.get_width(), container.get_width())
