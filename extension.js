@@ -6,6 +6,7 @@ const Signals = imports.signals;
 const Background = imports.ui.background;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
+const Handlers = Extension.imports.signals;
 const { createChrome } = Extension.imports.chrome;
 const { GridView } = Extension.imports.gridView;
 const { Scrollable } = Extension.imports.scrollable;
@@ -77,6 +78,7 @@ function hidePanelBox() {
 
 let modal = false;
 
+let signals = new Handlers.Signals();
 
 function prepare() {
     stage_width = global.stage.get_width();
@@ -182,15 +184,25 @@ function prepare() {
     function activateCell(cell) {
         const animator = new Animator();
         animator.animateToCell(cell);
-        const sid = animator.connect('animation-complete', () => {
-            animator.disconnect(sid);
+
+        signals.connectOnce(animator, 'animation-complete', () => {
+            // animator.disconnect(sid);
             cell.showMetaWindow();
             if (modal) { 
                 Main.popModal(container);
                 modal = false;
             }
             log('activateCell complete ===============================================')
-        })
+        });
+        // const sid = animator.connect('animation-complete', () => {
+        //     animator.disconnect(sid);
+        //     cell.showMetaWindow();
+        //     if (modal) { 
+        //         Main.popModal(container);
+        //         modal = false;
+        //     }
+        //     log('activateCell complete ===============================================')
+        // })
     }
 
     // gridView.connect('transitions-completed', () => {

@@ -2,6 +2,7 @@ const { Clutter, GObject, Meta, St, Shell } = imports.gi;
 const Main = imports.ui.main;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
+const { Signals } = Extension.imports.signals;
 const { UI } = Extension.imports.ui;
 const { Row } = Extension.imports.row;
 const { Cell } = Extension.imports.cell;
@@ -35,6 +36,7 @@ var GridView = GObject.registerClass(
                 x_expand: true,
                 // y: 5,
             });
+            this.signals = new Signals();
             this.activeCell = null;
             makeSortable(this);
             // makeZoomable(this);
@@ -74,12 +76,18 @@ var GridView = GObject.registerClass(
         }
         addCell(metaWindow) {
             const cell = new Cell(metaWindow);
-            cell.connect('button-release-event', () => {
+            this.signals.connect(cell, 'button-release-event', () => {
                 if (cell.metaWindow.has_focus())
                     this.emit('focused', cell);
                 else
                     Main.activateWindow(cell.metaWindow);
             });
+            // cell.connect('button-release-event', () => {
+            //     if (cell.metaWindow.has_focus())
+            //         this.emit('focused', cell);
+            //     else
+            //         Main.activateWindow(cell.metaWindow);
+            // });
             cell.metaWindow.connect('focus', () => {
                 this.activeCell = cell;
                 this.emit('focused', cell);
