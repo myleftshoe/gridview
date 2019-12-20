@@ -20,7 +20,7 @@ const WindowUtils = Extension.imports.windows;
 const { panelBox } = Extension.imports.panelBox;
 
 
-const stage = { 
+const stage = {
     get width() { return global.stage.get_width() },
     get height() { return global.stage.get_height() },
 }
@@ -64,81 +64,11 @@ function prepare() {
     modal = false;
     signals.disconnectAll();
     panelBox.hide();
+
     prepareMetaWindows();
-    // global.display.connect('in-fullscreen-changed', (a, b, c) => {
-    //     log('-----------------------------------------fullscreen', a, b, c);
-    // });
-    // Ensure transient windows: popups, dialogs, etc are displayed on top
-    // !!!This includes broswer dropdown menus and comboboxes!!!
-    global.display.connect('notify::focus-window', (display, paramSpec) => {
-        const metaWindow = global.display.focus_window;
-        if (!metaWindow) return;
-        log('focus-window', metaWindow.title);
-        if (metaWindow.is_client_decorated()) {
-            metaWindow.get_compositor_private().raise_top();
-        }
-    });
-    global.display.connect('window-created', (display, metaWindow) => {
-        log('ft', metaWindow.title, metaWindow.get_frame_type())
-        if (metaWindow.is_client_decorated()) return;
-        if (metaWindow.get_window_type() < 2) {
-            const cell = gridView.addCell(metaWindow);
-            return;
-        }
-        metaWindow.get_compositor_private().raise_top();
-    });
-    //
-    global.display.connect('grab-op-begin', (display, screen, window, op) => {
-        log('grab-op-begin', op)
-        // gridView.setEasingOff();
-        if (!window) return;
-        log('grab-op-begin', op, window.title);
-        if (window.is_client_decorated()) return;
-        if (op === Meta.GrabOp.WINDOW_BASE) {
-            log('grab-op-window-base', window.title)
-            display.end_grab_op(display);
-            const cell = gridView.getCellForMetaWindow(window);
-            cell.save_easing_state();
-            cell.set_easing_duration(0);
-            cell.set_opacity(255);
-            cell.restore_easing_state();
-            // cell.metaWindowActor.lower_bottom();
-            const coords = global.get_pointer();
-            cell.draggable.startDrag(null, coords);
-            return;
-        }
-        if (op === Meta.GrabOp.RESIZING_E) {
-            gridView.cells.forEach(cell => {
-                cell.set_easing_duration(0);
-            });
-        }
-        else {
-            display.end_grab_op(display);
-        }
-    });
-    global.display.connect('grab-op-end', (display, screen, window, op) => {
-        gridView.cells.forEach(cell => {
-            cell.set_easing_duration(250);
-        });
-    });
+    connectDisplaySignals();
 
-    const chrome = createChrome({left:1, right:1, bottom: 5, top:1});
-    chrome.left.onClick = function() {
-        const focusedCell = gridView.focusedCell;
-        const i = gridView.cells.indexOf(focusedCell);
-        log('hotLeft clicked', i, focusedCell.id);
-        const prevCell = gridView.cells[i - 1] || focusedCell;
-        Main.activateWindow(prevCell.metaWindow);
-    }
-    chrome.right.onClick = function() {
-        const focusedCell = gridView.focusedCell;
-        const i = gridView.cells.indexOf(focusedCell);
-        log('hotRight clicked', i, focusedCell.id);
-        const nextCell = gridView.cells[i + 1] || focusedCell;
-        Main.activateWindow(nextCell.metaWindow);
-    }
-
-    // const hotBottom = new HotBottom({ width: 5 });
+    const chrome = addChrome();
 
     container = new Container();
     gridView = new GridView();
@@ -146,59 +76,12 @@ function prepare() {
     container.add_child(scrollable);
     chrome.bottom.add_child(scrollable.scrollbar);
 
-
-    chrome.top.onClick = function() {
-        log('>>>>>>>>>>>>>>>>>>>>>>>> popping modal')
-        global.display.set_cursor(Meta.Cursor.DEFAULT);
-        if (modal) { 
-            Main.popModal(container);
-            modal = false;
-        }
-    }
-
-    
-    function activateCell(cell) {
-        const animator = new Animator();
-        animator.animateToCell(cell);
-
-        signals.connectOnce(animator, 'animation-complete', () => {
-            cell.showMetaWindow();
-            if (modal) { 
-                Main.popModal(container);
-                modal = false;
-            }
-            log('activateCell complete ===============================================')
-        });
-    }
-
     gridView.connect('focused', (_, cell) => {
         log('focused', cell.id);
         activateCell(cell);
     });
-    scrollable.connect('scroll-begin', () => {
-        const animator = new Animator();
-    });
 
-    scrollable.scrollbar.connect('scroll-event', (actor, event) => {
-        const scrollDirection = event.get_scroll_direction();
-        log(scrollDirection)
-        if (scrollDirection > 1) return;
-        // if (event.has_shift_modifier())
-        if (event.get_state() & (
-            Clutter.ModifierType.BUTTON1_MASK |
-            Clutter.ModifierType.SHIFT_MASK
-        )) {   
-            const animator = new Animator();
-            const direction = scrollDirection === Clutter.ScrollDirection.DOWN ? 'in' : 'out';
-            animator.zoom(direction);
-            return;
-        };
-
-        if (scrollDirection === Clutter.ScrollDirection.DOWN)
-            scrollable.scrollToActor(gridView.previousCell)
-        if (scrollDirection === Clutter.ScrollDirection.UP)
-            scrollable.scrollToActor(gridView.nextCell)
-    });
+    initScrollHandler(scrollable);
 
     show();
     scrollable.update();
@@ -273,7 +156,7 @@ var Animator = GObject.registerClass(
         Signals: {
             'animation-complete': {
                 param_types: []
-            }            
+            }
         }
     },
     class Animator extends GObject.Object {
@@ -296,12 +179,12 @@ var Animator = GObject.registerClass(
         animateToCell(cell) {
             scrollable.scrollToActor(cell);
             // gridView.set_scale(.4,.4)
-            const [scaleX, scaleY]  = gridView.get_scale(); 
+            const [scaleX, scaleY] = gridView.get_scale();
             if (scaleX !== 1 || scaleY !== 1) {
                 Tweener.addTween(gridView, {
                     scale_x: 1,
                     scale_y: 1,
-                    time:.5,
+                    time: .5,
                     onComplete: () => gridView.emit('transitions-completed'),
                 });
             }
@@ -311,13 +194,142 @@ var Animator = GObject.registerClass(
         }
         zoom(direction = 'in') {
             const scale = direction === 'in' ? 1 : 0.5;
-            const pivotX = (gridView.firstVisibleCell.get_x() + gridView.firstVisibleCell.get_width()/2) / container.get_width();
+            const pivotX = (gridView.firstVisibleCell.get_x() + gridView.firstVisibleCell.get_width() / 2) / container.get_width();
             log('>>>>>>>>>>>>>>>>>>>>>>>>>>', pivotX, gridView.get_width(), container.get_width())
             gridView.set_easing_duration(250);
-            gridView.set_pivot_point(pivotX,.5);
+            gridView.set_pivot_point(pivotX, .5);
             gridView.set_scale(scale, scale);
             scrollable.emit('transitions-completed');
         }
     }
 );
 
+
+function addChrome() {
+    const chrome = createChrome({ left: 1, right: 1, bottom: 5, top: 1 });
+    chrome.left.onClick = function () {
+        const focusedCell = gridView.focusedCell;
+        const i = gridView.cells.indexOf(focusedCell);
+        log('hotLeft clicked', i, focusedCell.id);
+        const prevCell = gridView.cells[i - 1] || focusedCell;
+        Main.activateWindow(prevCell.metaWindow);
+    }
+    chrome.right.onClick = function () {
+        const focusedCell = gridView.focusedCell;
+        const i = gridView.cells.indexOf(focusedCell);
+        log('hotRight clicked', i, focusedCell.id);
+        const nextCell = gridView.cells[i + 1] || focusedCell;
+        Main.activateWindow(nextCell.metaWindow);
+    }
+    chrome.top.onClick = function () {
+        log('>>>>>>>>>>>>>>>>>>>>>>>> popping modal')
+        global.display.set_cursor(Meta.Cursor.DEFAULT);
+        if (modal) {
+            Main.popModal(container);
+            modal = false;
+        }
+    }
+    return chrome;
+}
+
+
+function initScrollHandler(scrollable) {
+    scrollable.connect('scroll-begin', () => {
+        const animator = new Animator();
+    });
+
+    scrollable.scrollbar.connect('scroll-event', (actor, event) => {
+        const scrollDirection = event.get_scroll_direction();
+        log(scrollDirection)
+        if (scrollDirection > 1) return;
+        // if (event.has_shift_modifier())
+        if (event.get_state() & (
+            Clutter.ModifierType.BUTTON1_MASK |
+            Clutter.ModifierType.SHIFT_MASK
+        )) {
+            const animator = new Animator();
+            const direction = scrollDirection === Clutter.ScrollDirection.DOWN ? 'in' : 'out';
+            animator.zoom(direction);
+            return;
+        };
+
+        if (scrollDirection === Clutter.ScrollDirection.DOWN)
+            scrollable.scrollToActor(gridView.previousCell)
+        if (scrollDirection === Clutter.ScrollDirection.UP)
+            scrollable.scrollToActor(gridView.nextCell)
+    });
+}
+
+function connectDisplaySignals() {
+        // global.display.connect('in-fullscreen-changed', (a, b, c) => {
+    //     log('-----------------------------------------fullscreen', a, b, c);
+    // });
+    // Ensure transient windows: popups, dialogs, etc are displayed on top
+    // !!!This includes broswer dropdown menus and comboboxes!!!
+    global.display.connect('notify::focus-window', (display, paramSpec) => {
+        const metaWindow = global.display.focus_window;
+        if (!metaWindow) return;
+        log('focus-window', metaWindow.title);
+        if (metaWindow.is_client_decorated()) {
+            metaWindow.get_compositor_private().raise_top();
+        }
+    });
+    global.display.connect('window-created', (display, metaWindow) => {
+        log('ft', metaWindow.title, metaWindow.get_frame_type())
+        if (metaWindow.is_client_decorated()) return;
+        if (metaWindow.get_window_type() < 2) {
+            const cell = gridView.addCell(metaWindow);
+            return;
+        }
+        metaWindow.get_compositor_private().raise_top();
+    });
+    //
+    global.display.connect('grab-op-begin', (display, screen, window, op) => {
+        log('grab-op-begin', op)
+        // gridView.setEasingOff();
+        if (!window) return;
+        log('grab-op-begin', op, window.title);
+        if (window.is_client_decorated()) return;
+        if (op === Meta.GrabOp.WINDOW_BASE) {
+            log('grab-op-window-base', window.title)
+            display.end_grab_op(display);
+            const cell = gridView.getCellForMetaWindow(window);
+            cell.save_easing_state();
+            cell.set_easing_duration(0);
+            cell.set_opacity(255);
+            cell.restore_easing_state();
+            // cell.metaWindowActor.lower_bottom();
+            const coords = global.get_pointer();
+            cell.draggable.startDrag(null, coords);
+            return;
+        }
+        if (op === Meta.GrabOp.RESIZING_E) {
+            gridView.cells.forEach(cell => {
+                cell.set_easing_duration(0);
+            });
+        }
+        else {
+            display.end_grab_op(display);
+        }
+    });
+    global.display.connect('grab-op-end', (display, screen, window, op) => {
+        gridView.cells.forEach(cell => {
+            cell.set_easing_duration(250);
+        });
+    });
+
+}
+
+function activateCell(cell) {
+    const animator = new Animator();
+    animator.animateToCell(cell);
+
+    signals.connectOnce(animator, 'animation-complete', () => {
+        cell.showMetaWindow();
+        if (modal) {
+            Main.popModal(container);
+            modal = false;
+        }
+        log('activateCell complete ===============================================')
+    });
+}
