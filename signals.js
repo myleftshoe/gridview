@@ -36,7 +36,7 @@ var SignalManager = class SignalManager {
         }
     }
 
-    disconnectMany(keys) {
+    disconnectMany(keys = []) {
         keys.forEach(this.disconnect.bind(this))
     }
 
