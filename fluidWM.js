@@ -17,7 +17,6 @@ const { Log } = Extension.imports.utils.logger;
 const { showBoxes, hideBoxes } = Extension.imports.debug;
 
 
-
 const stage = {
     get width() { return global.stage.get_width() },
     get height() { return global.stage.get_height() },
@@ -33,10 +32,9 @@ const content = {
 let container;
 let gridView;
 let scrollable;
-
 let modal = false;
-
 let signals = new SignalManager();
+
 
 function start() {
     modal = false;
