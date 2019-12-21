@@ -116,9 +116,6 @@ const Container = GObject.registerClass({},
         hide() {
             global.window_group.remove_child(this);
         }
-        destroy() {
-            this.disconnect(this._hideSignal);
-        }
     }
 );
 
