@@ -148,53 +148,46 @@ function popModal() {
     }
 }
 
-const Animator = GObject.registerClass(
-    {
-        Signals: {
-            'animation-complete': {
-                param_types: []
-            }
-        }
-    },
-    class Animator extends GObject.Object {
-        _init(cell) {
-            super._init();
-            gridView.activeCell.metaWindowActor.hide();
-            pushModal();
-            const signalGroup = new SignalGroup();
-            signalGroup.add(scrollable, 'transitions-completed');
-            signalGroup.add(gridView, 'transitions-completed');
-            signalGroup.connect('all-signals-complete', () => {
-                this.emit('animation-complete');
+class Animator {
+    constructor() {
+        gridView.activeCell && gridView.activeCell.metaWindowActor.hide();
+        pushModal();
+        const signalGroup = new SignalGroup();
+        signalGroup.add(scrollable, 'transitions-completed');
+        signalGroup.add(gridView, 'transitions-completed');
+        signalGroup.connect('all-signals-complete', () => this._onComplete());
+    }
+    _onComplete() { }
+    set onComplete(callback) {
+        if (typeof callback === 'function')
+            this._onComplete = callback;
+    }
+    animateToCell(cell) {
+        scrollable.scrollToActor(cell);
+        // gridView.set_scale(.4,.4)
+        const [scaleX, scaleY] = gridView.get_scale();
+        if (scaleX !== 1 || scaleY !== 1) {
+            Tweener.addTween(gridView, {
+                scale_x: 1,
+                scale_y: 1,
+                time: .5,
+                onComplete: () => gridView.emit('transitions-completed'),
             });
         }
-        animateToCell(cell) {
-            scrollable.scrollToActor(cell);
-            // gridView.set_scale(.4,.4)
-            const [scaleX, scaleY] = gridView.get_scale();
-            if (scaleX !== 1 || scaleY !== 1) {
-                Tweener.addTween(gridView, {
-                    scale_x: 1,
-                    scale_y: 1,
-                    time: .5,
-                    onComplete: () => gridView.emit('transitions-completed'),
-                });
-            }
-            else {
-                gridView.emit('transitions-completed');
-            }
-        }
-        zoom(direction = 'in') {
-            const scale = direction === 'in' ? 1 : 0.5;
-            const pivotX = (gridView.firstVisibleCell.get_x() + gridView.firstVisibleCell.get_width() / 2) / container.get_width();
-            log('>>>>>>>>>>>>>>>>>>>>>>>>>>', pivotX, gridView.get_width(), container.get_width())
-            gridView.set_easing_duration(250);
-            gridView.set_pivot_point(pivotX, .5);
-            gridView.set_scale(scale, scale);
-            scrollable.emit('transitions-completed');
+        else {
+            gridView.emit('transitions-completed');
         }
     }
-);
+    zoom(direction = 'in') {
+        const scale = direction === 'in' ? 1 : 0.5;
+        const pivotX = (gridView.firstVisibleCell.get_x() + gridView.firstVisibleCell.get_width() / 2) / container.get_width();
+        log('>>>>>>>>>>>>>>>>>>>>>>>>>>', pivotX, gridView.get_width(), container.get_width())
+        gridView.set_easing_duration(250);
+        gridView.set_pivot_point(pivotX, .5);
+        gridView.set_scale(scale, scale);
+        scrollable.emit('transitions-completed');
+    }
+}
 
 
 function addChrome() {
@@ -307,10 +300,9 @@ function connectDisplaySignals() {
 function activateCell(cell) {
     const animator = new Animator();
     animator.animateToCell(cell);
-
-    signals.connectOnce(animator, 'animation-complete', () => {
+    animator.onComplete = () => {
         cell.showMetaWindow();
         popModal();
         log('activateCell complete ===============================================')
-    });
+    };
 }
