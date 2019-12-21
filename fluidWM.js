@@ -132,6 +132,22 @@ function prepareMetaWindows() {
 }
 
 
+function pushModal() {
+    if (!modal) {
+        Main.pushModal(container);
+        modal = true;
+        global.display.set_cursor(Meta.Cursor.BUSY);
+    }
+}
+
+function popModal() {
+    if (modal) {
+        Main.popModal(container);
+        modal = false;
+        global.display.set_cursor(Meta.Cursor.DEFAULT);
+    }
+}
+
 const Animator = GObject.registerClass(
     {
         Signals: {
@@ -144,12 +160,7 @@ const Animator = GObject.registerClass(
         _init(cell) {
             super._init();
             gridView.activeCell.metaWindowActor.hide();
-            if (!modal) {
-                Main.pushModal(container);
-                modal = true;
-                global.display.set_cursor(Meta.Cursor.BUSY);
-            }
-
+            pushModal();
             const signalGroup = new SignalGroup();
             signalGroup.add(scrollable, 'transitions-completed');
             signalGroup.add(gridView, 'transitions-completed');
@@ -202,14 +213,7 @@ function addChrome() {
         const nextCell = gridView.cells[i + 1] || focusedCell;
         Main.activateWindow(nextCell.metaWindow);
     }
-    chrome.top.onClick = function () {
-        log('>>>>>>>>>>>>>>>>>>>>>>>> popping modal')
-        global.display.set_cursor(Meta.Cursor.DEFAULT);
-        if (modal) {
-            Main.popModal(container);
-            modal = false;
-        }
-    }
+    chrome.top.onClick = popModal;
     return chrome;
 }
 
@@ -307,10 +311,7 @@ function activateCell(cell) {
 
     signals.connectOnce(animator, 'animation-complete', () => {
         cell.showMetaWindow();
-        if (modal) {
-            Main.popModal(container);
-            modal = false;
-        }
+        popModal();
         log('activateCell complete ===============================================')
     });
 }
