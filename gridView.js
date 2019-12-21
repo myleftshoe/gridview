@@ -99,12 +99,10 @@ var GridView = GObject.registerClass(
             return cell;
         }
         populate() {
-            log('populate')
             this.remove_all_children();
             UI.windows.forEach(this.addCell.bind(this));
-            if (this.cells.length) {
-                this.activeCell = this.cells[0];
-                // Main.activateWindow(this.activeCell.metaWindow);
+            if (this.focusedCell) {
+                this.emit('focused', this.focusedCell);
             }
         }
         setEasingOff() {
