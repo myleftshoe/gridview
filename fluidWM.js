@@ -225,7 +225,6 @@ function initScrollHandler(scrollable) {
 
     scrollable.scrollbar.connect('scroll-event', (actor, event) => {
         const scrollDirection = event.get_scroll_direction();
-        log(scrollDirection)
         if (scrollDirection > 1) return;
         // if (event.has_shift_modifier())
         if (event.get_state() & (
