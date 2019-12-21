@@ -23,7 +23,7 @@ const stage = {
 }
 
 const content = {
-    margin: 20,
+    margin: 80,
     get height() { return stage.height - this.margin * 2 },
     // get scale() { return this.height / stage.height },
 }
