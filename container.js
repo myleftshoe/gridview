@@ -1,8 +1,8 @@
 const { GObject, St } = imports.gi;
+const Background = imports.ui.background;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const { stage } = Extension.imports.sizing;
-
 
 const Container = GObject.registerClass({},
     class Container extends St.Widget {

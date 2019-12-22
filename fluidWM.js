@@ -1,7 +1,6 @@
 const { Clutter, GObject, Meta, St } = imports.gi;
 const Main = imports.ui.main;
 const Tweener = imports.ui.tweener;
-const Background = imports.ui.background;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const { SignalManager, SignalGroup } = Extension.imports.signals;
