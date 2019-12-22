@@ -2,6 +2,7 @@ const Main = imports.ui.main;
 const { GObject, Clutter, Meta, St } = imports.gi;
 const Tweener = imports.ui.tweener;
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
+const { stage } = Extension.imports.sizing;
 
 const style_class = 'scrollbar';
 
@@ -18,7 +19,7 @@ var Scrollable = GObject.registerClass(
     }, 
     class Scrollable extends Clutter.ScrollActor {
         _init(actor, { 
-            width = 100,
+            width = stage.width,
             height = 10
         }) {
             super._init({scroll_mode: Clutter.ScrollMode.HORIZONTALLY});

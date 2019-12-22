@@ -6,13 +6,13 @@ const Background = imports.ui.background;
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const { SignalManager, SignalGroup } = Extension.imports.signals;
 const { createChrome } = Extension.imports.chrome;
+const { Container } = Extension.imports.container;
 const { GridView } = Extension.imports.gridView;
 const { Scrollable } = Extension.imports.scrollable;
 const { Cell } = Extension.imports.cell;
 const { UI } = Extension.imports.ui;
 const { panelBox } = Extension.imports.panelBox;
 const WindowUtils = Extension.imports.windows;
-const { content, stage } = Extension.imports.sizing;
 
 const { Log } = Extension.imports.utils.logger;
 const { showBoxes, hideBoxes } = Extension.imports.debug;
@@ -36,7 +36,7 @@ function start() {
     container = new Container();
     gridView = new GridView();
     const chrome = addChrome();
-    scrollable = new Scrollable(gridView, { height: 5, width: stage.width });
+    scrollable = new Scrollable(gridView, { height: 5 });
     container.add_child(scrollable);
     chrome.bottom.add_child(scrollable.scrollbar);
 
@@ -78,34 +78,6 @@ function hide() {
         onComplete: () => container.hide()
     });
 }
-
-const Container = GObject.registerClass({},
-    class Container extends St.Widget {
-        _init() {
-            super._init({
-                style_class: 'container',
-                reactive: true,
-                height: stage.height,
-                min_width: stage.width,
-                // y: CHROME_SIZE
-            });
-            // const backgroundManager = new Background.BackgroundManager({
-            //     monitorIndex: Main.layoutManager.primaryIndex,
-            //     container: this,
-            //     vignette: false, // darken if true
-            // });
-        }
-        get isOnStage() {
-            return global.window_group.contains(this);
-        }
-        show() {
-            global.window_group.add_child(this);
-        }
-        hide() {
-            global.window_group.remove_child(this);
-        }
-    }
-);
 
 function pushModal() {
     if (!modal) {
