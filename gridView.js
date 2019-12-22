@@ -74,6 +74,13 @@ var GridView = GObject.registerClass(
         get nextCell() {
             return this.getNextCell();
         }
+        focusNextCell () {
+            Main.activateWindow(this.nextCell.metaWindow);
+        }
+        focusPreviousCell () {
+            Main.activateWindow(this.previousCell.metaWindow);
+        }
+    
         addCell(metaWindow) {
             const cell = new Cell(metaWindow);
             this.signals.connect(cell, 'button-release-event', () => {

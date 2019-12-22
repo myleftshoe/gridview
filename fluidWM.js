@@ -32,10 +32,10 @@ function start() {
 
     connectDisplaySignals();
 
-    const chrome = addChrome();
 
     container = new Container();
     gridView = new GridView();
+    const chrome = addChrome();
     scrollable = new Scrollable(gridView, { height: 5, width: stage.width });
     container.add_child(scrollable);
     chrome.bottom.add_child(scrollable.scrollbar);
@@ -167,20 +167,8 @@ class Animator {
 
 function addChrome() {
     const chrome = createChrome({ left: 1, right: 1, bottom: 5, top: 1 });
-    chrome.left.onClick = function () {
-        const focusedCell = gridView.focusedCell;
-        const i = gridView.cells.indexOf(focusedCell);
-        log('hotLeft clicked', i, focusedCell.id);
-        const prevCell = gridView.cells[i - 1] || focusedCell;
-        Main.activateWindow(prevCell.metaWindow);
-    }
-    chrome.right.onClick = function () {
-        const focusedCell = gridView.focusedCell;
-        const i = gridView.cells.indexOf(focusedCell);
-        log('hotRight clicked', i, focusedCell.id);
-        const nextCell = gridView.cells[i + 1] || focusedCell;
-        Main.activateWindow(nextCell.metaWindow);
-    }
+    chrome.left.onClick = gridView.focusPreviousCell.bind(gridView);
+    chrome.right.onClick = gridView.focusNextCell.bind(gridView);
     chrome.top.onClick = popModal;
     return chrome;
 }
