@@ -125,6 +125,9 @@ var GridView = GObject.registerClass(
         }
         destroy() {
             this.signals.disconnectAll();
+            this.cells.forEach(cell => {
+                cell.metaWindow.show();
+            });
             // this.hide();
             // unmakeSortable(this);
             // unmakeZoomable(this);
