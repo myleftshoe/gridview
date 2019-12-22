@@ -31,7 +31,6 @@ function start() {
 
     connectDisplaySignals();
 
-
     container = new Container();
     gridView = new GridView();
     const chrome = addChrome();
