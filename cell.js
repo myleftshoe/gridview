@@ -5,6 +5,7 @@ const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const DnD = Extension.imports.dnd;
 const { decorateMetaWindow } = Extension.imports.decorateMetaWindow;
 const WindowUtils = Extension.imports.windows;
+const { content } = Extension.imports.sizing;
 // const { Clone } = Extension.imports.clone;
 const { Log } = Extension.imports.utils.logger;
 
@@ -30,8 +31,13 @@ var Cell = GObject.registerClass(
             // this.metaWindow.maximize(Meta.MaximizeFlags.VERTICAL);
             // this.metaWindow.unmaximize(Meta.MaximizeFlags.HORIZONTAL);
             this.metaWindow.unmaximize(Meta.MaximizeFlags.BOTH);
-                        
+
+            const { x, width } = WindowUtils.getGeometry(this.metaWindow);
+            this.metaWindow.move_resize_frame(true, x, content.margin, width, content.height);
+
             this.metaWindowActor = this.metaWindow.get_compositor_private();
+            this.metaWindowActor.hide();
+    
             // this.metaWindowActor.no_shadow = true;
             this.metaWindowActor.shadow_mode = Meta.ShadowMode.FORCED_OFF;
             this.clone = new Clutter.Clone({source: this.metaWindowActor});

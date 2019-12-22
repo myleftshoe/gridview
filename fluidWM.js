@@ -12,21 +12,10 @@ const { Cell } = Extension.imports.cell;
 const { UI } = Extension.imports.ui;
 const { panelBox } = Extension.imports.panelBox;
 const WindowUtils = Extension.imports.windows;
+const { content, stage } = Extension.imports.sizing;
 
 const { Log } = Extension.imports.utils.logger;
 const { showBoxes, hideBoxes } = Extension.imports.debug;
-
-
-const stage = {
-    get width() { return global.stage.get_width() },
-    get height() { return global.stage.get_height() },
-}
-
-const content = {
-    margin: 80,
-    get height() { return stage.height - this.margin * 2 },
-    // get scale() { return this.height / stage.height },
-}
 
 
 let container;
@@ -41,7 +30,6 @@ function start() {
     signals.disconnectAll();
     panelBox.hide();
 
-    prepareMetaWindows();
     connectDisplaySignals();
 
     const chrome = addChrome();
@@ -118,16 +106,6 @@ const Container = GObject.registerClass({},
         }
     }
 );
-
-function prepareMetaWindows() {
-    UI.windows.forEach(metaWindow => {
-        metaWindow.unmaximize(Meta.MaximizeFlags.BOTH);
-        const { x, width } = WindowUtils.getGeometry(metaWindow);
-        metaWindow.move_resize_frame(true, x, content.margin, width, content.height);
-        metaWindow.get_compositor_private().hide();
-    });
-}
-
 
 function pushModal() {
     if (!modal) {
