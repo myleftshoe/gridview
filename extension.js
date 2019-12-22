@@ -14,7 +14,7 @@ function init() {
 function enable() {
     log(`${Extension.metadata.uuid} enable()`);
     // stage actors do not report correct sizes before startup-complete
-    wait();
+    start();
 }
 
 function disable() {
@@ -22,7 +22,7 @@ function disable() {
     FluidWM.stop();
 }
 
-function wait() {
+function start() {
     if (Main.layoutManager._startingUp)
         new SignalManager().connectOnce(Main.layoutManager, 'startup-complete', FluidWM.start);
     else
