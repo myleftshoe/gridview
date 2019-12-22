@@ -11,6 +11,11 @@ const { Log } = Extension.imports.utils.logger;
 
 const style_class = 'gridview-cell';
 
+const layout_manager = new Clutter.BinLayout({
+    x_align: Clutter.BinAlignment.FILL,
+    y_align: Clutter.BinAlignment.START,
+});
+
 var Cell = GObject.registerClass(
     {},
     class Cell extends St.Widget {
@@ -18,18 +23,12 @@ var Cell = GObject.registerClass(
             super._init({
                 style_class,
                 reactive: true,
+                layout_manager,
                 y_align: Clutter.ActorAlign.CENTER,
 
             });
-            this.layout_manager = new Clutter.BinLayout({
-                x_align: Clutter.BinAlignment.FILL,
-                y_align: Clutter.BinAlignment.START,
-            });
-            this.id = metaWindow.title;
             this.metaWindow = metaWindow;
             WindowUtils.setTitleBarVisibility(this.metaWindow, true);
-            // this.metaWindow.maximize(Meta.MaximizeFlags.VERTICAL);
-            // this.metaWindow.unmaximize(Meta.MaximizeFlags.HORIZONTAL);
             this.metaWindow.unmaximize(Meta.MaximizeFlags.BOTH);
 
             const { x, width } = WindowUtils.getGeometry(this.metaWindow);
@@ -43,7 +42,6 @@ var Cell = GObject.registerClass(
             this.clone = new Clutter.Clone({source: this.metaWindowActor});
             const { padding } = WindowUtils.getGeometry(this.metaWindow);
             this.clone.translation_y = -padding.top;
-            // Log.properties(this.metaWindowActor);
             this.add_child(this.clone);
 
             decorateMetaWindow(this.metaWindow);
