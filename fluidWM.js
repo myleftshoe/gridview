@@ -104,7 +104,7 @@ function popModal() {
 
 class Animator {
     constructor() {
-        gridView.activeCell && gridView.activeCell.metaWindowActor.hide();
+        gridView.focusedCell && gridView.focusedCell.metaWindowActor.hide();
         pushModal();
         const signalGroup = new SignalGroup();
         signalGroup.add(scrollable, 'transitions-completed');

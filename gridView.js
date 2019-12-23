@@ -38,7 +38,7 @@ var GridView = GObject.registerClass(
             });
             this.signals = new SignalManager();
             this.activeCell = null;
-            makeSortable(this);
+            // makeSortable(this);
             // makeZoomable(this);
             // makePannable(this);
         }
