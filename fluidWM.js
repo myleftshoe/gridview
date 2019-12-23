@@ -59,8 +59,6 @@ function show() {
     if (container.isOnStage) return;
     gridView.populate();
     container.show();
-    // scrollable.scrollToActor(gridView.focusedCell);
-    Main.activateWindow(gridView.focusedCell.metaWindow);
 }
 
 function hide() {
