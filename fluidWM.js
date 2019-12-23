@@ -18,6 +18,7 @@ const { showBoxes, hideBoxes } = Extension.imports.debug;
 
 let container;
 let gridView;
+let chrome;
 let scrollable;
 let modal = false;
 let signals = new SignalManager();
@@ -32,22 +33,10 @@ function start() {
 
     container = new Container();
     gridView = new GridView();
-    const chrome = addChrome();
+    chrome = addChrome();
     scrollable = new Scrollable(gridView, { height: 5 });
     container.add_child(scrollable);
     chrome.bottom.add_child(scrollable.scrollbar);
-
-    signals.connectMany([container, chrome.top], 'scroll-event', (_, event) => {
-        const scrollDirection = event.get_scroll_direction();
-        const direction = scrollDirection === Clutter.ScrollDirection.DOWN ? 'left' : 'right';
-        scrollable.scrollToActor(gridView.focusedCell, direction);
-    });
-
-    // container.connect('scroll-event', (_, event) => {
-    //     const scrollDirection = event.get_scroll_direction();
-    //     const direction = scrollDirection === Clutter.ScrollDirection.DOWN ? 'left' : 'right';
-    //     scrollable.scrollToActor(gridView.focusedCell, direction);
-    // });
 
     gridView.connect('focused', (_, cell) => {
         log('focused', cell.id);
@@ -152,6 +141,19 @@ function addChrome() {
 
 
 function initScrollHandler(scrollable) {
+    
+    signals.connectMany([container, chrome.top], 'scroll-event', (_, event) => {
+        const scrollDirection = event.get_scroll_direction();
+        const direction = scrollDirection === Clutter.ScrollDirection.DOWN ? 'left' : 'right';
+        scrollable.scrollToActor(gridView.focusedCell, direction);
+    });
+
+    // container.connect('scroll-event', (_, event) => {
+    //     const scrollDirection = event.get_scroll_direction();
+    //     const direction = scrollDirection === Clutter.ScrollDirection.DOWN ? 'left' : 'right';
+    //     scrollable.scrollToActor(gridView.focusedCell, direction);
+    // });
+    
     scrollable.connect('scroll-begin', () => {
         const animator = new Animator();
     });
