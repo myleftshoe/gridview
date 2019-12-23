@@ -1,5 +1,4 @@
 const { St } = imports.gi;
-const Tweener = imports.ui.tweener;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const DnD = Extension.imports.dnd;
@@ -76,7 +75,7 @@ function handleDragMotion(actor, event, args) {
 
 function handleDragDrop(actor, event, args) {
     const [x0, y0] = dropPlaceholder.get_transformed_position();
-    Tweener.addTween(args.dropActor, {
+    args.dropActor.ease({
         x: x0,
         y: y0,
         time: .3,
@@ -88,7 +87,7 @@ function handleDragDrop(actor, event, args) {
             row.replace_child(dropPlaceholder, args.dropActor);
             dropPlaceholder.unparent();
         }
-    })
+    });
     lastCell = null;
 }
 

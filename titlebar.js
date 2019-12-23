@@ -1,6 +1,5 @@
-const { Atk, Clutter, GObject, Shell, St } = imports.gi;
+const { Atk, Clutter, GObject, St } = imports.gi;
 const Main = imports.ui.main;
-const Tweener = imports.ui.tweener;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const { alignLeft, alignCenter, alignRight } = Extension.imports.alignConstraints;
@@ -56,7 +55,7 @@ const Titlebar = GObject.registerClass({},
             if (this.visible) return;
             super.show();
             if (animate) {
-                Tweener.addTween(this, {
+                this.ease({
                     scale_y: 1,
                     time: .25,
                     onComplete,
@@ -66,7 +65,7 @@ const Titlebar = GObject.registerClass({},
 
         hide(animate = true, onComplete = () => {}) {
             if (animate) {
-                Tweener.addTween(this, {
+                this.ease({
                     scale_y: 0,
                     time: .25,
                     delay: .5,

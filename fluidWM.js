@@ -1,6 +1,5 @@
 const { Clutter, GObject, Meta, St } = imports.gi;
 const Main = imports.ui.main;
-const Tweener = imports.ui.tweener;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const { SignalManager, SignalGroup } = Extension.imports.signals;
@@ -66,7 +65,7 @@ function show() {
 function hide() {
     if (!container.isOnStage) return;
     gridView.destroy();
-    Tweener.addTween(gridView, {
+    gridView.ease({
         scale_x: 1,
         scale_y: 1,
         time: .25,
@@ -110,7 +109,7 @@ class Animator {
         // gridView.set_scale(.4,.4)
         const [scaleX, scaleY] = gridView.get_scale();
         if (scaleX !== 1 || scaleY !== 1) {
-            Tweener.addTween(gridView, {
+            gridView.ease({
                 scale_x: 1,
                 scale_y: 1,
                 time: .5,

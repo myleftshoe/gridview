@@ -1,6 +1,5 @@
 const Main = imports.ui.main;
-const { GObject, Clutter, Meta, St } = imports.gi;
-const Tweener = imports.ui.tweener;
+const { GObject, Clutter, St } = imports.gi;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
 

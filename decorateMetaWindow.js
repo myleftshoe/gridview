@@ -3,7 +3,6 @@ const Main = imports.ui.main;
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const WindowUtils = Extension.imports.windows;
 const { Titlebar } = Extension.imports.titlebar;
-const Tweener = imports.ui.tweener;
 
 
 const decorateMetaWindow = function(metaWindow) {
