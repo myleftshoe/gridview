@@ -60,15 +60,13 @@ var GridView = GObject.registerClass(
             return this.getFirstVisibleCell();
         }
         getPreviousCell(cell = this.focusedCell) {
-            const i = this.cells.indexOf(cell);
-            return this.cells[i - 1];
+            return this.cells[this.cells.indexOf(cell) - 1];
         }
         get previousCell() {
             return this.getPreviousCell();
         }
         getNextCell(cell = this.focusedCell) {
-            const i = this.cells.indexOf(cell);
-            return this.cells[i + 1];
+            return this.cells[this.cells.indexOf(cell) + 1];
         }
         get nextCell() {
             return this.getNextCell();
