@@ -142,25 +142,19 @@ function addChrome() {
     return chrome;
 }
 
-
 function initScrollHandler(scrollable) {
 
     signals.connectMany([container, chrome.top], 'scroll-event', (_, event) => {
         const scrollDirection = event.get_scroll_direction();
-        const direction = scrollDirection === Clutter.ScrollDirection.DOWN ? 'left' : 'right';
-        scrollable.scrollToActor(gridView.focusedCell, direction);
+        const align = scrollDirection === Clutter.ScrollDirection.DOWN ? 'left' : 'right';
+        scrollable.scrollToActor(gridView.focusedCell, align);
     });
-
-    // container.connect('scroll-event', (_, event) => {
-    //     const scrollDirection = event.get_scroll_direction();
-    //     const direction = scrollDirection === Clutter.ScrollDirection.DOWN ? 'left' : 'right';
-    //     scrollable.scrollToActor(gridView.focusedCell, direction);
-    // });
-
+    signals.connect(container, 'button-release-event', () => {
+        scrollable.scrollToActor(gridView.focusedCell, 'center');
+    });
     scrollable.connect('scroll-begin', () => {
         const animator = new Animator();
     });
-
     scrollable.scrollbar.connect('scroll-event', (actor, event) => {
         const scrollDirection = event.get_scroll_direction();
         if (scrollDirection > 1) return;
