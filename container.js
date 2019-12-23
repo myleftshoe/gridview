@@ -1,4 +1,5 @@
 const { GObject, St } = imports.gi;
+const Main = imports.ui.main;
 const Background = imports.ui.background;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
@@ -14,11 +15,11 @@ const Container = GObject.registerClass({},
                 min_width: stage.width,
                 // y: CHROME_SIZE
             });
-            // const backgroundManager = new Background.BackgroundManager({
-            //     monitorIndex: Main.layoutManager.primaryIndex,
-            //     container: this,
-            //     vignette: false, // darken if true
-            // });
+            const backgroundManager = new Background.BackgroundManager({
+                monitorIndex: Main.layoutManager.primaryIndex,
+                container: this,
+                vignette: false, // darken if true
+            });
         }
         get isOnStage() {
             return global.window_group.contains(this);

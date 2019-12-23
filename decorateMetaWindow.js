@@ -34,7 +34,7 @@ const decorateMetaWindow = function(metaWindow) {
     const titlebar = new Titlebar({
             name: 'titlebar',
             reactive:true,
-            height:40,
+            height:38,
             scale_y: 0,
             visible: false,
             style: `margin: ${padding.top -1}px ${padding.left-1}px`
