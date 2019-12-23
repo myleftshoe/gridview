@@ -103,7 +103,7 @@ class Animator {
         signalGroup.add(scrollable, 'transitions-completed');
         signalGroup.add(gridView, 'transitions-completed');
         signalGroup.connect('all-signals-complete', () => {
-            if (typeof this.onComplete === 'function') 
+            if (typeof this.onComplete === 'function')
                 this.onComplete();
         });
     }
@@ -144,7 +144,7 @@ function addChrome() {
 
 
 function initScrollHandler(scrollable) {
-    
+
     signals.connectMany([container, chrome.top], 'scroll-event', (_, event) => {
         const scrollDirection = event.get_scroll_direction();
         const direction = scrollDirection === Clutter.ScrollDirection.DOWN ? 'left' : 'right';
@@ -156,7 +156,7 @@ function initScrollHandler(scrollable) {
     //     const direction = scrollDirection === Clutter.ScrollDirection.DOWN ? 'left' : 'right';
     //     scrollable.scrollToActor(gridView.focusedCell, direction);
     // });
-    
+
     scrollable.connect('scroll-begin', () => {
         const animator = new Animator();
     });
@@ -165,19 +165,17 @@ function initScrollHandler(scrollable) {
         const scrollDirection = event.get_scroll_direction();
         if (scrollDirection > 1) return;
         // if (event.has_shift_modifier())
-        if (event.get_state() & (
-            Clutter.ModifierType.BUTTON1_MASK |
-            Clutter.ModifierType.SHIFT_MASK
-        )) {
+        const { BUTTON1_MASK, SHIFT_MASK } = Clutter.ModifierType;
+        const { DOWN, UP } = Clutter.ScrollDirection;
+        if (event.get_state() & (BUTTON1_MASK | SHIFT_MASK)) {
             const animator = new Animator();
-            const direction = scrollDirection === Clutter.ScrollDirection.DOWN ? 'in' : 'out';
+            const direction = scrollDirection === DOWN ? 'in' : 'out';
             animator.zoom(direction);
             return;
         };
-
-        if (scrollDirection === Clutter.ScrollDirection.DOWN)
+        if (scrollDirection === DOWN)
             scrollable.scrollToActor(gridView.previousCell)
-        if (scrollDirection === Clutter.ScrollDirection.UP)
+        if (scrollDirection === UP)
             scrollable.scrollToActor(gridView.nextCell)
     });
 }
