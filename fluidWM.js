@@ -37,6 +37,18 @@ function start() {
     container.add_child(scrollable);
     chrome.bottom.add_child(scrollable.scrollbar);
 
+    signals.connectMany([container, chrome.top], 'scroll-event', (_, event) => {
+        const scrollDirection = event.get_scroll_direction();
+        const direction = scrollDirection === Clutter.ScrollDirection.DOWN ? 'left' : 'right';
+        scrollable.scrollToActor(gridView.activeCell, direction);
+    });
+
+    // container.connect('scroll-event', (_, event) => {
+    //     const scrollDirection = event.get_scroll_direction();
+    //     const direction = scrollDirection === Clutter.ScrollDirection.DOWN ? 'left' : 'right';
+    //     scrollable.scrollToActor(gridView.activeCell, direction);
+    // });
+
     gridView.connect('focused', (_, cell) => {
         log('focused', cell.id);
         activateCell(cell);

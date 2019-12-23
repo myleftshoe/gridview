@@ -45,7 +45,10 @@ var SignalManager = class SignalManager {
             this.disconnect(key)
         }
     }
-    
+
+    connectMany(objects = [], name, callback) {
+        objects.forEach(object => this.connect(object, name, callback));
+    }   
 }
 
 

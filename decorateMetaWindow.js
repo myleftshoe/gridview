@@ -41,7 +41,6 @@ const decorateMetaWindow = function(metaWindow) {
         },
         metaWindow
     );
-    titlebar.title = metaWindow.get_description();
     titlebar.connect('leave-event', (actor, event) => {
         const enteredActor = event.get_related(); 
         if (titlebar.contains(enteredActor) || enteredActor.name === 'hotspot' ) return;

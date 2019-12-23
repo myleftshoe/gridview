@@ -120,7 +120,8 @@ var GridView = GObject.registerClass(
         }
         setEasingOn() {
             this.cells.forEach(cell => {
-                cell.restore_easing_state();
+                // cell.restore_easing_state();
+                cell.set_easing_duration(250);
             });
         }
         destroy() {

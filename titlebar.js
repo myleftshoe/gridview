@@ -33,11 +33,14 @@ const Titlebar = GObject.registerClass({},
             });
 
             const centerBox = alignCenter(this, new St.BoxLayout());
-            this._title = new St.Label({
-                text: 'Untitled',
+            this.title = new St.Label({
+                text: metaWindow.get_title(),
                 y_expand: true,
             });
-            centerBox.add_child(this._title);
+            metaWindow.connect('notify::title', () => {
+                this.title.text = metaWindow.get_title();
+            });    
+            centerBox.add_child(this.title);
 
             const rightBox = alignRight(this, new St.BoxLayout());
             rightBox.add_child(this.closeButton);
@@ -45,10 +48,6 @@ const Titlebar = GObject.registerClass({},
             this.add_child(leftBox);
             this.add_child(centerBox);
             this.add_child(rightBox);
-        }
-
-        set title(text) {
-            this._title.set_text(text);
         }
 
         show(animate = true, onComplete = () => {}) {
