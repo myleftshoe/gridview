@@ -89,6 +89,12 @@ function popModal() {
     global.display.set_cursor(Meta.Cursor.DEFAULT);
 }
 
+
+function actorIsScaled(actor) {
+    const [scaleX, scaleY] = actor.get_scale();
+    return (scaleX !== 1 || scaleY !== 1);
+}
+
 class Animator {
     constructor() {
         gridView.focusedCell && gridView.focusedCell.metaWindowActor.hide();
@@ -104,8 +110,7 @@ class Animator {
     animateToCell(cell) {
         scrollable.scrollToActor(cell);
         // gridView.set_scale(.4,.4)
-        const [scaleX, scaleY] = gridView.get_scale();
-        if (scaleX !== 1 || scaleY !== 1) {
+        if (actorIsScaled(gridView)) {
             gridView.ease({
                 scale_x: 1,
                 scale_y: 1,
