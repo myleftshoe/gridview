@@ -76,19 +76,17 @@ function hide() {
 }
 
 function pushModal() {
-    if (!modal) {
-        Main.pushModal(container);
-        modal = true;
-        global.display.set_cursor(Meta.Cursor.BUSY);
-    }
+    if (modal) return;
+    Main.pushModal(container);
+    modal = true;
+    global.display.set_cursor(Meta.Cursor.BUSY);
 }
 
 function popModal() {
-    if (modal) {
-        Main.popModal(container);
-        modal = false;
-        global.display.set_cursor(Meta.Cursor.DEFAULT);
-    }
+    if (!modal) return;
+    Main.popModal(container);
+    modal = false;
+    global.display.set_cursor(Meta.Cursor.DEFAULT);
 }
 
 class Animator {
