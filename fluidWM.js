@@ -109,12 +109,10 @@ class Animator {
         const signalGroup = new SignalGroup();
         signalGroup.add(scrollable, 'transitions-completed');
         signalGroup.add(gridView, 'transitions-completed');
-        signalGroup.connect('all-signals-complete', () => this._onComplete());
-    }
-    _onComplete() { }
-    set onComplete(callback) {
-        if (typeof callback === 'function')
-            this._onComplete = callback;
+        signalGroup.connect('all-signals-complete', () => {
+            if (typeof this.onComplete === 'function') 
+                this.onComplete();
+        });
     }
     animateToCell(cell) {
         scrollable.scrollToActor(cell);
