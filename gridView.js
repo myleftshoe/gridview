@@ -37,7 +37,6 @@ var GridView = GObject.registerClass(
                 // y: 5,
             });
             this.signals = new SignalManager();
-            this.activeCell = null;
             // makeSortable(this);
             // makeZoomable(this);
             // makePannable(this);
@@ -60,14 +59,14 @@ var GridView = GObject.registerClass(
         get firstVisibleCell() {
             return this.getFirstVisibleCell();
         }
-        getPreviousCell(cell = this.activeCell) {
+        getPreviousCell(cell = this.focusedCell) {
             const i = this.cells.indexOf(cell);
             return this.cells[i - 1];
         }
         get previousCell() {
             return this.getPreviousCell();
         }
-        getNextCell(cell = this.activeCell) {
+        getNextCell(cell = this.focusedCell) {
             const i = this.cells.indexOf(cell);
             return this.cells[i + 1];
         }
@@ -90,7 +89,6 @@ var GridView = GObject.registerClass(
                     Main.activateWindow(cell.metaWindow);
             });
             this.signals.connect(cell.metaWindow, 'focus', () => {
-                this.activeCell = cell;
                 this.emit('focused', cell);
             });
             this.signals.connect(cell.metaWindow, 'unmanaged', () => {

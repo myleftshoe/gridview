@@ -40,13 +40,13 @@ function start() {
     signals.connectMany([container, chrome.top], 'scroll-event', (_, event) => {
         const scrollDirection = event.get_scroll_direction();
         const direction = scrollDirection === Clutter.ScrollDirection.DOWN ? 'left' : 'right';
-        scrollable.scrollToActor(gridView.activeCell, direction);
+        scrollable.scrollToActor(gridView.focusedCell, direction);
     });
 
     // container.connect('scroll-event', (_, event) => {
     //     const scrollDirection = event.get_scroll_direction();
     //     const direction = scrollDirection === Clutter.ScrollDirection.DOWN ? 'left' : 'right';
-    //     scrollable.scrollToActor(gridView.activeCell, direction);
+    //     scrollable.scrollToActor(gridView.focusedCell, direction);
     // });
 
     gridView.connect('focused', (_, cell) => {
