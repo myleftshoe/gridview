@@ -123,7 +123,7 @@ var GridView = GObject.registerClass(
         destroy() {
             this.signals.disconnectAll();
             this.cells.forEach(cell => {
-                cell.metaWindow.show();
+                cell.metaWindowActor.show();
             });
             // this.hide();
             // unmakeSortable(this);
