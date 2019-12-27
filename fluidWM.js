@@ -227,11 +227,32 @@ function connectDisplaySignals() {
 }
 
 function activateCell(cell) {
+    chrome.left.set_easing_duration(250);
+    chrome.right.set_easing_duration(250);
+    chrome.left.width = 960;
+    chrome.right.width = 960;
+    chrome.right.x = 960;
     const animator = new Animator();
     animator.animateToCell(cell);
     animator.onComplete = () => {
         cell.showMetaWindow();
         popModal();
         log('activateCell complete ===============================================')
+
+
+
+        const { x, width } = cell.metaWindow.get_buffer_rect();
+
+        log(x,width)
+        chrome.left.width = x;
+        chrome.right.width = 1920 - (x + width);
+        chrome.right.x = x + width
+        // Main.layoutManager.removeChrome(chrome.left);
+        // Main.layoutManager.removeChrome(chrome.right);
+        // Main.layoutManager.removeChrome(chrome.top);
+        // Main.layoutManager.removeChrome(chrome.bottom);
+        // chrome = createChrome({ left: x, right: 1920 - (x + width), bottom: 5, top: 1 });
+
     };
+
 }

@@ -40,6 +40,7 @@ var Scrollable = GObject.registerClass(
             });
             this.makeThumbDraggable();
             this.scrollbar.add_child(this.thumb);
+            this.set_easing_mode(Clutter.AnimationMode.EASE_OUT_EXPO)
             this.set_easing_duration(250);
             this.add_child(this._content);
             this.isScrolling = false;

@@ -1,19 +1,26 @@
 const Main = imports.ui.main;
-const { GObject, Clutter, St } = imports.gi;
+const { GObject, Clutter, Meta, St } = imports.gi;
 
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
 
 const style_class = 'hot-edge';
-const affectsStruts = true;
+const affectsStruts = false;
 
 var Chrome = GObject.registerClass({},
     class Chrome extends St.Widget {
         _init(props) {
             super._init({
                 style_class,
+                reactive:true,
                 ...props, 
             });
             Main.layoutManager.addChrome(this, { affectsStruts });
+            this.connect('enter-event', () => {
+                global.display.set_cursor(Meta.Cursor.POINTING_HAND);
+            });
+            // this.connect('leave-event', () => {
+            //     global.display.set_cursor(Meta.Cursor.DEFAULT);
+            // });
         }
         set onClick(callback) {
             if (typeof callback !== 'function') return;
