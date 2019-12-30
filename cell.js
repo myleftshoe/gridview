@@ -28,7 +28,7 @@ var Cell = GObject.registerClass(
 
             });
             this.metaWindow = metaWindow;
-            WindowUtils.setTitleBarVisibility(this.metaWindow, true);
+            WindowUtils.setTitleBarVisibility(this.metaWindow, false);
             this.metaWindow.unmaximize(Meta.MaximizeFlags.BOTH);
 
             const { x, width } = WindowUtils.getGeometry(this.metaWindow);
