@@ -40,7 +40,7 @@ var Scrollable = GObject.registerClass(
             });
             this.makeThumbDraggable();
             this.scrollbar.add_child(this.thumb);
-            this.set_easing_mode(Clutter.AnimationMode.EASE_OUT_EXPO)
+            this.set_easing_mode(Clutter.AnimationMode.EASE_OUT_EXPO);
             this.set_easing_duration(250);
             this.add_child(this._content);
             this.isScrolling = false;
@@ -109,7 +109,8 @@ var Scrollable = GObject.registerClass(
                 x = ax - (global.stage.get_width() - width);
             this.scroll_to_rect(new Clutter.Rect({origin: {x, y}, size: {width, height}}));
             // this.scroll_to_rect(new Clutter.Rect({origin: {x: x - (global.stage.get_width() - width) / 2, y}, size: {width, height}}));
-            this.thumb.set_easing_duration(750);
+            this.thumb.set_easing_duration(250);
+            this.set_easing_mode(Clutter.AnimationMode.EASE_OUT_EXPO);
             this.thumb.set_x(x / this.width * this.scrollbar.width);
             this.thumb.set_easing_duration(0)
         }
