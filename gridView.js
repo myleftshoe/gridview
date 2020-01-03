@@ -48,7 +48,8 @@ var GridView = GObject.registerClass(
             return this.cells.find(cell => cell.metaWindow === metaWindow);
         }
         getFocusedCell() {
-            return this.cells.find(cell => cell.metaWindow.has_focus());
+            this.lastActiveCell = this.cells.find(cell => cell.metaWindow.has_focus());
+            return this.lastActiveCell;
         }
         get focusedCell() {
             return this.getFocusedCell();

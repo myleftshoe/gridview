@@ -43,6 +43,15 @@ function start() {
         activateCell(cell);
     });
 
+    Main.overview.connect('shown', () => {
+        chrome.left.width = 0;
+        chrome.right.width = 0;
+    });
+
+    Main.overview.connect('hidden', () => {
+        resizeChrome();
+    });
+
     initScrollHandler(scrollable);
 
     show();
@@ -196,16 +205,20 @@ function connectDisplaySignals() {
         metaWindow.get_compositor_private().raise_top();
     });
     //
-    global.display.connect('grab-op-begin', (display, screen, window, op) => {
+    function grabOpIsResizingHorizontally(op) {
+        return (op === Meta.GrabOp.RESIZING_W || op === Meta.GrabOp.RESIZING_W);
+
+    }
+    global.display.connect('grab-op-begin', (display, screen, metaWindow, op) => {
         log('grab-op-begin', op)
         // gridView.setEasingOff();
-        if (!window) return;
-        log('grab-op-begin', op, window.title);
-        if (window.is_client_decorated()) return;
+        if (!metaWindow) return;
+        log('grab-op-begin', op, metaWindow.title);
+        if (metaWindow.is_client_decorated()) return;
+        const cell = gridView.getCellForMetaWindow(metaWindow);
         if (op === Meta.GrabOp.WINDOW_BASE) {
-            log('grab-op-window-base', window.title)
+            log('grab-op-window-base', metaWindow.title)
             display.end_grab_op(display);
-            const cell = gridView.getCellForMetaWindow(window);
             cell.save_easing_state();
             cell.set_easing_duration(0);
             cell.set_opacity(255);
@@ -215,20 +228,44 @@ function connectDisplaySignals() {
             cell.draggable.startDrag(null, coords);
             return;
         }
-        if (op === Meta.GrabOp.RESIZING_E)
+        if (grabOpIsResizingHorizontally(op)) {
             gridView.setEasingOff();
+            const {width: startWidth} = metaWindow.get_frame_rect();
+            metaWindow.connect('size-changed', () => {
+                cell.metaWindowActor.set_opacity(0)
+                const {width} = metaWindow.get_frame_rect();
+                log(width, startWidth, startWidth - width)
+                gridView.set_x((startWidth - width)/2);
+            });
+        }
         else
             display.end_grab_op(display);
     });
-    global.display.connect('grab-op-end', (display, screen, window, op) => {
+    global.display.connect('grab-op-end', (display, screen, metaWindow, op) => {
+        if (!metaWindow) return;
+        const cell = gridView.getCellForMetaWindow(metaWindow);
+        cell.alignMetaWindow()
+        cell.metaWindowActor.set_opacity(255);
         gridView.setEasingOn();
+        if (grabOpIsResizingHorizontally(op))
+            activateCell(cell)
+        resizeChrome();
     });
 
 }
 
+function resizeChrome() {
+    const { x, width } = gridView.focusedCell.metaWindow.get_buffer_rect();
+    log(x,width)
+    chrome.left.width = x;
+    chrome.right.width = 1920 - (x + width);
+    chrome.right.x = x + width
+}
+
+
 function activateCell(cell) {
-    chrome.left.set_easing_duration(250);
-    chrome.right.set_easing_duration(250);
+    // chrome.left.set_easing_duration(250);
+    // chrome.right.set_easing_duration(250);
     chrome.left.width = 960;
     chrome.right.width = 960;
     chrome.right.x = 960;
@@ -238,21 +275,7 @@ function activateCell(cell) {
         cell.showMetaWindow();
         popModal();
         log('activateCell complete ===============================================')
-
-
-
-        const { x, width } = cell.metaWindow.get_buffer_rect();
-
-        log(x,width)
-        chrome.left.width = x;
-        chrome.right.width = 1920 - (x + width);
-        chrome.right.x = x + width
-        // Main.layoutManager.removeChrome(chrome.left);
-        // Main.layoutManager.removeChrome(chrome.right);
-        // Main.layoutManager.removeChrome(chrome.top);
-        // Main.layoutManager.removeChrome(chrome.bottom);
-        // chrome = createChrome({ left: x, right: 1920 - (x + width), bottom: 5, top: 1 });
-
+        resizeChrome();
     };
 
 }
