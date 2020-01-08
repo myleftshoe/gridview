@@ -5,7 +5,7 @@ const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const DnD = Extension.imports.dnd;
 const { decorateMetaWindow } = Extension.imports.decorateMetaWindow;
 const WindowUtils = Extension.imports.windows;
-const { content } = Extension.imports.sizing;
+const { content, stage } = Extension.imports.sizing;
 // const { Clone } = Extension.imports.clone;
 const { Log } = Extension.imports.utils.logger;
 
@@ -74,6 +74,17 @@ var Cell = GObject.registerClass(
             const [x] = this.get_transformed_position();
             const [width] = this.get_transformed_size();
             return (x > -20 && x + width <= global.stage.get_width() + 20);
+        }
+        get alignment() {
+            let alignment = 'center';
+            const [x] = this.get_transformed_position();
+            const [width] = this.get_transformed_size();
+            const threshold = (stage.width - width)/4;
+            if (x < threshold) 
+                alignment = 'left'; 
+            if (x + width > stage.width - threshold)
+                alignment = 'right';
+            return alignment;
         }
     }
 );

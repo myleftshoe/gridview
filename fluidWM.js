@@ -43,14 +43,8 @@ function start() {
         activateCell(cell);
     });
 
-    Main.overview.connect('shown', () => {
-        chrome.left.width = 0;
-        chrome.right.width = 0;
-    });
-
-    Main.overview.connect('hidden', () => {
-        resizeChrome();
-    });
+    Main.overview.connect('shown', hideChrome);
+    Main.overview.connect('hidden', resizeChrome);
 
     initScrollHandler(scrollable);
 
@@ -153,7 +147,31 @@ function initScrollHandler(scrollable) {
 
     signals.connectMany([container, chrome.top], 'scroll-event', (_, event) => {
         const scrollDirection = event.get_scroll_direction();
-        const align = scrollDirection === Clutter.ScrollDirection.DOWN ? 'left' : 'right';
+        // const align = scrollDirection === Clutter.ScrollDirection.UP ? 'left' : 'right';
+        let align = 'center';
+        const focusedCellAlignment = gridView.focusedCell.alignment; 
+        if (scrollDirection === Clutter.ScrollDirection.UP) {
+            if (focusedCellAlignment === 'right')
+                align = 'center'
+            if (focusedCellAlignment === 'center')
+                align = 'left'
+            if (focusedCellAlignment === 'left') {
+                // gridView.nextCell && activateCell(gridView.nextCell);
+                Main.activateWindow(gridView.nextCell.metaWindow)
+                return;
+            }
+        }
+        if (scrollDirection === Clutter.ScrollDirection.DOWN) {
+            if (focusedCellAlignment === 'left')
+                align = 'center'
+            if (focusedCellAlignment === 'center')
+                align = 'right'
+            if (focusedCellAlignment === 'right') {
+                // gridView.previousCell && activateCell(gridView.previousCell);
+                Main.activateWindow(gridView.previousCell.metaWindow)
+                return;
+            }
+        }
         scrollable.scrollToActor(gridView.focusedCell, align);
     });
     signals.connect(container, 'button-release-event', () => {
@@ -206,7 +224,7 @@ function connectDisplaySignals() {
     });
     //
     function grabOpIsResizingHorizontally(op) {
-        return (op === Meta.GrabOp.RESIZING_W || op === Meta.GrabOp.RESIZING_W);
+        return (op === Meta.GrabOp.RESIZING_E || op === Meta.GrabOp.RESIZING_W);
 
     }
     global.display.connect('grab-op-begin', (display, screen, metaWindow, op) => {
@@ -252,6 +270,11 @@ function connectDisplaySignals() {
         resizeChrome();
     });
 
+}
+
+function hideChrome() {
+    chrome.left.width = 0;
+    chrome.right.width = 0;
 }
 
 function resizeChrome() {
