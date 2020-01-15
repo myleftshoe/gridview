@@ -46,6 +46,24 @@ function start() {
     Main.overview.connect('shown', hideChrome);
     Main.overview.connect('hidden', resizeChrome);
 
+
+    // global.stage.connect('captured-event', () => {
+    //     log('ggggggggggggggggggggggggggggggg')
+
+    // });
+
+    // global.stage.connect('key-press-event', (actor, event) => {
+    //     let symbol = event.get_key_symbol();
+    //     log('event.get_key_symbol', event.get_key_symbol())
+    //     if (symbol == Clutter.KEY_Escape) {
+    //         log('Escape key pressed!!!!!!!!!!!!!!!')
+    //         // global.screen.focus_default_window(event.get_time());
+    //         return Clutter.EVENT_STOP;
+    //     }
+
+    //     return Clutter.EVENT_PROPAGATE;
+    // })
+
     initScrollHandler(scrollable);
 
     show();
@@ -149,7 +167,7 @@ function initScrollHandler(scrollable) {
         const scrollDirection = event.get_scroll_direction();
         // const align = scrollDirection === Clutter.ScrollDirection.UP ? 'left' : 'right';
         let align = 'center';
-        const focusedCellAlignment = gridView.focusedCell.alignment; 
+        const focusedCellAlignment = gridView.focusedCell.alignment;
         if (scrollDirection === Clutter.ScrollDirection.UP) {
             if (focusedCellAlignment === 'right')
                 align = 'center'
@@ -256,12 +274,12 @@ function connectDisplaySignals() {
         }
         if (grabOpIsResizingHorizontally(op)) {
             gridView.setEasingOff();
-            const {width: startWidth} = metaWindow.get_frame_rect();
+            const { width: startWidth } = metaWindow.get_frame_rect();
             metaWindow.connect('size-changed', () => {
                 cell.metaWindowActor.set_opacity(0)
-                const {width} = metaWindow.get_frame_rect();
+                const { width } = metaWindow.get_frame_rect();
                 log(width, startWidth, startWidth - width);
-                gridView.translation_x = (startWidth - width)/2;
+                gridView.translation_x = (startWidth - width) / 2;
             });
         }
         else
@@ -293,7 +311,7 @@ function hideChrome() {
 function resizeChrome() {
     const { x, width } = gridView.focusedCell.metaWindow.get_buffer_rect();
     log('??????????', gridView.focusedCell.metaWindow.get_title())
-    log(x,width)
+    log(x, width)
     chrome.left.width = x;
     chrome.right.width = 1920 - (x + width);
     chrome.right.x = x + width
