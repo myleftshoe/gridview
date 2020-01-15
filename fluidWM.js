@@ -108,8 +108,8 @@ class Animator {
                 this.onComplete();
         });
     }
-    animateToCell(cell) {
-        scrollable.scrollToActor(cell);
+    animateToCell(cell, align = 'center') {
+        scrollable.scrollToActor(cell, align);
         // gridView.set_scale(.4,.4)
         if (actorIsScaled(gridView)) {
             gridView.ease({
@@ -124,7 +124,7 @@ class Animator {
         }
     }
     zoom(direction = 'in') {
-        const scale = direction === 'in' ? 1 : 0.5;
+        const scale = direction === 'in' ? 1 : 0.25;
         const pivotX = (gridView.firstVisibleCell.get_x() + gridView.firstVisibleCell.get_width() / 2) / container.get_width();
         log('>>>>>>>>>>>>>>>>>>>>>>>>>>', pivotX, gridView.get_width(), container.get_width())
         gridView.set_easing_duration(250);
@@ -145,7 +145,7 @@ function addChrome() {
 
 function initScrollHandler(scrollable) {
 
-    signals.connectMany([container, chrome.top], 'scroll-event', (_, event) => {
+    signals.connectMany([container, chrome.top, chrome.right, chrome.left], 'scroll-event', (_, event) => {
         const scrollDirection = event.get_scroll_direction();
         // const align = scrollDirection === Clutter.ScrollDirection.UP ? 'left' : 'right';
         let align = 'center';
@@ -172,10 +172,16 @@ function initScrollHandler(scrollable) {
                 return;
             }
         }
-        scrollable.scrollToActor(gridView.focusedCell, align);
+        activateCell(gridView.focusedCell, align);
     });
     signals.connect(container, 'button-release-event', () => {
         scrollable.scrollToActor(gridView.focusedCell, 'center');
+        signals.connectOnce(scrollable, 'scroll-end', () => {
+            log('>>>>>>>>>>>>>>>>>>>>');
+            gridView.focusedCell.showMetaWindow();
+            resizeChrome();
+            popModal();
+        });
     });
     scrollable.connect('scroll-begin', () => {
         const animator = new Animator();
@@ -193,9 +199,11 @@ function initScrollHandler(scrollable) {
             return;
         };
         if (scrollDirection === DOWN)
-            scrollable.scrollToActor(gridView.previousCell)
+            Main.activateWindow(gridView.previousCell.metaWindow)
+        // scrollable.scrollToActor(gridView.previousCell)
         if (scrollDirection === UP)
-            scrollable.scrollToActor(gridView.nextCell)
+            Main.activateWindow(gridView.nextCell.metaWindow)
+        // scrollable.scrollToActor(gridView.nextCell)
     });
 }
 
@@ -252,8 +260,8 @@ function connectDisplaySignals() {
             metaWindow.connect('size-changed', () => {
                 cell.metaWindowActor.set_opacity(0)
                 const {width} = metaWindow.get_frame_rect();
-                log(width, startWidth, startWidth - width)
-                gridView.set_x((startWidth - width)/2);
+                log(width, startWidth, startWidth - width);
+                gridView.translation_x = (startWidth - width)/2;
             });
         }
         else
@@ -262,12 +270,17 @@ function connectDisplaySignals() {
     global.display.connect('grab-op-end', (display, screen, metaWindow, op) => {
         if (!metaWindow) return;
         const cell = gridView.getCellForMetaWindow(metaWindow);
-        cell.alignMetaWindow()
+        // cell.alignMetaWindow()
         cell.metaWindowActor.set_opacity(255);
+        // container.set_animation_duration(0);
+        gridView.translation_x = 0;
         gridView.setEasingOn();
-        if (grabOpIsResizingHorizontally(op))
-            activateCell(cell)
-        resizeChrome();
+        scrollable.set_easing_duration(0);
+        if (grabOpIsResizingHorizontally(op)) {
+            // Main.activateWindow(metaWindow)
+            gridView.emit('focused', cell)
+        }
+        // resizeChrome();
     });
 
 }
@@ -279,6 +292,7 @@ function hideChrome() {
 
 function resizeChrome() {
     const { x, width } = gridView.focusedCell.metaWindow.get_buffer_rect();
+    log('??????????', gridView.focusedCell.metaWindow.get_title())
     log(x,width)
     chrome.left.width = x;
     chrome.right.width = 1920 - (x + width);
@@ -286,14 +300,18 @@ function resizeChrome() {
 }
 
 
-function activateCell(cell) {
+function activateCell(cell, align = 'center') {
     // chrome.left.set_easing_duration(250);
     // chrome.right.set_easing_duration(250);
     chrome.left.width = 960;
     chrome.right.width = 960;
     chrome.right.x = 960;
+    log(';;;;;;', cell.metaWindow.get_title())
     const animator = new Animator();
-    animator.animateToCell(cell);
+    animator.animateToCell(cell, align);
+    // popModal();
+    // cell.showMetaWindow();
+    // resizeChrome();
     animator.onComplete = () => {
         cell.showMetaWindow();
         popModal();

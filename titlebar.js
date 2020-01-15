@@ -16,10 +16,10 @@ const Titlebar = GObject.registerClass({},
             });
 
             const leftBox = alignLeft(this, new St.BoxLayout());
-            if (metaWindow) {
-                const appIcon = createAppIcon(metaWindow, 24);
-                leftBox.add_child(appIcon);
-            }
+            // if (metaWindow) {
+            //     const appIcon = createAppIcon(metaWindow, 24);
+            //     leftBox.add_child(appIcon);
+            // }
 
             const closeIcon = new St.Icon({ icon_name: 'cancel-symbolic' });
             this.closeButton = new St.Button({
@@ -28,7 +28,7 @@ const Titlebar = GObject.registerClass({},
                 track_hover: true,
                 can_focus: true,
                 accessible_name: _("Close Window"),
-                accessible_role: Atk.Role.MENU,
+                accessible_role: Atk.Role.PUSH_BUTTON,
                 child: closeIcon
             });
 
@@ -65,7 +65,7 @@ const Titlebar = GObject.registerClass({},
         hide(animate = true, onComplete = () => {}) {
             if (animate) {
                 this.ease({
-                    scale_y: 0,
+                    scale_y: 1,
                     time: .25,
                     delay: .5,
                     onComplete: () => {

@@ -5,49 +5,22 @@ const WindowUtils = Extension.imports.windows;
 const { Titlebar } = Extension.imports.titlebar;
 
 
-const decorateMetaWindow = function(metaWindow) {
-    
+const decorateMetaWindow = function (metaWindow) {
+
     const metaWindowActor = metaWindow.get_compositor_private();
-    const { width, padding } = WindowUtils.getGeometry(metaWindow);
-    
-    const hotspot = new St.Widget({
-        name: 'hotspot',
-        reactive:true,
-        style_class: 'hotspot',
-        width: width,
-        height: padding.top + 20,
-        x: padding.left,
-        y: -20
-    });
-    hotspot.connect('enter-event', () => {
-        titlebar.show(true, () => {
-            Main.layoutManager.trackChrome(titlebar);
-        });
-    });
-    hotspot.connect('leave-event', (actor, event) => {
-        const enteredActor = event.get_related(); 
-        if (enteredActor.name === 'titlebar') return;
-        titlebar.hide(true, () => {
-            Main.layoutManager.untrackChrome(titlebar);
-        });
-    });
+    const { padding } = WindowUtils.getGeometry(metaWindow);
+
     const titlebar = new Titlebar({
-            name: 'titlebar',
-            reactive:true,
-            height:38,
-            scale_y: 0,
-            visible: false,
-            style: `margin: ${padding.top -1}px ${padding.left-1}px`
-        },
+        name: 'titlebar',
+        reactive: true,
+        height: 38,
+        scale_y: 1,
+        visible: true,
+        style: `margin: ${padding.top - 1}px ${padding.left - 1}px`,
+        y: -38,
+    },
         metaWindow
     );
-    titlebar.connect('leave-event', (actor, event) => {
-        const enteredActor = event.get_related(); 
-        if (titlebar.contains(enteredActor) || enteredActor.name === 'hotspot' ) return;
-        titlebar.hide(true, () => {
-            Main.layoutManager.untrackChrome(titlebar);
-        });
-    })
 
     titlebar.closeButton.connect('clicked', () => {
         metaWindow.delete(global.get_current_time());
@@ -59,6 +32,5 @@ const decorateMetaWindow = function(metaWindow) {
     });
     titlebar.add_constraint(widthConstraint);
 
-    metaWindowActor.add_child(hotspot);
     metaWindowActor.add_child(titlebar);
 }
