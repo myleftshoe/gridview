@@ -11,6 +11,7 @@ const { Cell } = Extension.imports.cell;
 const { UI } = Extension.imports.ui;
 const { panelBox } = Extension.imports.panelBox;
 const WindowUtils = Extension.imports.windows;
+const { stage } = Extension.imports.sizing;
 
 const { Log } = Extension.imports.utils.logger;
 const { showBoxes, hideBoxes } = Extension.imports.debug;
@@ -211,6 +212,7 @@ function initScrollHandler(scrollable) {
         const { BUTTON1_MASK, SHIFT_MASK } = Clutter.ModifierType;
         const { DOWN, UP } = Clutter.ScrollDirection;
         if (event.get_state() & (BUTTON1_MASK | SHIFT_MASK)) {
+            hideChrome();
             const animator = new Animator();
             const direction = scrollDirection === DOWN ? 'in' : 'out';
             animator.zoom(direction);
@@ -321,9 +323,11 @@ function resizeChrome() {
 function activateCell(cell, align = 'center') {
     // chrome.left.set_easing_duration(250);
     // chrome.right.set_easing_duration(250);
-    chrome.left.width = 960;
-    chrome.right.width = 960;
-    chrome.right.x = 960;
+    gridView.cells.forEach(cell => cell.metaWindowActor.hide())
+    const halfWidth  = stage.width/2;
+    chrome.left.width = halfWidth;
+    chrome.right.width = halfWidth;
+    chrome.right.x = halfWidth;
     log(';;;;;;', cell.metaWindow.get_title())
     const animator = new Animator();
     animator.animateToCell(cell, align);
